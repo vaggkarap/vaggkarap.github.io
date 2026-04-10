@@ -6,11 +6,13 @@ git push
 h1{
     color: red;
     text-align: center;
-    background-color: aqua;
+    background-color: black;
     text-decoration: underline;
 }
 p{
-    text-decoration: underline;
     color: blue;
     text-align: center;
+}
+body{
+    background-color: cadetblue;
 }
