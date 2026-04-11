@@ -4,11 +4,37 @@
     <meta charset="UTF-8">
     <title>Βαθμοί Πανεπιστημίου</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="container" id="topOfPage">
-        <img src="uniwa-bg.png" name="uniwa" id="uniwa" width="500" height="150" alt="Λογότυπο Πανεπιστημίου">
+
+    <div class="container" id="loginScreen">
+        <img src="uniwa-bg.png" alt="Λογότυπο" width="300" style="margin-bottom:20px;">
+        <h2>Καλώς Ήρθατε</h2>
+        <p>Συνδεθείτε για να δείτε τους βαθμούς σας</p>
         
+        <div class="auth-form">
+            <input type="email" id="emailInput" placeholder="Το Email σας" required>
+            <input type="password" id="passwordInput" placeholder="Ο Κωδικός σας (min. 6 χαρακτήρες)" required>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <button onclick="loginUser()" style="background-color: #2980b9;">Σύνδεση</button>
+                <button onclick="registerUser()" style="background-color: #27ae60;">Εγγραφή</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container" id="appScreen" style="display: none;">
+        
+        <div style="text-align: right; margin-bottom: 10px;">
+            <span id="userEmailDisplay" style="font-size: 14px; color: #7f8c8d; margin-right: 15px;"></span>
+            <button onclick="logoutUser()" style="background-color: #e74c3c; padding: 5px 10px; font-size: 14px;">Αποσύνδεση</button>
+        </div>
+
         <h1>Διαχείριση Βαθμών</h1>
         
         <div class="input-selection">
@@ -18,22 +44,8 @@
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη</button>
         </div>
 
-        <div class="semester-filter">
-            <button class="filter-btn active" id="btn-filter-all" onclick="setSemesterFilter('all')">Όλα</button>
-            <button class="filter-btn" id="btn-filter-1" onclick="setSemesterFilter(1)">1ο</button>
-            <button class="filter-btn" id="btn-filter-2" onclick="setSemesterFilter(2)">2ο</button>
-            <button class="filter-btn" id="btn-filter-3" onclick="setSemesterFilter(3)">3ο</button>
-            <button class="filter-btn" id="btn-filter-4" onclick="setSemesterFilter(4)">4ο</button>
-            <button class="filter-btn" id="btn-filter-5" onclick="setSemesterFilter(5)">5ο</button>
-            <button class="filter-btn" id="btn-filter-6" onclick="setSemesterFilter(6)">6ο</button>
-            <button class="filter-btn" id="btn-filter-7" onclick="setSemesterFilter(7)">7ο</button>
-            <button class="filter-btn" id="btn-filter-8" onclick="setSemesterFilter(8)">8ο</button>
-            <button class="filter-btn" id="btn-filter-9" onclick="setSemesterFilter(9)">9ο</button>
-            <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
-        </div>
-
         <div class="search-section">
-            <input type="text" id="searchInput" onkeyup="loadGrades()" placeholder="🔍 Αναζήτηση μαθήματος...">
+            <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση μαθήματος...">
         </div>
 
         <table id="gradesTable">
@@ -45,34 +57,113 @@
                     <th>Ενέργεια</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
 
         <div class="average-section">
             <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
-        </div>
-
-        <div class="backup-section">
-            <button class="backup-btn export" onclick="exportToFile()">💾 Εξαγωγή σε Excel</button>
-            <label for="importFile" class="backup-btn import">📂 Φόρτωση από Excel</label>
-            <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importFromFile(event)">
         </div>
     </div>
 
     <button id="backToTop" onclick="scrollToTop()" title="Πίσω στην κορυφή">⬆️</button>
 
     <script>
+        // ==========================================
+        // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE (ΒΑΛΕ ΤΑ ΔΙΚΑ ΣΟΥ ΕΔΩ!)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgds2DvO1yUksP9FiAxWpvUJsJbv4pSmE",
+            authDomain: "universitygrades-58ed7.firebaseapp.com",
+            projectId: "universitygrades-58ed7",
+            storageBucket: "universitygrades-58ed7.firebasestorage.app",
+            messagingSenderId: "403775984431",
+            appId: "1:403775984431:web:e37a5618870f985ffe87da",
+            measurementId: "G-4738X1ER9F"
+        };
+
+        // Αρχικοποίηση Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Μεταβλητές εφαρμογής
+        let currentUser = null;
+        let globalGrades = [];
         let currentEditId = null;
-        let currentSemesterFilter = 'all'; 
 
-        document.addEventListener('DOMContentLoaded', loadGrades);
+        // ==========================================
+        // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ (ΑΥΘΕΝΤΙΚΟΠΟΙΗΣΗ)
+        // ==========================================
+        
+        // Παρακολουθεί αν ο χρήστης μπήκε ή βγήκε
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Ο χρήστης είναι συνδεδεμένος
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appScreen').style.display = 'block';
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                
+                // Φέρνουμε τους βαθμούς ΤΟΥ ΣΥΓΚΕΚΡΙΜΕΝΟΥ ΧΡΗΣΤΗ
+                fetchGradesFromDB();
+            } else {
+                // Δεν υπάρχει χρήστης (Δείξε το Login)
+                currentUser = null;
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('appScreen').style.display = 'none';
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
+            }
+        });
 
-        function setSemesterFilter(sem) {
-            currentSemesterFilter = sem;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-filter-' + sem).classList.add('active');
-            loadGrades();
+        // ΕΓΓΡΑΦΗ ΧΡΗΣΤΗ ΚΑΙ EMAIL ΕΠΙΒΕΒΑΙΩΣΗΣ
+        function registerUser() {
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passwordInput').value;
+            
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    // Στέλνουμε το email επιβεβαίωσης
+                    userCredential.user.sendEmailVerification().then(() => {
+                        alert("Η εγγραφή πέτυχε! Σας έχει σταλεί ένα Email επιβεβαίωσης. Ελέγξτε τα εισερχόμενά σας (και τα Spam).");
+                    });
+                })
+                .catch((error) => alert("Σφάλμα: " + error.message));
+        }
+
+        // ΣΥΝΔΕΣΗ ΧΡΗΣΤΗ
+        function loginUser() {
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passwordInput').value;
+            
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch((error) => alert("Λάθος email ή κωδικός!"));
+        }
+
+        // ΑΠΟΣΥΝΔΕΣΗ
+        function logoutUser() {
+            auth.signOut();
+        }
+
+        // ==========================================
+        // 3. ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ (FIRESTORE)
+        // ==========================================
+
+        function fetchGradesFromDB() {
+            // Διαβάζουμε από τον "φάκελο" του συγκεκριμένου χρήστη!
+            db.collection("users").doc(currentUser.uid).collection("grades")
+              .onSnapshot((querySnapshot) => {
+                  globalGrades = [];
+                  querySnapshot.forEach((doc) => {
+                      // Κρατάμε και το ID της Firebase
+                      let data = doc.data();
+                      data.id = doc.id; 
+                      globalGrades.push(data);
+                  });
+                  // Ταξινομούμε και ζωγραφίζουμε
+                  globalGrades.sort((a, b) => a.semester - b.semester);
+                  renderTable();
+              });
         }
 
         function saveGrade() {
@@ -80,192 +171,88 @@
             const gradeInput = document.getElementById("grade").value;
             const semesterInput = document.getElementById("semester").value;
 
-            if(nameInput === "" || gradeInput === "" || gradeInput < 0 || gradeInput > 10 || semesterInput === ""){
-                alert("Παρακαλώ συμπληρώστε σωστά όλα τα πεδία!");
-                return;
+            if(!nameInput || !gradeInput || !semesterInput) {
+                alert("Συμπληρώστε όλα τα πεδία!"); return;
             }
 
-            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+            const gradeData = {
+                name: nameInput,
+                grade: parseFloat(gradeInput),
+                semester: parseInt(semesterInput)
+            };
+
+            const userGradesRef = db.collection("users").doc(currentUser.uid).collection("grades");
 
             if (currentEditId === null) {
-                const newEntry = { 
-                    id: Date.now(), 
-                    name: nameInput, 
-                    grade: parseFloat(gradeInput), 
-                    semester: parseInt(semesterInput) 
-                };
-                gradesList.push(newEntry);
+                // ΠΡΟΣΘΗΚΗ ΣΤΗ FIREBASE
+                userGradesRef.add(gradeData);
             } else {
-                const index = gradesList.findIndex(entry => entry.id === currentEditId);
-                if (index !== -1) {
-                    gradesList[index].name = nameInput;
-                    gradesList[index].grade = parseFloat(gradeInput);
-                    gradesList[index].semester = parseInt(semesterInput);
-                }
+                // ΕΝΗΜΕΡΩΣΗ ΣΤΗ FIREBASE
+                userGradesRef.doc(currentEditId).update(gradeData);
                 currentEditId = null;
                 document.getElementById("mainBtn").innerText = "Προσθήκη";
             }
 
-            gradesList.sort((a, b) => a.semester - b.semester);
-            localStorage.setItem("myGrades", JSON.stringify(gradesList));
-            clearInputs();
-            loadGrades();
-        }
-
-        function clearInputs() {
             document.getElementById("course").value = "";
             document.getElementById("grade").value = "";
             document.getElementById("semester").value = "";
-            document.getElementById("searchInput").value = "";
         }
 
-        function editGrade(idToEdit) {
-            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-            const entryToEdit = gradesList.find(entry => entry.id === idToEdit);
-
-            if (entryToEdit) {
-                document.getElementById("course").value = entryToEdit.name;
-                document.getElementById("grade").value = entryToEdit.grade;
-                document.getElementById("semester").value = entryToEdit.semester;
-
-                currentEditId = idToEdit;
-                document.getElementById("mainBtn").innerText = "Αποθήκευση Αλλαγών";
+        function editGrade(docId) {
+            const entry = globalGrades.find(g => g.id === docId);
+            if(entry) {
+                document.getElementById("course").value = entry.name;
+                document.getElementById("grade").value = entry.grade;
+                document.getElementById("semester").value = entry.semester;
+                currentEditId = docId;
+                document.getElementById("mainBtn").innerText = "Αποθήκευση";
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        function deleteGrade(idToRemove) {
-            if(confirm("Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το μάθημα;")) {
-                let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-                gradesList = gradesList.filter(entry => entry.id !== idToRemove);
-                localStorage.setItem("myGrades", JSON.stringify(gradesList));
-                loadGrades();
+        function deleteGrade(docId) {
+            if(confirm("Σίγουρα θέλετε να διαγράψετε το μάθημα;")) {
+                // ΔΙΑΓΡΑΦΗ ΑΠΟ ΤΗ FIREBASE
+                db.collection("users").doc(currentUser.uid).collection("grades").doc(docId).delete();
             }
         }
 
-        function loadGrades() {
+        function renderTable() {
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
 
-            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-            
-            // Ταξινόμηση ανά εξάμηνο
-            gradesList.sort((a, b) => a.semester - b.semester);
-
-            let displayList = gradesList;
-            if (currentSemesterFilter !== 'all') {
-                displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
-            }
-
             const searchQuery = document.getElementById("searchInput").value.toLowerCase();
-            displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
+            const displayList = globalGrades.filter(entry => entry.name.toLowerCase().includes(searchQuery));
 
-            let passedSum = 0; 
-            let passedCount = 0;
+            let passedSum = 0, passedCount = 0;
+
             displayList.forEach(entry => {
                 if (entry.grade >= 5) {
                     passedSum += entry.grade;
                     passedCount++;            
                 }
-            });
-
-            if (passedCount > 0) {
-                const average = passedSum / passedCount;
-                document.getElementById("averageSpan").innerText = average.toFixed(2);
-            } else {
-                document.getElementById("averageSpan").innerText = "-";
-            }
-
-            displayList.forEach(entry => {
+                
                 let gradeClass = entry.grade >= 5 ? "grade-pass" : "grade-fail";
+                // Προσέξτε: Εδώ περνάμε το 'entry.id' (που είναι String της Firebase) μέσα σε εισαγωγικά!
                 let row = `<tr>
                                 <td>${entry.name}</td>
                                 <td class="${gradeClass}">${entry.grade}</td>
                                 <td>${entry.semester}</td>
                                 <td>
-                                    <button class="edit-btn" onclick="editGrade(${entry.id})">Επεξεργασία</button>
-                                    <button class="delete-btn" onclick="deleteGrade(${entry.id})">Διαγραφή</button>
+                                    <button class="edit-btn" onclick="editGrade('${entry.id}')">Επεξεργασία</button>
+                                    <button class="delete-btn" onclick="deleteGrade('${entry.id}')">Διαγραφή</button>
                                 </td>
                             </tr>`;
                 tableBody.innerHTML += row;
             });
-        }
 
-        // --- ΣΥΝΑΡΤΗΣΕΙΣ EXCEL (CSV) ---
-        function exportToFile() {
-            const gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-            if (gradesList.length === 0) {
-                alert("Δεν υπάρχουν βαθμοί για αποθήκευση!");
-                return;
+            if (passedCount > 0) {
+                document.getElementById("averageSpan").innerText = (passedSum / passedCount).toFixed(2);
+            } else {
+                document.getElementById("averageSpan").innerText = "-";
             }
-
-            let csvContent = "Μάθημα,Βαθμός,Εξάμηνο\n";
-            gradesList.forEach(entry => {
-                let safeName = entry.name.includes(',') ? `"${entry.name}"` : entry.name;
-                csvContent += `${safeName},${entry.grade},${entry.semester}\n`;
-            });
-
-            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "vathmoi_excel.csv";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
         }
 
-        function importFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const text = e.target.result;
-                    const lines = text.split('\n');
-                    let newGrades = [];
-
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line) continue; 
-
-                        const parts = line.split(',');
-                        let nameStr = parts[0].replace(/(^"|"$)/g, ''); 
-                        let gradeNum = parseFloat(parts[1]);
-                        let semesterNum = parseInt(parts[2]);
-
-                        if (nameStr && !isNaN(gradeNum) && !isNaN(semesterNum)) {
-                            newGrades.push({
-                                id: Date.now() + Math.random(),
-                                name: nameStr,
-                                grade: gradeNum,
-                                semester: semesterNum
-                            });
-                        }
-                    }
-
-                    if (newGrades.length > 0) {
-                        if(confirm("Προσοχή! Η φόρτωση θα αντικαταστήσει τους τρέχοντες βαθμούς. Συνέχεια;")) {
-                            localStorage.setItem("myGrades", JSON.stringify(newGrades));
-                            loadGrades();
-                            alert("Οι βαθμοί φορτώθηκαν επιτυχώς από το Excel!");
-                        }
-                    } else {
-                        alert("Το αρχείο δεν περιέχει έγκυρα δεδομένα.");
-                    }
-                } catch (err) {
-                    alert("Σφάλμα κατά την ανάγνωση του αρχείου.");
-                }
-            };
-            reader.readAsText(file);
-            // Μηδενισμός του input για να μπορεί να ξανανεβάσει το ίδιο αρχείο
-            event.target.value = ''; 
-        }
-
-        // Back to Top
         window.onscroll = function() {
             const topBtn = document.getElementById("backToTop");
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
