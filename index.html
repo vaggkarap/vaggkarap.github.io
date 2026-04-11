@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Βαθμοί Πανεπιστημίου</title>
-    <link rel="icon" type="image/png" href="uniwa-1.png">
     <link rel="stylesheet" href="style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png"> <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
@@ -26,7 +24,7 @@
                 <button onclick="registerUser()" style="background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Εγγραφή</button>
             </div>
             <div style="margin-top: 15px;">
-            <a href="#" onclick="resetPassword()" style="color: #34495e; font-size: 13px; text-decoration: none;">Ξέχασα τον κωδικό μου</a>
+                <a href="#" onclick="resetPassword()" style="color: #34495e; font-size: 13px; text-decoration: none;">Ξέχασα τον κωδικό μου</a>
             </div>
         </div>
     </div>
@@ -35,7 +33,7 @@
     <div class="container" id="appScreen" style="display: none;">
         
         <div style="text-align: right; margin-bottom: 10px;">
-            <span id="userEmailDisplay" style="font-size: 14px; color: #000000; margin-right: 15px;"></span>
+            <span id="userEmailDisplay" style="font-size: 14px; color: #7f8c8d; margin-right: 15px;"></span>
             <button onclick="logoutUser()" style="background-color: #e74c3c; color: white; border: none; padding: 5px 10px; font-size: 14px; border-radius: 5px; cursor: pointer;">Αποσύνδεση</button>
         </div>
 
@@ -45,7 +43,7 @@
         <div class="input-selection">
             <input type="text" id="course" placeholder="Όνομα Μαθήματος">
             <input type="number" id="grade" placeholder="Βαθμός (0-10)" min="0" max="10" step="0.1">
-            <input type="number" id="semester" placeholder="Εξάμηνο (1-10)" min="1" max="10" step="1">
+            <input type="number" id="semester" placeholder="Εξάμηνο" min="1" max="10" step="1">
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη</button>
         </div>
 
@@ -63,8 +61,16 @@
             <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
         </div>
 
-        <div class="search-section">
-            <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση μαθήματος...">
+        <div class="controls-section" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση μαθήματος..." style="flex: 2; padding: 12px; border: 2px solid #3498db; border-radius: 5px; font-size: 16px;">
+            
+            <select id="sortSelect" onchange="setSortMethod(this.value)" style="flex: 1; padding: 12px; border: 2px solid #3498db; border-radius: 5px; font-size: 14px; background-color: white; cursor: pointer;">
+                <option value="semester_asc">⬇️ Εξάμηνο (1-10)</option>
+                <option value="semester_desc">⬆️ Εξάμηνο (10-1)</option>
+                <option value="grade_desc">🏆 Βαθμός (Υψηλότερος)</option>
+                <option value="grade_asc">📉 Βαθμός (Χαμηλότερος)</option>
+                <option value="name_asc">🔤 Όνομα (Α - Ω)</option>
+            </select>
         </div>
 
         <table id="gradesTable">
@@ -115,9 +121,10 @@
         let globalGrades = [];
         let currentEditId = null;
         let currentSemesterFilter = 'all'; 
+        let currentSortMethod = 'semester_asc'; // ΝΕΑ μεταβλητή για την ταξινόμηση
 
         // ==========================================
-        // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ
+        // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ (AUTH)
         // ==========================================
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -158,6 +165,17 @@
             auth.signOut();
         }
 
+        function resetPassword() {
+            const email = document.getElementById('emailInput').value;
+            if (!email) {
+                alert("Παρακαλώ συμπληρώστε πρώτα το email σας στο παραπάνω πεδίο.");
+                return;
+            }
+            auth.sendPasswordResetEmail(email)
+                .then(() => alert("Σας στείλαμε email για επαναφορά κωδικού. Ελέγξτε και τα Spam!"))
+                .catch((error) => alert("Σφάλμα: " + error.message));
+        }
+
         // ==========================================
         // 3. ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ (FIRESTORE)
         // ==========================================
@@ -170,8 +188,7 @@
                       data.id = doc.id; 
                       globalGrades.push(data);
                   });
-                  globalGrades.sort((a, b) => a.semester - b.semester);
-                  renderTable();
+                  renderTable(); // Η ταξινόμηση γίνεται πλέον δυναμικά μέσα στη renderTable
               });
         }
 
@@ -224,7 +241,7 @@
         }
 
         // ==========================================
-        // 4. ΕΜΦΑΝΙΣΗ (UI ΛΟΓΙΚΗ)
+        // 4. ΕΜΦΑΝΙΣΗ (ΦΙΛΤΡΑ, ΑΝΑΖΗΤΗΣΗ, ΤΑΞΙΝΟΜΗΣΗ)
         // ==========================================
         function setSemesterFilter(sem) {
             currentSemesterFilter = sem;
@@ -233,19 +250,41 @@
             renderTable();
         }
 
+        // ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Αλλάζει τη μέθοδο ταξινόμησης
+        function setSortMethod(method) {
+            currentSortMethod = method;
+            renderTable();
+        }
+
         function renderTable() {
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
 
-            let displayList = globalGrades;
+            // Φτιάχνουμε ένα αντίγραφο της λίστας για να μην πειράξουμε τα αρχικά δεδομένα
+            let displayList = [...globalGrades];
 
+            // 1. Εφαρμογή Φίλτρου Εξαμήνου
             if (currentSemesterFilter !== 'all') {
                 displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
             }
 
+            // 2. Εφαρμογή Αναζήτησης
             const searchQuery = document.getElementById("searchInput").value.toLowerCase();
-            displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
+            if (searchQuery) {
+                displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
+            }
 
+            // 3. Εφαρμογή Ταξινόμησης (Η Νέα Μαγεία!)
+            displayList.sort((a, b) => {
+                if (currentSortMethod === 'semester_asc') return a.semester - b.semester;
+                if (currentSortMethod === 'semester_desc') return b.semester - a.semester;
+                if (currentSortMethod === 'grade_desc') return b.grade - a.grade;
+                if (currentSortMethod === 'grade_asc') return a.grade - b.grade;
+                if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el'); // 'el' = Ελληνικό αλφάβητο
+                return 0;
+            });
+
+            // 4. Ζωγραφική και Υπολογισμός Μέσου Όρου
             let passedSum = 0, passedCount = 0;
 
             displayList.forEach(entry => {
@@ -275,23 +314,20 @@
         }
 
         // ==========================================
-        // 5. EXCEL (CSV) ΜΕ FIREBASE INTEGRATION
+        // 5. EXCEL (CSV) 
         // ==========================================
         function exportToFile() {
             if (globalGrades.length === 0) {
                 alert("Δεν υπάρχουν βαθμοί για αποθήκευση!");
                 return;
             }
-
             let csvContent = "Μάθημα,Βαθμός,Εξάμηνο\n";
             globalGrades.forEach(entry => {
                 let safeName = entry.name.includes(',') ? `"${entry.name}"` : entry.name;
                 csvContent += `${safeName},${entry.grade},${entry.semester}\n`;
             });
-
             const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement("a");
             a.href = url;
             a.download = "vathmoi_excel.csv";
@@ -311,59 +347,35 @@
                     const text = e.target.result;
                     const lines = text.split('\n');
                     let newGrades = [];
-
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim();
                         if (!line) continue; 
-
                         const parts = line.split(',');
                         let nameStr = parts[0].replace(/(^"|"$)/g, ''); 
                         let gradeNum = parseFloat(parts[1]);
                         let semesterNum = parseInt(parts[2]);
-
                         if (nameStr && !isNaN(gradeNum) && !isNaN(semesterNum)) {
-                            newGrades.push({
-                                name: nameStr,
-                                grade: gradeNum,
-                                semester: semesterNum
-                            });
+                            newGrades.push({ name: nameStr, grade: gradeNum, semester: semesterNum });
                         }
                     }
-
                     if (newGrades.length > 0) {
-                        if(confirm("Προσοχή! Η φόρτωση θα διαγράψει τους τρέχοντες βαθμούς από το Cloud και θα τους αντικαταστήσει με αυτούς του Excel. Είστε σίγουροι;")) {
-                            
+                        if(confirm("Προσοχή! Η φόρτωση θα αντικαταστήσει τους τρέχοντες βαθμούς. Συνέχεια;")) {
                             const userGradesRef = db.collection("users").doc(currentUser.uid).collection("grades");
-                            
-                            // Μαζική εγγραφή (Batch) για να γίνουν όλα ταυτόχρονα και με ασφάλεια!
                             const batch = db.batch();
-
-                            // 1. Βρίσκουμε και διαγράφουμε τους παλιούς βαθμούς
                             const snapshot = await userGradesRef.get();
-                            snapshot.docs.forEach(doc => {
-                                batch.delete(doc.ref);
-                            });
-
-                            // 2. Προσθέτουμε τους νέους
+                            snapshot.docs.forEach(doc => batch.delete(doc.ref));
                             newGrades.forEach(grade => {
-                                const newDocRef = userGradesRef.doc(); // Δημιουργεί αυτόματα νέο ID
+                                const newDocRef = userGradesRef.doc(); 
                                 batch.set(newDocRef, grade);
                             });
-
-                            // 3. Στέλνουμε τις αλλαγές στη Firebase!
                             await batch.commit();
                             alert("Οι βαθμοί φορτώθηκαν επιτυχώς στο Cloud!");
                         }
-                    } else {
-                        alert("Το αρχείο δεν περιέχει έγκυρα δεδομένα.");
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert("Σφάλμα κατά την ανάγνωση του αρχείου.");
-                }
+                    } else { alert("Το αρχείο δεν περιέχει έγκυρα δεδομένα."); }
+                } catch (err) { alert("Σφάλμα κατά την ανάγνωση."); }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Μηδενισμός για να μπορείς να ξανανεβάσεις το ίδιο αρχείο
+            event.target.value = ''; 
         }
 
         // Back to Top
@@ -379,22 +391,6 @@
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        function resetPassword() {
-    const email = document.getElementById('emailInput').value;
-
-    if (!email) {
-        alert("Παρακαλώ συμπληρώστε πρώτα το email σας στο παραπάνω πεδίο.");
-        return;
-    }
-
-    auth.sendPasswordResetEmail(email)
-        .then(() => {
-            alert("Σας στείλαμε ένα email για να αλλάξετε τον κωδικό σας. Ελέγξτε και τα Spam!");
-        })
-        .catch((error) => {
-            alert("Σφάλμα: " + error.message);
-        });
-}
     </script>
 </body>
 </html>
