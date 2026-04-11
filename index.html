@@ -1,119 +1,156 @@
 <!DOCTYPE html>
 <html lang="el">
-    <head>
-        <meta charset="UTF-8">
-        <title>Βαθμοί Πανεπιστημίου</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <div class="container">
-            <img src="uniwa-bg.png" name="uniwa" id="uniwa" width="500" height="150">
-            <h1>Διαχείριση Βαθμών</h1>
-            
-            <div class="input-selection">
-                <input type="text" id="course" placeholder="Course">
-                <input type="number" id="grade" placeholder="Grade" min="0" max="10" step="0.1">
-                <input type="number" id="semester" placeholder="Semester" min="1" max="10" step="1">
-                <button onclick="addGrade()">Προσθήκη</button>
-            </div>
-
-            <table id="gradesTable">
-                <thead>
-                    <tr>
-                        <th>Μάθημα</th>
-                        <th>Βαθμός</th>
-                        <th>Εξάμηνο</th>
-                        <th>Ενέργεια</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-
-                </tbody>
-            </table>
-
-            <div class="average-section">
-                <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <title>Βαθμοί Πανεπιστημίου</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <img src="uniwa-bg.png" name="uniwa" id="uniwa" width="500" height="150" alt="Λογότυπο Πανεπιστημίου">
+        
+        <h1>Διαχείριση Βαθμών</h1>
+        
+        <div class="input-selection">
+            <input type="text" id="course" placeholder="Όνομα Μαθήματος">
+            <input type="number" id="grade" placeholder="Βαθμός (0-10)" min="0" max="10" step="0.1">
+            <input type="number" id="semester" placeholder="Εξάμηνο" min="1" max="10" step="1">
+            <button id="mainBtn" onclick="saveGrade()">Προσθήκη</button>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', loadGrades)
+        <table id="gradesTable">
+            <thead>
+                <tr>
+                    <th>Μάθημα</th>
+                    <th>Βαθμός</th>
+                    <th>Εξάμηνο</th>
+                    <th>Ενέργεια</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
 
-            function addGrade(){
-                const nameInput = document.getElementById("course").value;
-                const gradeInput = document.getElementById("grade").value;
-                const semesterInput = document.getElementById("semester").value;
+        <div class="average-section">
+            <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
+        </div>
+    </div>
 
-                if(nameInput === "" || gradeInput === "" || gradeInput < 0 || gradeInput > 10){
-                    alert("Invalid course or grade");
-                    return;
-                }
+    <script>
+        // Μνήμη για το αν κάνουμε επεξεργασία. Αν είναι -1, προσθέτουμε νέο.
+        let currentEditIndex = -1;
 
-                const newEntry = {name: nameInput, grade :parseFloat(gradeInput), semester:parseInt(semesterInput)};
+        // Φόρτωση των δεδομένων με το που ανοίγει η σελίδα
+        document.addEventListener('DOMContentLoaded', loadGrades);
 
-                let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+        function saveGrade() {
+            const nameInput = document.getElementById("course").value;
+            const gradeInput = document.getElementById("grade").value;
+            const semesterInput = document.getElementById("semester").value;
 
+            // Έλεγχος εγκυρότητας
+            if(nameInput === "" || gradeInput === "" || gradeInput < 0 || gradeInput > 10 || semesterInput === ""){
+                alert("Παρακαλώ συμπληρώστε σωστά όλα τα πεδία!");
+                return;
+            }
+
+            const newEntry = { 
+                name: nameInput, 
+                grade: parseFloat(gradeInput), 
+                semester: parseInt(semesterInput) 
+            };
+
+            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+
+            // Αποφασίζουμε αν θα κάνουμε Προσθήκη ή Επεξεργασία
+            if (currentEditIndex === -1) {
+                // ΠΡΟΣΘΗΚΗ
                 gradesList.push(newEntry);
-
-                localStorage.setItem("myGrades", JSON.stringify(gradesList));
-
-                document.getElementById("course").value = "";
-                document.getElementById("grade").value = "";
-                document.getElementById("semester").value = "";
-
-
-                loadGrades();
+            } else {
+                // ΕΠΕΞΕΡΓΑΣΙΑ
+                gradesList[currentEditIndex] = newEntry;
+                // Επαναφορά της φόρμας στην κατάσταση Προσθήκης
+                currentEditIndex = -1;
+                document.getElementById("mainBtn").innerText = "Προσθήκη";
             }
 
-            function loadGrades(){
-                const tableBody = document.getElementById("tableBody");
-                tableBody.innerHTML = "";
+            // Αποθήκευση στη μνήμη
+            localStorage.setItem("myGrades", JSON.stringify(gradesList));
 
-                let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-                
-                // Προσθέτουμε τις σωστές μεταβλητές εδώ!
-                let passedSum = 0; 
-                let passedCount = 0;
+            // Καθαρισμός πεδίων
+            document.getElementById("course").value = "";
+            document.getElementById("grade").value = "";
+            document.getElementById("semester").value = "";
 
-                if(gradesList.length === 0){
-                    document.getElementById("averageSpan").innerText = "-";
-                    return;
+            // Επανασχεδιασμός του πίνακα
+            loadGrades();
+        }
+
+        // Συνάρτηση που καλείται όταν πατάς "Επεξεργασία"
+        function editGrade(index) {
+            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+            let entryToEdit = gradesList[index];
+
+            // Μεταφορά των στοιχείων στη φόρμα
+            document.getElementById("course").value = entryToEdit.name;
+            document.getElementById("grade").value = entryToEdit.grade;
+            document.getElementById("semester").value = entryToEdit.semester;
+
+            // Αποθήκευση της θέσης που φτιάχνουμε
+            currentEditIndex = index;
+
+            // Αλλαγή του κουμπιού
+            document.getElementById("mainBtn").innerText = "Αποθήκευση Αλλαγών";
+        }
+
+        // Συνάρτηση που ζωγραφίζει τον πίνακα
+        function loadGrades() {
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+            let passedSum = 0; 
+            let passedCount = 0;
+
+            if(gradesList.length === 0){
+                document.getElementById("averageSpan").innerText = "-";
+                return;
+            }
+
+            gradesList.forEach(function(entry, index) {
+                let row = `<tr>
+                                <td>${entry.name}</td>
+                                <td>${entry.grade}</td>
+                                <td>${entry.semester}</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editGrade(${index})">Επεξεργασία</button>
+                                </td>
+                            </tr>`;
+                tableBody.innerHTML += row;
+
+                // Υπολογισμός μόνο για περασμένα (>=5)
+                if (entry.grade >= 5) {
+                    passedSum += entry.grade;
+                    passedCount++;            
                 }
+            });
 
-                gradesList.forEach(function(entry, index) {
-                    // (Σβήσαμε το totalSum από εδώ)
-
-                    let row = `<tr>
-                                    <td>${entry.name}</td>
-                                    <td>${entry.grade}</td>
-                                    <td>${entry.semester}</td>
-                                    <td><button class="delete-btn" onclick="deleteGrade(${index})">Διαγραφή</button></td>
-                                </tr>`;
-                    tableBody.innerHTML += row;
-                    
-                    if (entry.grade >= 5) {
-                        passedSum += entry.grade; // Τώρα ο browser ξέρει τι είναι αυτό!
-                        passedCount++;            
-                    }
-                });
-
-                if (passedCount > 0) {
-                    const average = passedSum / passedCount;
-                    document.getElementById("averageSpan").innerText = average.toFixed(2);
-                } else {
-                    document.getElementById("averageSpan").innerText = "-";
-                }
+            // Εμφάνιση Μέσου Όρου
+            if (passedCount > 0) {
+                const average = passedSum / passedCount;
+                document.getElementById("averageSpan").innerText = average.toFixed(2);
+            } else {
+                document.getElementById("averageSpan").innerText = "-";
             }
+        }
 
-            function deleteGrade(indexToRemove){
-                let gradesList = JSON.parse(localStorage.getItem("myGrades"));
-
-                gradesList.splice(indexToRemove, 1);
-
-                localStorage.setItem("myGrades", JSON.stringify(gradesList));
-                loadGrades();
-            }
-        </script>
-        
-    </body>
+        // *Προαιρετικά* αν θέλεις να κρατήσεις ΚΑΙ τη διαγραφή (δες σημείωση)
+        function deleteGrade(indexToRemove) {
+            let gradesList = JSON.parse(localStorage.getItem("myGrades"));
+            gradesList.splice(indexToRemove, 1);
+            localStorage.setItem("myGrades", JSON.stringify(gradesList));
+            loadGrades();
+        }
+    </script>
+</body>
 </html>
