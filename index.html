@@ -19,8 +19,8 @@
                 <thead>
                     <tr>
                         <th>Μάθημα</th>
-                        <th>Εξάμηνο</th>
                         <th>Βαθμός</th>
+                        <th>Εξάμηνο</th>
                         <th>Ενέργεια</th>
                     </tr>
                 </thead>
@@ -40,13 +40,14 @@
             function addGrade(){
                 const nameInput = document.getElementById("course").value;
                 const gradeInput = document.getElementById("grade").value;
+                const semesterInput = document.getElementById("semester").value;
 
                 if(nameInput === "" || gradeInput === "" || gradeInput < 0 || gradeInput > 10){
                     alert("Invalid course or grade");
                     return;
                 }
 
-                const newEntry = {name: nameInput, grade :parseFloat(gradeInput)};
+                const newEntry = {name: nameInput, grade :parseFloat(gradeInput), semester:parseInt(semesterInput)};
 
                 let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
 
@@ -56,6 +57,8 @@
 
                 document.getElementById("course").value = "";
                 document.getElementById("grade").value = "";
+                document.getElementById("semester").value = "";
+
 
                 loadGrades();
             }
@@ -78,6 +81,7 @@
                     let row = `<tr>
                                     <td>${entry.name}</td>
                                     <td>${entry.grade}</td>
+                                    <td>${entry.semester}<td>
                                     <td><button class="delete-btn" onclick="deleteGrade(${index})">Διαγραφή</button></td>
                                 </tr>`;
                     tableBody.innerHTML +=row;
