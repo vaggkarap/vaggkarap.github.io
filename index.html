@@ -24,6 +24,9 @@
                 <button onclick="loginUser()" style="background-color: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Σύνδεση</button>
                 <button onclick="registerUser()" style="background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Εγγραφή</button>
             </div>
+            <div style="margin-top: 15px;">
+            <a href="#" onclick="resetPassword()" style="color: #34495e; font-size: 13px; text-decoration: none;">Ξέχασα τον κωδικό μου</a>
+            </div>
         </div>
     </div>
 
@@ -375,6 +378,22 @@
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+        function resetPassword() {
+    const email = document.getElementById('emailInput').value;
+
+    if (!email) {
+        alert("Παρακαλώ συμπληρώστε πρώτα το email σας στο παραπάνω πεδίο.");
+        return;
+    }
+
+    auth.sendPasswordResetEmail(email)
+        .then(() => {
+            alert("Σας στείλαμε ένα email για να αλλάξετε τον κωδικό σας. Ελέγξτε και τα Spam!");
+        })
+        .catch((error) => {
+            alert("Σφάλμα: " + error.message);
+        });
+}
     </script>
 </body>
 </html>
