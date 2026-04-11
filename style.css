@@ -5,7 +5,7 @@ git push
 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: black;
+    background-color: rgb(46, 170, 192);
     display: flex;
     justify-content: center;
     padding-top: 50px;
@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    background-color: rgb(52, 197, 216);
+    background-color: rgb(255, 255, 255);
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
