@@ -113,8 +113,8 @@ th {
 }
 
 /* Χρώμα Επεξεργασίας */
-.edit-btn { background-color: #f39c12; }
-.edit-btn:hover { background-color: #e67e22; }
+.edit-btn { background-color: #2812f3; }
+.edit-btn:hover { background-color: #080a8b; }
 
 /* Χρώμα Διαγραφής */
 .delete-btn { background-color: #e74c3c; }
