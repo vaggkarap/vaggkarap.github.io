@@ -3,16 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Βαθμοί Πανεπιστημίου</title>
-    <link rel="icon" type="image/png" href="uniwa-1.png">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="favicon.png"> <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
+    <button id="themeToggle" onclick="toggleTheme()" class="theme-toggle-btn">🌙 Dark Mode</button>
+
     <div class="container" id="loginScreen">
-        <img src="uniwa-bg.png" alt="Λογότυπο" width="300" style="margin-bottom:20px;">
+        <div style="background-color: white; display: inline-block; padding: 10px; border-radius: 10px; margin-bottom: 20px;">
+            <img src="uniwa-bg.png" alt="Λογότυπο" width="300">
+        </div>
         <h2>Καλώς Ήρθατε</h2>
         <p>Συνδεθείτε για να δείτε τους βαθμούς σας</p>
         
@@ -38,7 +43,9 @@
             <button onclick="logoutUser()" style="background-color: #e74c3c; color: white; border: none; padding: 5px 10px; font-size: 14px; border-radius: 5px; cursor: pointer;">Αποσύνδεση</button>
         </div>
 
-        <img src="uniwa-bg.png" name="uniwa" id="uniwa" width="500" height="150" alt="Λογότυπο Πανεπιστημίου">
+        <div style="background-color: white; display: inline-block; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+            <img src="uniwa-bg.png" name="uniwa" id="uniwa" width="500" height="150" alt="Λογότυπο Πανεπιστημίου">
+        </div>
         <h1>Διαχείριση Βαθμών</h1>
         
         <div class="input-selection">
@@ -62,10 +69,9 @@
             <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
         </div>
 
-        <div class="controls-section" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση μαθήματος..." style="flex: 2; padding: 12px; border: 2px solid #3498db; border-radius: 5px; font-size: 16px;">
-            
-            <select id="sortSelect" onchange="setSortMethod(this.value)" style="flex: 1; padding: 12px; border: 2px solid #3498db; border-radius: 5px; font-size: 14px; background-color: white; cursor: pointer;">
+        <div class="controls-section" style="display: flex; gap: 10px;">
+            <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση..." style="flex: 2;">
+            <select id="sortSelect" onchange="setSortMethod(this.value)" style="flex: 1; cursor: pointer;">
                 <option value="semester_asc">⬇️ Εξάμηνο (1-10)</option>
                 <option value="semester_desc">⬆️ Εξάμηνο (10-1)</option>
                 <option value="grade_desc">🏆 Βαθμός (Υψηλότερος)</option>
@@ -102,6 +108,40 @@
 
     <script>
         // ==========================================
+        // ΛΟΓΙΚΗ ΓΙΑ ΤΟ DARK THEME (Εκτελείται πρώτη!)
+        // ==========================================
+        function initTheme() {
+            // Διαβάζουμε τι είχε επιλέξει ο χρήστης την τελευταία φορά
+            const savedTheme = localStorage.getItem('appTheme');
+            const themeBtn = document.getElementById('themeToggle');
+
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeBtn.innerText = '☀️ Light Mode';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('themeToggle');
+            
+            // Βάζουμε ή βγάζουμε την κλάση dark-theme
+            body.classList.toggle('dark-theme');
+            
+            // Αλλάζουμε το κουμπί και σώζουμε την επιλογή
+            if (body.classList.contains('dark-theme')) {
+                localStorage.setItem('appTheme', 'dark');
+                themeBtn.innerText = '☀️ Light Mode';
+            } else {
+                localStorage.setItem('appTheme', 'light');
+                themeBtn.innerText = '🌙 Dark Mode';
+            }
+        }
+
+        // Ξεκινάμε τον έλεγχο μόλις φορτώσει η σελίδα
+        document.addEventListener('DOMContentLoaded', initTheme);
+
+        // ==========================================
         // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE 
         // ==========================================
         const firebaseConfig = {
@@ -122,7 +162,7 @@
         let globalGrades = [];
         let currentEditId = null;
         let currentSemesterFilter = 'all'; 
-        let currentSortMethod = 'semester_asc'; // ΝΕΑ μεταβλητή για την ταξινόμηση
+        let currentSortMethod = 'semester_asc';
 
         // ==========================================
         // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ (AUTH)
@@ -189,7 +229,7 @@
                       data.id = doc.id; 
                       globalGrades.push(data);
                   });
-                  renderTable(); // Η ταξινόμηση γίνεται πλέον δυναμικά μέσα στη renderTable
+                  renderTable(); 
               });
         }
 
@@ -251,7 +291,6 @@
             renderTable();
         }
 
-        // ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Αλλάζει τη μέθοδο ταξινόμησης
         function setSortMethod(method) {
             currentSortMethod = method;
             renderTable();
@@ -261,31 +300,26 @@
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
 
-            // Φτιάχνουμε ένα αντίγραφο της λίστας για να μην πειράξουμε τα αρχικά δεδομένα
             let displayList = [...globalGrades];
 
-            // 1. Εφαρμογή Φίλτρου Εξαμήνου
             if (currentSemesterFilter !== 'all') {
                 displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
             }
 
-            // 2. Εφαρμογή Αναζήτησης
             const searchQuery = document.getElementById("searchInput").value.toLowerCase();
             if (searchQuery) {
                 displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
             }
 
-            // 3. Εφαρμογή Ταξινόμησης (Η Νέα Μαγεία!)
             displayList.sort((a, b) => {
                 if (currentSortMethod === 'semester_asc') return a.semester - b.semester;
                 if (currentSortMethod === 'semester_desc') return b.semester - a.semester;
                 if (currentSortMethod === 'grade_desc') return b.grade - a.grade;
                 if (currentSortMethod === 'grade_asc') return a.grade - b.grade;
-                if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el'); // 'el' = Ελληνικό αλφάβητο
+                if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el');
                 return 0;
             });
 
-            // 4. Ζωγραφική και Υπολογισμός Μέσου Όρου
             let passedSum = 0, passedCount = 0;
 
             displayList.forEach(entry => {
