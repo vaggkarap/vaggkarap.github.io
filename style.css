@@ -40,9 +40,9 @@ input {
     font-size: 16px;
 }
 
-#course { width: 45%; }
-#course { width: 35%; }
-#semester {width: 35%;}
+#course { width: 30%; }
+#course { width: 25%; }
+#semester {width: 25%;}
 
 button {
     background-color: #27ae60;
