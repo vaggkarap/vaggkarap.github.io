@@ -15,8 +15,8 @@
     <button id="themeToggle" onclick="toggleTheme()" class="theme-toggle-btn">🌙 Dark Mode</button>
 
     <div class="container" id="loginScreen">
-        <div style="background-color: white; display: inline-block; padding: 10px; border-radius: 10px; margin-bottom: 20px;">
-            <img src="uniwa-logo.png" alt="Λογότυπο" width="300">
+        <div style="display: inline-block; padding: 10px; border-radius: 10px; margin-bottom: 20px;">
+            <img src="uniwa-logo.png" id="uniwaLogin" alt="Λογότυπο" width="300">
         </div>
         <h2>Καλώς Ήρθατε</h2>
         <p>Συνδεθείτε για να δείτε τους βαθμούς σας</p>
@@ -43,7 +43,7 @@
             <button onclick="logoutUser()" style="background-color: #e74c3c; color: white; border: none; padding: 5px 10px; font-size: 14px; border-radius: 5px; cursor: pointer;">Αποσύνδεση</button>
         </div>
 
-        <div style="background-color: white; display: inline-block; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+        <div style="display: inline-block; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
             <img src="uniwa-logo.png" name="uniwa" id="uniwa" width="500" height="150" alt="Λογότυπο Πανεπιστημίου">
         </div>
         <h1>Διαχείριση Βαθμών</h1>
@@ -112,35 +112,53 @@
 
     <script>
         // ==========================================
-        // ΛΟΓΙΚΗ ΓΙΑ ΤΟ DARK THEME
+        // ΛΟΓΙΚΗ ΓΙΑ ΤΟ DARK THEME (ΕΝΗΜΕΡΩΜΕΝΗ ΓΙΑ ΕΙΚΟΝΕΣ)
         // ==========================================
         function initTheme() {
             const savedTheme = localStorage.getItem('appTheme');
             const themeBtn = document.getElementById('themeToggle');
+            const logoLogin = document.getElementById('uniwaLogin');
+            const logoApp = document.getElementById('uniwa');
+
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-theme');
                 themeBtn.innerText = '☀️ Light Mode';
+                if (logoLogin) logoLogin.src = "uniwa-dark.png";
+                if (logoApp) logoApp.src = "uniwa-dark.png";
+            } else {
+                if (logoLogin) logoLogin.src = "uniwa-logo.png";
+                if (logoApp) logoApp.src = "uniwa-logo.png";
             }
         }
+
         function toggleTheme() {
             const body = document.body;
             const themeBtn = document.getElementById('themeToggle');
+            const logoLogin = document.getElementById('uniwaLogin');
+            const logoApp = document.getElementById('uniwa');
+
             body.classList.toggle('dark-theme');
+            
             if (body.classList.contains('dark-theme')) {
                 localStorage.setItem('appTheme', 'dark');
                 themeBtn.innerText = '☀️ Light Mode';
+                if (logoLogin) logoLogin.src = "uniwa-dark.png";
+                if (logoApp) logoApp.src = "uniwa-dark.png";
             } else {
                 localStorage.setItem('appTheme', 'light');
                 themeBtn.innerText = '🌙 Dark Mode';
+                if (logoLogin) logoLogin.src = "uniwa-logo.png";
+                if (logoApp) logoApp.src = "uniwa-logo.png";
             }
         }
+        
         document.addEventListener('DOMContentLoaded', initTheme);
 
         // ==========================================
         // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE 
         // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", // <--- ΜΗΝ ΤΟ ΞΕΧΑΣΕΙΣ
+            apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", 
             authDomain: "universitygrades-58ed7.firebaseapp.com",
             projectId: "universitygrades-58ed7",
             storageBucket: "universitygrades-58ed7.firebasestorage.app",
