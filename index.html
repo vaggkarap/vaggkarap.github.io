@@ -21,8 +21,8 @@
             <input type="password" id="passwordInput" placeholder="Ο Κωδικός σας (min. 6 χαρακτήρες)" required>
             
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-                <button onclick="loginUser()" style="background-color: #2980b9;">Σύνδεση</button>
-                <button onclick="registerUser()" style="background-color: #27ae60;">Εγγραφή</button>
+                <button onclick="loginUser()" style="background-color: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Σύνδεση</button>
+                <button onclick="registerUser()" style="background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Εγγραφή</button>
             </div>
         </div>
     </div>
@@ -32,9 +32,10 @@
         
         <div style="text-align: right; margin-bottom: 10px;">
             <span id="userEmailDisplay" style="font-size: 14px; color: #7f8c8d; margin-right: 15px;"></span>
-            <button onclick="logoutUser()" style="background-color: #e74c3c; padding: 5px 10px; font-size: 14px;">Αποσύνδεση</button>
+            <button onclick="logoutUser()" style="background-color: #e74c3c; color: white; border: none; padding: 5px 10px; font-size: 14px; border-radius: 5px; cursor: pointer;">Αποσύνδεση</button>
         </div>
 
+        <img src="uniwa-bg.png" name="uniwa" id="uniwa" width="500" height="150" alt="Λογότυπο Πανεπιστημίου">
         <h1>Διαχείριση Βαθμών</h1>
         
         <div class="input-selection">
@@ -42,6 +43,20 @@
             <input type="number" id="grade" placeholder="Βαθμός (0-10)" min="0" max="10" step="0.1">
             <input type="number" id="semester" placeholder="Εξάμηνο" min="1" max="10" step="1">
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη</button>
+        </div>
+
+        <div class="semester-filter">
+            <button class="filter-btn active" id="btn-filter-all" onclick="setSemesterFilter('all')">Όλα</button>
+            <button class="filter-btn" id="btn-filter-1" onclick="setSemesterFilter(1)">1ο</button>
+            <button class="filter-btn" id="btn-filter-2" onclick="setSemesterFilter(2)">2ο</button>
+            <button class="filter-btn" id="btn-filter-3" onclick="setSemesterFilter(3)">3ο</button>
+            <button class="filter-btn" id="btn-filter-4" onclick="setSemesterFilter(4)">4ο</button>
+            <button class="filter-btn" id="btn-filter-5" onclick="setSemesterFilter(5)">5ο</button>
+            <button class="filter-btn" id="btn-filter-6" onclick="setSemesterFilter(6)">6ο</button>
+            <button class="filter-btn" id="btn-filter-7" onclick="setSemesterFilter(7)">7ο</button>
+            <button class="filter-btn" id="btn-filter-8" onclick="setSemesterFilter(8)">8ο</button>
+            <button class="filter-btn" id="btn-filter-9" onclick="setSemesterFilter(9)">9ο</button>
+            <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
         </div>
 
         <div class="search-section">
@@ -63,16 +78,18 @@
         <div class="average-section">
             <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
         </div>
+
     </div>
 
     <button id="backToTop" onclick="scrollToTop()" title="Πίσω στην κορυφή">⬆️</button>
 
     <script>
         // ==========================================
-        // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE (ΒΑΛΕ ΤΑ ΔΙΚΑ ΣΟΥ ΕΔΩ!)
+        // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE 
+        // (ΒΑΛΕ ΤΟ ΔΙΚΟ ΣΟΥ ΕΓΚΥΡΟ API KEY ΕΔΩ!!!)
         // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE",
+            apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", // <--- ΜΗΝ ΤΟ ΞΕΧΑΣΕΙΣ
             authDomain: "universitygrades-58ed7.firebaseapp.com",
             projectId: "universitygrades-58ed7",
             storageBucket: "universitygrades-58ed7.firebasestorage.app",
@@ -81,33 +98,26 @@
             measurementId: "G-4738X1ER9F"
         };
 
-        // Αρχικοποίηση Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Μεταβλητές εφαρμογής
         let currentUser = null;
         let globalGrades = [];
         let currentEditId = null;
+        let currentSemesterFilter = 'all'; // Προστέθηκε ξανά η μεταβλητή του φίλτρου
 
         // ==========================================
-        // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ (ΑΥΘΕΝΤΙΚΟΠΟΙΗΣΗ)
+        // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ
         // ==========================================
-        
-        // Παρακολουθεί αν ο χρήστης μπήκε ή βγήκε
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Ο χρήστης είναι συνδεδεμένος
                 currentUser = user;
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appScreen').style.display = 'block';
                 document.getElementById('userEmailDisplay').innerText = user.email;
-                
-                // Φέρνουμε τους βαθμούς ΤΟΥ ΣΥΓΚΕΚΡΙΜΕΝΟΥ ΧΡΗΣΤΗ
                 fetchGradesFromDB();
             } else {
-                // Δεν υπάρχει χρήστης (Δείξε το Login)
                 currentUser = null;
                 document.getElementById('loginScreen').style.display = 'block';
                 document.getElementById('appScreen').style.display = 'none';
@@ -116,31 +126,25 @@
             }
         });
 
-        // ΕΓΓΡΑΦΗ ΧΡΗΣΤΗ ΚΑΙ EMAIL ΕΠΙΒΕΒΑΙΩΣΗΣ
         function registerUser() {
             const email = document.getElementById('emailInput').value;
             const pass = document.getElementById('passwordInput').value;
-            
             auth.createUserWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
-                    // Στέλνουμε το email επιβεβαίωσης
                     userCredential.user.sendEmailVerification().then(() => {
-                        alert("Η εγγραφή πέτυχε! Σας έχει σταλεί ένα Email επιβεβαίωσης. Ελέγξτε τα εισερχόμενά σας (και τα Spam).");
+                        alert("Η εγγραφή πέτυχε! Σας έχει σταλεί email επιβεβαίωσης.");
                     });
                 })
                 .catch((error) => alert("Σφάλμα: " + error.message));
         }
 
-        // ΣΥΝΔΕΣΗ ΧΡΗΣΤΗ
         function loginUser() {
             const email = document.getElementById('emailInput').value;
             const pass = document.getElementById('passwordInput').value;
-            
             auth.signInWithEmailAndPassword(email, pass)
                 .catch((error) => alert("Λάθος email ή κωδικός!"));
         }
 
-        // ΑΠΟΣΥΝΔΕΣΗ
         function logoutUser() {
             auth.signOut();
         }
@@ -148,19 +152,16 @@
         // ==========================================
         // 3. ΒΑΣΗ ΔΕΔΟΜΕΝΩΝ (FIRESTORE)
         // ==========================================
-
         function fetchGradesFromDB() {
-            // Διαβάζουμε από τον "φάκελο" του συγκεκριμένου χρήστη!
             db.collection("users").doc(currentUser.uid).collection("grades")
               .onSnapshot((querySnapshot) => {
                   globalGrades = [];
                   querySnapshot.forEach((doc) => {
-                      // Κρατάμε και το ID της Firebase
                       let data = doc.data();
                       data.id = doc.id; 
                       globalGrades.push(data);
                   });
-                  // Ταξινομούμε και ζωγραφίζουμε
+                  // Ταξινόμηση ανά εξάμηνο
                   globalGrades.sort((a, b) => a.semester - b.semester);
                   renderTable();
               });
@@ -171,8 +172,8 @@
             const gradeInput = document.getElementById("grade").value;
             const semesterInput = document.getElementById("semester").value;
 
-            if(!nameInput || !gradeInput || !semesterInput) {
-                alert("Συμπληρώστε όλα τα πεδία!"); return;
+            if(!nameInput || !gradeInput || !semesterInput || gradeInput < 0 || gradeInput > 10) {
+                alert("Συμπληρώστε σωστά όλα τα πεδία (Βαθμός 0-10)!"); return;
             }
 
             const gradeData = {
@@ -184,10 +185,8 @@
             const userGradesRef = db.collection("users").doc(currentUser.uid).collection("grades");
 
             if (currentEditId === null) {
-                // ΠΡΟΣΘΗΚΗ ΣΤΗ FIREBASE
                 userGradesRef.add(gradeData);
             } else {
-                // ΕΝΗΜΕΡΩΣΗ ΣΤΗ FIREBASE
                 userGradesRef.doc(currentEditId).update(gradeData);
                 currentEditId = null;
                 document.getElementById("mainBtn").innerText = "Προσθήκη";
@@ -212,28 +211,50 @@
 
         function deleteGrade(docId) {
             if(confirm("Σίγουρα θέλετε να διαγράψετε το μάθημα;")) {
-                // ΔΙΑΓΡΑΦΗ ΑΠΟ ΤΗ FIREBASE
                 db.collection("users").doc(currentUser.uid).collection("grades").doc(docId).delete();
             }
+        }
+
+        // ==========================================
+        // 4. ΕΜΦΑΝΙΣΗ (UI ΛΟΓΙΚΗ)
+        // ==========================================
+        
+        // Λειτουργία Φίλτρων
+        function setSemesterFilter(sem) {
+            currentSemesterFilter = sem;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-filter-' + sem).classList.add('active');
+            renderTable();
         }
 
         function renderTable() {
             const tableBody = document.getElementById("tableBody");
             tableBody.innerHTML = "";
 
-            const searchQuery = document.getElementById("searchInput").value.toLowerCase();
-            const displayList = globalGrades.filter(entry => entry.name.toLowerCase().includes(searchQuery));
+            let displayList = globalGrades;
 
-            let passedSum = 0, passedCount = 0;
+            // 1. Εφαρμογή Φίλτρου Εξαμήνου
+            if (currentSemesterFilter !== 'all') {
+                displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
+            }
+
+            // 2. Εφαρμογή Αναζήτησης
+            const searchQuery = document.getElementById("searchInput").value.toLowerCase();
+            displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
+
+            let passedSum = 0; 
+            let passedCount = 0;
 
             displayList.forEach(entry => {
+                // Υπολογισμός Μέσου Όρου (Μόνο όσα φαίνονται και είναι >= 5)
                 if (entry.grade >= 5) {
                     passedSum += entry.grade;
                     passedCount++;            
                 }
                 
+                // Χρώματα Βαθμού (Πράσινο/Κόκκινο)
                 let gradeClass = entry.grade >= 5 ? "grade-pass" : "grade-fail";
-                // Προσέξτε: Εδώ περνάμε το 'entry.id' (που είναι String της Firebase) μέσα σε εισαγωγικά!
+                
                 let row = `<tr>
                                 <td>${entry.name}</td>
                                 <td class="${gradeClass}">${entry.grade}</td>
@@ -246,13 +267,16 @@
                 tableBody.innerHTML += row;
             });
 
+            // Εμφάνιση Μέσου Όρου
             if (passedCount > 0) {
-                document.getElementById("averageSpan").innerText = (passedSum / passedCount).toFixed(2);
+                const average = passedSum / passedCount;
+                document.getElementById("averageSpan").innerText = average.toFixed(2);
             } else {
                 document.getElementById("averageSpan").innerText = "-";
             }
         }
 
+        // Back to Top Λειτουργία
         window.onscroll = function() {
             const topBtn = document.getElementById("backToTop");
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
