@@ -1,70 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="el">
     <head>
+        <meta charset="UTF-8">
+        <title>Βαθμοί Πανεπιστημίου</title>
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <div>
-            <h1>Code Camp 2024</h1>
-            <p>Learn. Build. Innovate.</p>
-            <img src="https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg">
+        <div class="container">
+            <h1>Διαχείριση Βαθμών</h1>
+            <div class="input-selection">
+                <input type="text" id="course" placeholder="Enter the course name">
+                <input type="number" id="grade" placeholder="Enter the grade" min="0" max="10" step="0.1">
+                <button onclick="addGrade()">Προσθήκη</button>
+            </div>
+
+            <table id="gradesTable">
+                <thead>
+                    <tr>
+                        <th>Μάθημα</th>
+                        <th>Βαθμός</th>
+                        <th>Ενέργεια</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+
+            <div class="average-section">
+                <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
+            </div>
         </div>
 
-            <div>
-                <h2>Event Schedule</h2>
-                <table border="5">
-                    <tr>
-                        <th>Time</th>
-                        <th>Activity</th>
-                        <th>Location</th>
-                    </tr>
-                    <tr>
-                        <td>10:00 AM</td>
-                        <td>Welcome Speech</td>
-                        <td>Main Hall</td>
-                    </tr>
-                    <tr>
-                        <td>11:00 AM</td>
-                        <td>Workshop: Intro to HTML</td>
-                        <td>Room A</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <div>
-                <h2>Register Now</h2>
-                <form action="https://formspree.io/f/mqegvogk" method="POST">
-                    
-                    <label for="name">Name:</label>
-                    <input type="text" name="name" id="name">
-                    <br>
-                    <br>
-                    <label for="email">Email:</label>
-                    <input type="email" name="email" id="email">
-                    <br>
-                    <br>
-                    <label for="select">Choose a session:</label>
-                    <select name="time" id="select">
-                        <option value="Morning" id="morning">Morning</option>
-                        <option value="Afternoon" id="afternoon">Afternoon</option>
-                    </select>
-                    <br>
-                    <br>
-                    <input type="checkbox" id="terms" name="terms">
-                    <label for="terms">I agree to the terms and conditions</label>
-                    <br>
-                    <br>
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', loadGrades)
 
-            <div>
-                <h2>Follow Us</h2>
-                <a href="https://coddy.tech/journeys/html/fundamentals/recap__forms_1" target="_blank">Test1</a>
-                <br>
-                <a href="https://gemini.google.com/app/5686784e6d5a7546" target="_blank">Test2</a>
-            <div>
+            function addGrade(){
+                const nameInput = document.getElementById("course").value;
+                const gradeInput = document.getElementById("grade").value;
 
+                if(nameInput === "" || gradeInput === "" || gradeInput < 0 || gradeInput > 10){
+                    alert("Invalid course or grade");
+                    return;
+                }
+
+                const newEntry = {name: nameInput, grade :parseFloat(gradeInput)};
+
+                let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+
+                gradesList.push(newEntry);
+
+                localStorage.setItem("myGrades", JSON.stringify(gradesList));
+
+                document.getElementById("courseName").value = "";
+                document.getElementById("courseGrade").value = "";
+
+                loadGrades();
+            }
+
+            function loadGrades(){
+                const tableBody = document.getElementById("tableBody");
+                tableBody.innerHTML = "";
+
+                let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+                let totalSum = 0;
+
+                if(gradesList.length === 0){
+                    document.getElementById("averageSpan").innerText = "-";
+                    return;
+                }
+
+                gradesList.forEach(function(entry, index) {
+                    totalSum += entry.grade; 
+
+                    let row = `<tr>
+                                    <td>${entry.name}</td>
+                                    <td>${entry.grade}</td>
+                                    <td><button class="delete-btn" onclick="deleteGrade(${index})">Διαγραφή</button></td>
+                                </tr>`;
+                    tableBody.innerHTML +=row;
+
+                });
+
+                const average = totalSum / gradesList.length;
+                document.getElementById("averageSpan").innerText = average.toFixed(2);
+            }
+
+            function deleteGrade(indexToRemove){
+                let gradesList = JSON.parse(localStorage.getItem("myGrades"));
+
+                gradesList.splice(indexToRemove, 1);
+
+                localStorage.setItem("myGrades", JSON.stringify(gradesList));
+                loadGrades();
+            }
+        </script>
         
     </body>
 </html>
