@@ -52,6 +52,12 @@
         <div class="average-section">
             <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
         </div>
+
+        <div class="backup-section">
+            <button class="backup-btn export" onclick="exportToFile()">💾 Αποθήκευση Αντιγράφου</button>
+            <label for="importFile" class="backup-btn import">📂 Φόρτωση Αντιγράφου</label>
+            <input type="file" id="importFile" style="display:none" onchange="importFromFile(event)">
+        </div>
     </div>
 
     <button id="backToTop" onclick="scrollToTop()" title="Πίσω στην κορυφή">⬆️</button>
@@ -102,13 +108,15 @@
 
             gradesList.sort((a, b) => a.semester - b.semester);
             localStorage.setItem("myGrades", JSON.stringify(gradesList));
+            clearInputs();
+            loadGrades();
+        }
 
+        function clearInputs() {
             document.getElementById("course").value = "";
             document.getElementById("grade").value = "";
             document.getElementById("semester").value = "";
             document.getElementById("searchInput").value = "";
-
-            loadGrades();
         }
 
         function editGrade(idToEdit) {
@@ -127,10 +135,12 @@
         }
 
         function deleteGrade(idToRemove) {
-            let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-            gradesList = gradesList.filter(entry => entry.id !== idToRemove);
-            localStorage.setItem("myGrades", JSON.stringify(gradesList));
-            loadGrades();
+            if(confirm("Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το μάθημα;")) {
+                let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
+                gradesList = gradesList.filter(entry => entry.id !== idToRemove);
+                localStorage.setItem("myGrades", JSON.stringify(gradesList));
+                loadGrades();
+            }
         }
 
         function loadGrades() {
@@ -139,15 +149,7 @@
 
             let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
             
-            let needsSave = false;
-            gradesList.forEach(entry => {
-                if (!entry.id) {
-                    entry.id = Date.now() + Math.random(); 
-                    needsSave = true;
-                }
-            });
-            if (needsSave) localStorage.setItem("myGrades", JSON.stringify(gradesList));
-
+            // Ταξινόμηση ανά εξάμηνο
             gradesList.sort((a, b) => a.semester - b.semester);
 
             let displayList = gradesList;
@@ -175,10 +177,7 @@
             }
 
             displayList.forEach(entry => {
-                // --- Η ΜΑΓΕΙΑ ΕΙΝΑΙ ΕΔΩ ---
-                // Ελέγχουμε αν πέρασε το μάθημα και διαλέγουμε τη σωστή κλάση
                 let gradeClass = entry.grade >= 5 ? "grade-pass" : "grade-fail";
-
                 let row = `<tr>
                                 <td>${entry.name}</td>
                                 <td class="${gradeClass}">${entry.grade}</td>
@@ -192,6 +191,50 @@
             });
         }
 
+        // --- ΣΥΝΑΡΤΗΣΕΙΣ BACKUP/RESTORE ---
+        
+        function exportToFile() {
+            const data = localStorage.getItem("myGrades");
+            if (!data || data === "[]") {
+                alert("Δεν υπάρχουν βαθμοί για αποθήκευση!");
+                return;
+            }
+            const blob = new Blob([data], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "vathmoi_backup.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        if(confirm("Προσοχή! Η φόρτωση θα αντικαταστήσει τους τρέχοντες βαθμούς. Συνέχεια;")) {
+                            localStorage.setItem("myGrades", JSON.stringify(data));
+                            loadGrades();
+                            alert("Οι βαθμοί φορτώθηκαν επιτυχώς!");
+                        }
+                    } else {
+                        alert("Το αρχείο δεν έχει τη σωστή μορφή.");
+                    }
+                } catch (err) {
+                    alert("Σφάλμα κατά την ανάγνωση του αρχείου.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Back to Top
         window.onscroll = function() {
             const topBtn = document.getElementById("backToTop");
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
