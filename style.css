@@ -20,7 +20,7 @@ body {
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    width: 800px; /* Το μεγάλωσα λίγο για να χωράνε οι νέες στήλες */
+    width: 900px; /* Το μεγάλωσα λίγο για να χωράνε οι νέες στήλες */
     text-align: center;
     transition: 0.4s ease;
 }
@@ -155,8 +155,8 @@ th { background-color: #34495e; color: white; }
     cursor: pointer;
     transition: 0.3s;
 }
-.edit-btn { background-color: #f39c12; }
-.edit-btn:hover { background-color: #e67e22; }
+.edit-btn { background-color: #12b3f3; }
+.edit-btn:hover { background-color: #2522e6; }
 .delete-btn { background-color: #e74c3c; }
 .delete-btn:hover { background-color: #c0392b; }
 
