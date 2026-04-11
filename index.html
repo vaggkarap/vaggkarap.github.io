@@ -4,26 +4,6 @@
     <meta charset="UTF-8">
     <title>Βαθμοί Πανεπιστημίου</title>
     <link rel="stylesheet" href="style.css">
-    
-    <style>
-        .search-section {
-            margin-bottom: 20px;
-        }
-        #searchInput {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #3498db;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: 0.3s;
-        }
-        #searchInput:focus {
-            outline: none;
-            border-color: #2980b9;
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
-        }
-    </style>
 </head>
 <body>
     <div class="container" id="topOfPage">
@@ -36,6 +16,20 @@
             <input type="number" id="grade" placeholder="Βαθμός (0-10)" min="0" max="10" step="0.1">
             <input type="number" id="semester" placeholder="Εξάμηνο" min="1" max="10" step="1">
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη</button>
+        </div>
+
+        <div class="semester-filter">
+            <button class="filter-btn active" id="btn-filter-all" onclick="setSemesterFilter('all')">Όλα</button>
+            <button class="filter-btn" id="btn-filter-1" onclick="setSemesterFilter(1)">1ο</button>
+            <button class="filter-btn" id="btn-filter-2" onclick="setSemesterFilter(2)">2ο</button>
+            <button class="filter-btn" id="btn-filter-3" onclick="setSemesterFilter(3)">3ο</button>
+            <button class="filter-btn" id="btn-filter-4" onclick="setSemesterFilter(4)">4ο</button>
+            <button class="filter-btn" id="btn-filter-5" onclick="setSemesterFilter(5)">5ο</button>
+            <button class="filter-btn" id="btn-filter-6" onclick="setSemesterFilter(6)">6ο</button>
+            <button class="filter-btn" id="btn-filter-7" onclick="setSemesterFilter(7)">7ο</button>
+            <button class="filter-btn" id="btn-filter-8" onclick="setSemesterFilter(8)">8ο</button>
+            <button class="filter-btn" id="btn-filter-9" onclick="setSemesterFilter(9)">9ο</button>
+            <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
         </div>
 
         <div class="search-section">
@@ -60,11 +54,25 @@
         </div>
     </div>
 
+    <button id="backToTop" onclick="scrollToTop()" title="Πίσω στην κορυφή">⬆️</button>
+
     <script>
-        // Αντί για index, τώρα αποθηκεύουμε το μοναδικό ID του μαθήματος που επεξεργαζόμαστε
         let currentEditId = null;
+        let currentSemesterFilter = 'all'; // Νέα μεταβλητή για το επιλεγμένο εξάμηνο
 
         document.addEventListener('DOMContentLoaded', loadGrades);
+
+        // ΝΕΑ Συνάρτηση: Αλλάζει το φίλτρο εξαμήνου
+        function setSemesterFilter(sem) {
+            currentSemesterFilter = sem;
+            
+            // Αλλάζουμε το χρώμα (active) στα κουμπάκια για να ξέρουμε πού βρισκόμαστε
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-filter-' + sem).classList.add('active');
+            
+            // Ξαναζωγραφίζουμε τον πίνακα με βάση το νέο φίλτρο
+            loadGrades();
+        }
 
         function saveGrade() {
             const nameInput = document.getElementById("course").value;
@@ -79,7 +87,6 @@
             let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
 
             if (currentEditId === null) {
-                // ΠΡΟΣΘΗΚΗ: Φτιάχνουμε νέο μάθημα με μοναδικό ID (τη σημερινή ημερομηνία σε χιλιοστά του δευτερολέπτου!)
                 const newEntry = { 
                     id: Date.now(), 
                     name: nameInput, 
@@ -88,7 +95,6 @@
                 };
                 gradesList.push(newEntry);
             } else {
-                // ΕΠΕΞΕΡΓΑΣΙΑ: Βρίσκουμε το μάθημα με αυτό το ID και του αλλάζουμε τα στοιχεία
                 const index = gradesList.findIndex(entry => entry.id === currentEditId);
                 if (index !== -1) {
                     gradesList[index].name = nameInput;
@@ -99,17 +105,12 @@
                 document.getElementById("mainBtn").innerText = "Προσθήκη";
             }
 
-            // ΤΑΞΙΝΟΜΗΣΗ (Sorting): Ταξινομούμε πάντα τη λίστα με βάση το εξάμηνο πριν την αποθηκεύσουμε
             gradesList.sort((a, b) => a.semester - b.semester);
-
             localStorage.setItem("myGrades", JSON.stringify(gradesList));
 
-            // Καθαρισμός πεδίων
             document.getElementById("course").value = "";
             document.getElementById("grade").value = "";
             document.getElementById("semester").value = "";
-            
-            // Καθαρίζουμε και την αναζήτηση για να φανεί το νέο μάθημα
             document.getElementById("searchInput").value = "";
 
             loadGrades();
@@ -117,8 +118,6 @@
 
         function editGrade(idToEdit) {
             let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-            
-            // Ψάχνουμε το μάθημα με το συγκεκριμένο ID
             const entryToEdit = gradesList.find(entry => entry.id === idToEdit);
 
             if (entryToEdit) {
@@ -129,18 +128,13 @@
                 currentEditId = idToEdit;
                 document.getElementById("mainBtn").innerText = "Αποθήκευση Αλλαγών";
 
-                // ΝΕΟ: Αυτόματο scroll στην κορυφή της σελίδας (Ομαλά)
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+                // Αυτόματο scroll πάνω
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        // Κράτησα και τη διαγραφή, είναι κρίσιμη για να μπορείς να σβήνεις τα δοκιμαστικά σου!
         function deleteGrade(idToRemove) {
             let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-            // Κρατάμε ΟΛΑ τα μαθήματα ΕΚΤΟΣ από αυτό που πατήσαμε Διαγραφή
             gradesList = gradesList.filter(entry => entry.id !== idToRemove);
             localStorage.setItem("myGrades", JSON.stringify(gradesList));
             loadGrades();
@@ -152,21 +146,32 @@
 
             let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
             
-            // --- Μικρό κόλπο για τα παλιά σου μαθήματα που δεν είχαν ID ---
+            // Διόρθωση παλιών μαθημάτων που δεν είχαν ID
             let needsSave = false;
             gradesList.forEach(entry => {
                 if (!entry.id) {
-                    entry.id = Date.now() + Math.random(); // Δημιουργία τυχαίου ID
+                    entry.id = Date.now() + Math.random(); 
                     needsSave = true;
                 }
             });
             if (needsSave) localStorage.setItem("myGrades", JSON.stringify(gradesList));
-            // -------------------------------------------------------------
 
-            // 1. Υπολογισμός Μέσου Όρου (Από ΟΛΑ τα μαθήματα, περασμένα >= 5)
+            gradesList.sort((a, b) => a.semester - b.semester);
+
+            // --- ΝΕΟ: Φιλτράρισμα Εξαμήνου ---
+            let displayList = gradesList;
+            if (currentSemesterFilter !== 'all') {
+                displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
+            }
+
+            // Φιλτράρισμα Αναζήτησης
+            const searchQuery = document.getElementById("searchInput").value.toLowerCase();
+            displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
+
+            // Υπολογισμός Μέσου Όρου (υπολογίζεται ΜΟΝΟ για όσα φαίνονται στον πίνακα τώρα)
             let passedSum = 0; 
             let passedCount = 0;
-            gradesList.forEach(entry => {
+            displayList.forEach(entry => {
                 if (entry.grade >= 5) {
                     passedSum += entry.grade;
                     passedCount++;            
@@ -180,15 +185,8 @@
                 document.getElementById("averageSpan").innerText = "-";
             }
 
-            // 2. Ταξινόμηση ανά εξάμηνο για σιγουριά
-            gradesList.sort((a, b) => a.semester - b.semester);
-
-            // 3. Φιλτράρισμα ΑΝΑΖΗΤΗΣΗΣ
-            const searchQuery = document.getElementById("searchInput").value.toLowerCase();
-            const filteredList = gradesList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
-
-            // 4. Ζωγραφική του πίνακα ΜΟΝΟ με τα μαθήματα που ταιριάζουν στην αναζήτηση
-            filteredList.forEach(entry => {
+            // Ζωγραφική του πίνακα
+            displayList.forEach(entry => {
                 let row = `<tr>
                                 <td>${entry.name}</td>
                                 <td>${entry.grade}</td>
@@ -200,6 +198,21 @@
                             </tr>`;
                 tableBody.innerHTML += row;
             });
+        }
+
+        // --- ΝΕΟ: Λειτουργία για το Back to Top ---
+        window.onscroll = function() {
+            const topBtn = document.getElementById("backToTop");
+            // Αν κατεβούμε κάτω από 200 pixels, εμφάνισε το κουμπί!
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                topBtn.style.display = "block";
+            } else {
+                topBtn.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
