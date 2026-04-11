@@ -70,7 +70,10 @@
                 tableBody.innerHTML = "";
 
                 let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
-                let totalSum = 0;
+                
+                // Προσθέτουμε τις σωστές μεταβλητές εδώ!
+                let passedSum = 0; 
+                let passedCount = 0;
 
                 if(gradesList.length === 0){
                     document.getElementById("averageSpan").innerText = "-";
@@ -78,7 +81,7 @@
                 }
 
                 gradesList.forEach(function(entry, index) {
-                    totalSum += entry.grade; 
+                    // (Σβήσαμε το totalSum από εδώ)
 
                     let row = `<tr>
                                     <td>${entry.name}</td>
@@ -86,20 +89,18 @@
                                     <td>${entry.semester}</td>
                                     <td><button class="delete-btn" onclick="deleteGrade(${index})">Διαγραφή</button></td>
                                 </tr>`;
-                    tableBody.innerHTML +=row;
+                    tableBody.innerHTML += row;
+                    
                     if (entry.grade >= 5) {
-                        passedSum += entry.grade; // Τον προσθέτουμε στο συνολικό άθροισμα
-                        passedCount++;            // Μετράμε +1 μάθημα που περάστηκε
+                        passedSum += entry.grade; // Τώρα ο browser ξέρει τι είναι αυτό!
+                        passedCount++;            
                     }
-
                 });
 
                 if (passedCount > 0) {
-                    // Αν έχει περάσει έστω ένα μάθημα, βγάζουμε τον μέσο όρο
                     const average = passedSum / passedCount;
                     document.getElementById("averageSpan").innerText = average.toFixed(2);
                 } else {
-                    // Αποφυγή σφάλματος: Αν έχει μόνο κομμένα μαθήματα, δεν μπορούμε να διαιρέσουμε με το μηδέν!
                     document.getElementById("averageSpan").innerText = "-";
                 }
             }
