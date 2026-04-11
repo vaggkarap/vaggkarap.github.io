@@ -200,3 +200,55 @@ th { background-color: #34495e; color: white; }
     background-color: #34495e;
     transform: scale(1.1);
 }
+/* =========================================
+   ΠΡΟΣΑΡΜΟΓΗ ΓΙΑ ΚΙΝΗΤΑ (RESPONSIVE DESIGN)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. Η λευκή κάρτα πιάνει σχεδόν όλη την οθόνη αντί για 700px */
+    .container {
+        width: 90%;
+        padding: 15px;
+    }
+
+    /* 2. Η εικόνα του ΠΑΔΑ να μικραίνει αυτόματα */
+    #uniwa {
+        width: 100%;
+        height: auto;
+    }
+
+    /* 3. Τα κουτάκια εισαγωγής μπαίνουν το ένα κάτω από το άλλο */
+    .input-selection {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* 4. Τα κουτάκια και το κουμπί πιάνουν όλο το πλάτος (100%) */
+    #course, #grade, #semester, #mainBtn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 5. Τα κουμπάκια των εξαμήνων γίνονται λίγο πιο μικρά για να χωράνε */
+    .filter-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* 6. Αν ο πίνακας είναι πολύ φαρδύς, δημιουργεί δικό του scroll 
+          για να μην χαλάει την υπόλοιπη σελίδα */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* 7. Τα κουμπιά Backup μπαίνουν και αυτά το ένα κάτω από το άλλο */
+    .backup-section {
+        flex-direction: column;
+    }
+    
+    .backup-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
