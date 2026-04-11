@@ -20,7 +20,7 @@ body {
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    width: 1000px; /* Το μεγάλωσα λίγο για να χωράνε οι νέες στήλες */
+    width: 900px; /* Το μεγάλωσα λίγο για να χωράνε οι νέες στήλες */
     text-align: center;
     transition: 0.4s ease;
 }
