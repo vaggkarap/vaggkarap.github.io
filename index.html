@@ -58,19 +58,14 @@
 
     <script>
         let currentEditId = null;
-        let currentSemesterFilter = 'all'; // Νέα μεταβλητή για το επιλεγμένο εξάμηνο
+        let currentSemesterFilter = 'all'; 
 
         document.addEventListener('DOMContentLoaded', loadGrades);
 
-        // ΝΕΑ Συνάρτηση: Αλλάζει το φίλτρο εξαμήνου
         function setSemesterFilter(sem) {
             currentSemesterFilter = sem;
-            
-            // Αλλάζουμε το χρώμα (active) στα κουμπάκια για να ξέρουμε πού βρισκόμαστε
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-filter-' + sem).classList.add('active');
-            
-            // Ξαναζωγραφίζουμε τον πίνακα με βάση το νέο φίλτρο
             loadGrades();
         }
 
@@ -127,8 +122,6 @@
 
                 currentEditId = idToEdit;
                 document.getElementById("mainBtn").innerText = "Αποθήκευση Αλλαγών";
-
-                // Αυτόματο scroll πάνω
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
@@ -146,7 +139,6 @@
 
             let gradesList = JSON.parse(localStorage.getItem("myGrades")) || [];
             
-            // Διόρθωση παλιών μαθημάτων που δεν είχαν ID
             let needsSave = false;
             gradesList.forEach(entry => {
                 if (!entry.id) {
@@ -158,17 +150,14 @@
 
             gradesList.sort((a, b) => a.semester - b.semester);
 
-            // --- ΝΕΟ: Φιλτράρισμα Εξαμήνου ---
             let displayList = gradesList;
             if (currentSemesterFilter !== 'all') {
                 displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
             }
 
-            // Φιλτράρισμα Αναζήτησης
             const searchQuery = document.getElementById("searchInput").value.toLowerCase();
             displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
 
-            // Υπολογισμός Μέσου Όρου (υπολογίζεται ΜΟΝΟ για όσα φαίνονται στον πίνακα τώρα)
             let passedSum = 0; 
             let passedCount = 0;
             displayList.forEach(entry => {
@@ -185,11 +174,14 @@
                 document.getElementById("averageSpan").innerText = "-";
             }
 
-            // Ζωγραφική του πίνακα
             displayList.forEach(entry => {
+                // --- Η ΜΑΓΕΙΑ ΕΙΝΑΙ ΕΔΩ ---
+                // Ελέγχουμε αν πέρασε το μάθημα και διαλέγουμε τη σωστή κλάση
+                let gradeClass = entry.grade >= 5 ? "grade-pass" : "grade-fail";
+
                 let row = `<tr>
                                 <td>${entry.name}</td>
-                                <td>${entry.grade}</td>
+                                <td class="${gradeClass}">${entry.grade}</td>
                                 <td>${entry.semester}</td>
                                 <td>
                                     <button class="edit-btn" onclick="editGrade(${entry.id})">Επεξεργασία</button>
@@ -200,10 +192,8 @@
             });
         }
 
-        // --- ΝΕΟ: Λειτουργία για το Back to Top ---
         window.onscroll = function() {
             const topBtn = document.getElementById("backToTop");
-            // Αν κατεβούμε κάτω από 200 pixels, εμφάνισε το κουμπί!
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
                 topBtn.style.display = "block";
             } else {
