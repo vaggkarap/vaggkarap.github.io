@@ -1,8 +1,9 @@
 /*
 git add .
-git commit -m " "
+git commit -m "Ολοκλήρωση CSS με αναζήτηση και ομοιόμορφα κουμπιά"
 git push
 */
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: rgb(46, 170, 192);
@@ -26,8 +27,29 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Στιλ για την Μπάρα Αναζήτησης */
+.search-section {
+    margin-bottom: 20px;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
 /* Στιλ για τα κουτάκια εισαγωγής */
-.input-section {
+.input-selection {
     display: flex;
     justify-content: space-between;
     margin-bottom: 30px;
@@ -41,9 +63,10 @@ input {
 }
 
 #course { width: 30%; }
-#course { width: 25%; }
+#grade { width: 25%; }
 #semester {width: 25%;}
 
+/* Το Πράσινο Κουμπί Προσθήκης/Αποθήκευσης */
 button {
     background-color: #27ae60;
     color: white;
@@ -76,13 +99,25 @@ th {
     color: white;
 }
 
-/* Στιλ για το κουμπί διαγραφής */
-.delete-btn {
-    background-color: #e74c3c;
-    padding: 5px 10px;
+/* --- Τα Κουμπιά του Πίνακα (Επεξεργασία & Διαγραφή) --- */
+.edit-btn, .delete-btn {
+    width: 110px;          /* Σταθερό πλάτος για να είναι ολόιδια! */
+    margin: 2px;
+    padding: 8px 10px;
     font-size: 14px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
+/* Χρώμα Επεξεργασίας */
+.edit-btn { background-color: #f39c12; }
+.edit-btn:hover { background-color: #e67e22; }
+
+/* Χρώμα Διαγραφής */
+.delete-btn { background-color: #e74c3c; }
 .delete-btn:hover { background-color: #c0392b; }
 
 .average-section {
