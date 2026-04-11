@@ -1,3 +1,9 @@
+/*
+git add .
+git commit -m "Ολοκλήρωση εφαρμογής: Αναζήτηση, Tabs, Excel I/O, Χρώματα, Back-to-top"
+git push
+*/
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: rgb(46, 170, 192);
@@ -22,7 +28,7 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* Tabs Εξαμήνων */
+/* --- Tabs Εξαμήνων --- */
 .semester-filter {
     display: flex;
     flex-wrap: wrap;
@@ -48,10 +54,14 @@ h1 {
 .filter-btn.active {
     background-color: #2980b9;
     color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Search */
-.search-section { margin-bottom: 20px; }
+/* --- Αναζήτηση --- */
+.search-section {
+    margin-bottom: 20px;
+}
+
 #searchInput {
     width: 100%;
     padding: 12px;
@@ -59,9 +69,16 @@ h1 {
     border-radius: 5px;
     font-size: 16px;
     box-sizing: border-box;
+    transition: 0.3s;
 }
 
-/* Φόρμα */
+#searchInput:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
+/* --- Φόρμα Εισαγωγής --- */
 .input-selection {
     display: flex;
     justify-content: space-between;
@@ -85,10 +102,14 @@ input {
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-/* Πίνακας & Βαθμοί */
+#mainBtn:hover { background-color: #219150; }
+
+/* --- Πίνακας & Βαθμοί --- */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -106,21 +127,33 @@ th { background-color: #34495e; color: white; }
 .grade-pass { color: #27ae60; font-weight: bold; }
 .grade-fail { color: #e74c3c; font-weight: bold; }
 
-/* Κουμπιά Πίνακα */
+/* --- Κουμπιά Πίνακα (Επεξεργασία & Διαγραφή) --- */
 .edit-btn, .delete-btn {
     width: 110px;
     margin: 2px;
     padding: 8px 10px;
+    font-size: 14px;
+    color: white;
     border: none;
     border-radius: 5px;
-    color: white;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-.edit-btn { background-color: #04619e; }
-.delete-btn { background-color: #e74c3c; }
+.edit-btn { background-color: #f39c12; }
+.edit-btn:hover { background-color: #e67e22; }
 
-/* Backup Section */
+.delete-btn { background-color: #e74c3c; }
+.delete-btn:hover { background-color: #c0392b; }
+
+.average-section {
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    color: #2c3e50;
+}
+
+/* --- Backup/Restore Excel Section --- */
 .backup-section {
     margin-top: 20px;
     padding-top: 20px;
@@ -138,12 +171,14 @@ th { background-color: #34495e; color: white; }
     font-size: 14px;
     cursor: pointer;
     transition: 0.3s;
+    font-weight: bold;
 }
 
-.backup-btn.export { background-color: #8e44ad; }
+.backup-btn:hover { opacity: 0.9; }
+.backup-btn.export { background-color: #107c41; } /* Πράσινο του Excel */
 .backup-btn.import { background-color: #34495e; }
 
-/* Back to Top */
+/* --- Back to Top --- */
 #backToTop {
     display: none;
     position: fixed;
@@ -155,5 +190,13 @@ th { background-color: #34495e; color: white; }
     padding: 15px;
     border-radius: 50%;
     cursor: pointer;
+    font-size: 20px;
     box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    z-index: 99;
+}
+
+#backToTop:hover {
+    background-color: #34495e;
+    transform: scale(1.1);
 }
