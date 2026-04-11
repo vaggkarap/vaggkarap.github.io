@@ -140,8 +140,8 @@ th { background-color: #34495e; color: white; }
     transition: 0.3s;
 }
 
-.edit-btn { background-color: #f39c12; }
-.edit-btn:hover { background-color: #e67e22; }
+.edit-btn { background-color: #12a1f3; }
+.edit-btn:hover { background-color: #0d67bb; }
 
 .delete-btn { background-color: #e74c3c; }
 .delete-btn:hover { background-color: #c0392b; }
