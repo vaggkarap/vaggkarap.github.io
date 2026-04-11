@@ -79,6 +79,12 @@
             <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
         </div>
 
+        <div class="backup-section">
+            <button class="backup-btn export" onclick="exportToFile()">💾 Εξαγωγή σε Excel</button>
+            <label for="importFile" class="backup-btn import">📂 Φόρτωση από Excel</label>
+            <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importFromFile(event)">
+        </div>
+
     </div>
 
     <button id="backToTop" onclick="scrollToTop()" title="Πίσω στην κορυφή">⬆️</button>
@@ -86,7 +92,6 @@
     <script>
         // ==========================================
         // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE 
-        // (ΒΑΛΕ ΤΟ ΔΙΚΟ ΣΟΥ ΕΓΚΥΡΟ API KEY ΕΔΩ!!!)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", // <--- ΜΗΝ ΤΟ ΞΕΧΑΣΕΙΣ
@@ -105,7 +110,7 @@
         let currentUser = null;
         let globalGrades = [];
         let currentEditId = null;
-        let currentSemesterFilter = 'all'; // Προστέθηκε ξανά η μεταβλητή του φίλτρου
+        let currentSemesterFilter = 'all'; 
 
         // ==========================================
         // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ
@@ -161,7 +166,6 @@
                       data.id = doc.id; 
                       globalGrades.push(data);
                   });
-                  // Ταξινόμηση ανά εξάμηνο
                   globalGrades.sort((a, b) => a.semester - b.semester);
                   renderTable();
               });
@@ -218,8 +222,6 @@
         // ==========================================
         // 4. ΕΜΦΑΝΙΣΗ (UI ΛΟΓΙΚΗ)
         // ==========================================
-        
-        // Λειτουργία Φίλτρων
         function setSemesterFilter(sem) {
             currentSemesterFilter = sem;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -233,28 +235,22 @@
 
             let displayList = globalGrades;
 
-            // 1. Εφαρμογή Φίλτρου Εξαμήνου
             if (currentSemesterFilter !== 'all') {
                 displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
             }
 
-            // 2. Εφαρμογή Αναζήτησης
             const searchQuery = document.getElementById("searchInput").value.toLowerCase();
             displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
 
-            let passedSum = 0; 
-            let passedCount = 0;
+            let passedSum = 0, passedCount = 0;
 
             displayList.forEach(entry => {
-                // Υπολογισμός Μέσου Όρου (Μόνο όσα φαίνονται και είναι >= 5)
                 if (entry.grade >= 5) {
                     passedSum += entry.grade;
                     passedCount++;            
                 }
                 
-                // Χρώματα Βαθμού (Πράσινο/Κόκκινο)
                 let gradeClass = entry.grade >= 5 ? "grade-pass" : "grade-fail";
-                
                 let row = `<tr>
                                 <td>${entry.name}</td>
                                 <td class="${gradeClass}">${entry.grade}</td>
@@ -267,16 +263,106 @@
                 tableBody.innerHTML += row;
             });
 
-            // Εμφάνιση Μέσου Όρου
             if (passedCount > 0) {
-                const average = passedSum / passedCount;
-                document.getElementById("averageSpan").innerText = average.toFixed(2);
+                document.getElementById("averageSpan").innerText = (passedSum / passedCount).toFixed(2);
             } else {
                 document.getElementById("averageSpan").innerText = "-";
             }
         }
 
-        // Back to Top Λειτουργία
+        // ==========================================
+        // 5. EXCEL (CSV) ΜΕ FIREBASE INTEGRATION
+        // ==========================================
+        function exportToFile() {
+            if (globalGrades.length === 0) {
+                alert("Δεν υπάρχουν βαθμοί για αποθήκευση!");
+                return;
+            }
+
+            let csvContent = "Μάθημα,Βαθμός,Εξάμηνο\n";
+            globalGrades.forEach(entry => {
+                let safeName = entry.name.includes(',') ? `"${entry.name}"` : entry.name;
+                csvContent += `${safeName},${entry.grade},${entry.semester}\n`;
+            });
+
+            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "vathmoi_excel.csv";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function importFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n');
+                    let newGrades = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue; 
+
+                        const parts = line.split(',');
+                        let nameStr = parts[0].replace(/(^"|"$)/g, ''); 
+                        let gradeNum = parseFloat(parts[1]);
+                        let semesterNum = parseInt(parts[2]);
+
+                        if (nameStr && !isNaN(gradeNum) && !isNaN(semesterNum)) {
+                            newGrades.push({
+                                name: nameStr,
+                                grade: gradeNum,
+                                semester: semesterNum
+                            });
+                        }
+                    }
+
+                    if (newGrades.length > 0) {
+                        if(confirm("Προσοχή! Η φόρτωση θα διαγράψει τους τρέχοντες βαθμούς από το Cloud και θα τους αντικαταστήσει με αυτούς του Excel. Είστε σίγουροι;")) {
+                            
+                            const userGradesRef = db.collection("users").doc(currentUser.uid).collection("grades");
+                            
+                            // Μαζική εγγραφή (Batch) για να γίνουν όλα ταυτόχρονα και με ασφάλεια!
+                            const batch = db.batch();
+
+                            // 1. Βρίσκουμε και διαγράφουμε τους παλιούς βαθμούς
+                            const snapshot = await userGradesRef.get();
+                            snapshot.docs.forEach(doc => {
+                                batch.delete(doc.ref);
+                            });
+
+                            // 2. Προσθέτουμε τους νέους
+                            newGrades.forEach(grade => {
+                                const newDocRef = userGradesRef.doc(); // Δημιουργεί αυτόματα νέο ID
+                                batch.set(newDocRef, grade);
+                            });
+
+                            // 3. Στέλνουμε τις αλλαγές στη Firebase!
+                            await batch.commit();
+                            alert("Οι βαθμοί φορτώθηκαν επιτυχώς στο Cloud!");
+                        }
+                    } else {
+                        alert("Το αρχείο δεν περιέχει έγκυρα δεδομένα.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Σφάλμα κατά την ανάγνωση του αρχείου.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Μηδενισμός για να μπορείς να ξανανεβάσεις το ίδιο αρχείο
+        }
+
+        // Back to Top
         window.onscroll = function() {
             const topBtn = document.getElementById("backToTop");
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
