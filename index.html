@@ -87,11 +87,21 @@
                                     <td><button class="delete-btn" onclick="deleteGrade(${index})">Διαγραφή</button></td>
                                 </tr>`;
                     tableBody.innerHTML +=row;
+                    if (entry.grade >= 5) {
+                        passedSum += entry.grade; // Τον προσθέτουμε στο συνολικό άθροισμα
+                        passedCount++;            // Μετράμε +1 μάθημα που περάστηκε
+                    }
 
                 });
 
-                const average = totalSum / gradesList.length;
-                document.getElementById("averageSpan").innerText = average.toFixed(2);
+                if (passedCount > 0) {
+                    // Αν έχει περάσει έστω ένα μάθημα, βγάζουμε τον μέσο όρο
+                    const average = passedSum / passedCount;
+                    document.getElementById("averageSpan").innerText = average.toFixed(2);
+                } else {
+                    // Αποφυγή σφάλματος: Αν έχει μόνο κομμένα μαθήματα, δεν μπορούμε να διαιρέσουμε με το μηδέν!
+                    document.getElementById("averageSpan").innerText = "-";
+                }
             }
 
             function deleteGrade(indexToRemove){
