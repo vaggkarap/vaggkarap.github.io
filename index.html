@@ -141,6 +141,10 @@
             <select id="examCourseSelect">
                 <option value="">Επιλέξτε Μάθημα...</option>
             </select>
+            <select id="examType">
+                <option value="Θεωρία">Θεωρία</option>
+                <option value="Εργαστήριο">Εργαστήριο</option>
+            </select>
             <input type="text" id="examDateTime" placeholder="Ημερομηνία & Ώρα">
             <input type="text" id="examRoom" placeholder="Αίθουσα">
             <textarea id="examNotes" placeholder="Σημειώσεις (π.χ. SOS, Ύλη)..." style="width: 100%; margin-top: 10px; border-radius: 5px; padding: 10px; border: 1px solid #ccc; font-family: inherit;"></textarea>
@@ -150,7 +154,7 @@
             <thead>
                 <tr>
                     <th>Μάθημα</th>
-                    <th>Ημερομηνία & Ώρα</th>
+                    <th>Τύπος</th> <th>Ημερομηνία & Ώρα</th>
                     <th>Αίθουσα</th>
                     <th>Σημειώσεις</th>
                     <th>Ενέργεια</th>
@@ -426,19 +430,18 @@
 
         function saveExam() {
             const course = document.getElementById('examCourseSelect').value;
+            const type = document.getElementById('examType').value; // Νέο
             const dateTime = document.getElementById('examDateTime').value;
             const room = document.getElementById('examRoom').value;
             const notes = document.getElementById('examNotes').value;
 
             if(!course || !dateTime) return alert("Επιλέξτε μάθημα και ημερομηνία!");
 
-            const examData = { course, dateTime, room, notes };
+            const examData = { course, type, dateTime, room, notes };
             const ref = db.collection("users").doc(currentUser.uid).collection("exams");
 
             if(currentExamEditId === null) {
-                ref.add(examData).then(() => {
-                    alert("Η εξέταση προστέθηκε!");
-                });
+                ref.add(examData);
             } else {
                 ref.doc(currentExamEditId).update(examData).then(() => {
                     currentExamEditId = null;
@@ -446,7 +449,6 @@
                 });
             }
             
-            // Καθαρισμός πεδίων
             document.getElementById('examDateTime').value = "";
             document.getElementById('examRoom').value = "";
             document.getElementById('examNotes').value = "";
@@ -456,6 +458,7 @@
             const e = globalExams.find(item => item.id === id);
             if (!e) return;
             document.getElementById('examCourseSelect').value = e.course;
+            document.getElementById('examType').value = e.type || "Θεωρία"; // Νέο
             document.getElementById('examDateTime').value = e.dateTime;
             document.getElementById('examRoom').value = e.room || "";
             document.getElementById('examNotes').value = e.notes || "";
@@ -469,35 +472,32 @@
             if (!body) return;
             body.innerHTML = "";
             
-            const now = new Date(); // Σήμερα: 12-04-2026
+            const now = new Date();
 
-            globalExams.forEach(e => {
+            // 1. ΤΑΞΙΝΟΜΗΣΗ: Οι πλησιέστερες εξετάσεις πρώτες
+            let sortedExams = [...globalExams].sort((a, b) => {
+                return new Date(a.dateTime) - new Date(b.dateTime);
+            });
+
+            sortedExams.forEach(e => {
                 let formattedDateTime = "-";
                 let isPast = false;
 
                 if (e.dateTime) {
-                    // Δημιουργούμε το αντικείμενο ημερομηνίας σωστά για τη σύγκριση
-                    // Το e.dateTime είναι σε μορφή YYYY-MM-DD HH:mm από τη βάση
                     const examDateObj = new Date(e.dateTime); 
+                    if (examDateObj < now) isPast = true;
 
-                    // Αν η ημερομηνία της εξέτασης είναι μικρότερη από ΤΩΡΑ, τότε πέρασε
-                    if (examDateObj < now) {
-                        isPast = true;
-                    }
-
-                    // Μετατροπή για την εμφάνιση στον πίνακα (DD-MM-YYYY)
                     const [datePart, timePart] = e.dateTime.split(" ");
                     const dateParts = datePart.split("-");
                     formattedDateTime = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${timePart}`;
                 }
 
-                // Εφαρμογή του πράσινου χρώματος αν isPast είναι true
                 const rowStyle = isPast ? 'style="color: #27ae60 !important; font-weight: bold;"' : '';
 
                 body.innerHTML += `
                     <tr ${rowStyle}>
                         <td>${e.course}</td>
-                        <td>${formattedDateTime}</td>
+                        <td>${e.type || "-"}</td> <td>${formattedDateTime}</td>
                         <td>${e.room || "-"}</td>
                         <td style="font-size: 12px; color: inherit;">${e.notes || "-"}</td>
                         <td>
