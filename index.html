@@ -107,6 +107,7 @@
 
     <div class="container" id="tasksScreen" style="display: none;">
         <h1>Λίστα Εργασιών</h1>
+        
         <div class="input-selection">
             <select id="taskCourseSelect">
                 <option value="">Επιλέξτε Μάθημα...</option>
@@ -115,7 +116,12 @@
                 <option value="Θεωρία">Θεωρία</option>
                 <option value="Εργαστήριο">Εργαστήριο</option>
             </select>
-            <input type="date" id="taskDueDate">
+            <select id="taskStatus">
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+            </select>
+            <input type="date" id="taskDueDate" title="Ημερομηνία Παράδοσης (Προαιρετικό)">
             <button id="mainBtn" onclick="saveTask()">Προσθήκη Εργασίας</button>
         </div>
 
@@ -124,6 +130,7 @@
                 <tr>
                     <th>Μάθημα</th>
                     <th>Τύπος</th>
+                    <th>Κατάσταση (Status)</th>
                     <th>Ημ. Παράδοσης</th>
                     <th>Ενέργεια</th>
                 </tr>
@@ -147,8 +154,7 @@
             projectId: "universitygrades-58ed7",
             storageBucket: "universitygrades-58ed7.firebasestorage.app",
             messagingSenderId: "403775984431",
-            appId: "1:403775984431:web:e37a5618870f985ffe87da",
-            measurementId: "G-4738X1ER9F"
+            appId: "1:403775984431:web:e37a5618870f985ffe87da"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -222,7 +228,7 @@
         function fetchGradesFromDB() {
             db.collection("users").doc(currentUser.uid).collection("grades").onSnapshot(snap => {
                 globalGrades = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateCourseDropdown(); // Ενημερώνει τη λίστα στις Εργασίες!
+                updateCourseDropdown(); // Ενημερώνει τη λίστα στις Εργασίες (Αλφαβητικά)
                 renderTable();
             });
         }
@@ -266,9 +272,6 @@
             if(confirm("Διαγραφή μαθήματος;")) db.collection("users").doc(currentUser.uid).collection("grades").doc(docId).delete();
         }
 
-        // ==========================================
-        // UI ΒΑΘΜΩΝ (ΦΙΛΤΡΑ & ΠΙΝΑΚΑΣ)
-        // ==========================================
         function setSemesterFilter(sem) {
             currentSemesterFilter = sem;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -318,20 +321,16 @@
         }
 
         // ==========================================
-        // ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ (TASKS)
+        // ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ (TASKS) - ΜΕ STATUS ΚΑΙ ΧΡΩΜΑΤΑ
         // ==========================================
         function updateCourseDropdown() {
             const select = document.getElementById('taskCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
             
-            // 1. Δημιουργούμε ένα αντίγραφο των βαθμών και το ταξινομούμε αλφαβητικά (στα Ελληνικά)
             const sortedCourses = [...globalGrades].sort((a, b) => a.name.localeCompare(b.name, 'el'));
-
-            // 2. Φτιάχνουμε τις επιλογές (options) από την ταξινομημένη λίστα
             sortedCourses.forEach(g => {
                 const opt = document.createElement('option');
-                opt.value = g.name; 
-                opt.innerText = g.name;
+                opt.value = g.name; opt.innerText = g.name;
                 select.appendChild(opt);
             });
         }
@@ -340,25 +339,42 @@
             db.collection("users").doc(currentUser.uid).collection("tasks").onSnapshot(snap => {
                 globalTasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderTasks();
+            }, error => {
+                alert("Σφάλμα συγχρονισμού εργασιών!");
+                console.error(error);
             });
         }
 
         function saveTask() {
             const course = document.getElementById('taskCourseSelect').value;
             const type = document.getElementById('taskType').value;
+            const status = document.getElementById('taskStatus').value;
             const date = document.getElementById('taskDueDate').value;
             
             if(!course) return alert("Επιλέξτε μάθημα από τη λίστα!");
             
-            db.collection("users").doc(currentUser.uid).collection("tasks").add({ course, type, dueDate: date });
-            document.getElementById('taskDueDate').value = ""; // Καθαρισμός ημερομηνίας
+            db.collection("users").doc(currentUser.uid).collection("tasks").add({ 
+                course, type, status, dueDate: date 
+            }).then(() => {
+                document.getElementById('taskDueDate').value = ""; 
+                document.getElementById('taskStatus').value = "Not Started";
+            }).catch(error => {
+                alert("Σφάλμα! Ελέγξτε τα rules της Firebase.");
+                console.error(error);
+            });
+        }
+
+        // Ενημερώνει το Status απευθείας από τον πίνακα
+        function updateTaskStatus(taskId, newStatus) {
+            db.collection("users").doc(currentUser.uid).collection("tasks").doc(taskId).update({
+                status: newStatus
+            });
         }
 
         function renderTasks() {
             const body = document.getElementById('tasksTableBody');
             body.innerHTML = "";
             
-            // Ταξινόμηση Ημερομηνίας: Κοντινότερη πρώτα, Κενά στο τέλος
             const sorted = [...globalTasks].sort((a,b) => {
                 if(!a.dueDate) return 1; if(!b.dueDate) return -1;
                 return new Date(a.dueDate) - new Date(b.dueDate);
@@ -366,17 +382,46 @@
 
             sorted.forEach(t => {
                 const badgeClass = t.type === 'Θεωρία' ? 'badge-theory' : 'badge-lab';
+                const currentStatus = t.status || 'Not Started'; // Ασφάλεια για παλιές εργασίες
                 
-                // Μορφοποίηση ημερομηνίας σε Ελληνικό format (πχ 15/05/2024)
+                // Υπολογισμός Ημερών (Για Χρώματα)
+                let isDueSoon = false;
+                let isOverdue = false;
                 let displayDate = "-";
+
                 if(t.dueDate) {
-                    const d = new Date(t.dueDate);
-                    displayDate = d.toLocaleDateString('el-GR');
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    const due = new Date(t.dueDate);
+                    due.setHours(0,0,0,0);
+                    
+                    const diffDays = (due - today) / (1000 * 60 * 60 * 24);
+                    
+                    if (diffDays < 0) isOverdue = true;
+                    else if (diffDays <= 2) isDueSoon = true;
+
+                    displayDate = due.toLocaleDateString('el-GR');
                 }
 
-                body.innerHTML += `<tr>
+                // Λογική CSS Classes
+                let rowClass = "";
+                if (currentStatus === 'Done') rowClass = "task-done"; // Το Done υπερισχύει
+                else if (isOverdue) rowClass = "task-overdue";
+                else if (isDueSoon) rowClass = "task-due-soon";
+
+                // CSS Class για το Select Menu
+                let selectClass = "status-" + currentStatus.toLowerCase().replace(" ", "-");
+
+                body.innerHTML += `<tr class="${rowClass}">
                     <td>${t.course}</td>
                     <td><span class="badge ${badgeClass}">${t.type}</span></td>
+                    <td>
+                        <select class="status-select ${selectClass}" onchange="updateTaskStatus('${t.id}', this.value)">
+                            <option value="Not Started" ${currentStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                            <option value="In Progress" ${currentStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Done" ${currentStatus === 'Done' ? 'selected' : ''}>Done</option>
+                        </select>
+                    </td>
                     <td>${displayDate}</td>
                     <td><button class="delete-btn" style="width: auto; padding: 6px 12px;" onclick="deleteTask('${t.id}')">Διαγραφή</button></td>
                 </tr>`;
