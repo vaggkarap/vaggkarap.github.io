@@ -267,3 +267,35 @@ body.dark-theme #examNotes {
 body.dark-theme .exam-past td {
     color: #2ecc71 !important;
 }
+/* Διασφάλιση χρωμάτων στα κουμπιά */
+#mainBtn, #mainBtnTask, #mainBtnExam {
+    background-color: #27ae60 !important;
+    color: white !important;
+    transition: 0.3s ease;
+}
+
+#mainBtn:hover, #mainBtnTask:hover, #mainBtnExam:hover {
+    background-color: #219150 !important;
+    transform: translateY(-2px);
+}
+
+/* Στυλ για εξετάσεις που πέρασαν */
+.exam-past td {
+    color: #27ae60 !important;
+    font-weight: bold !important;
+}
+
+/* Πράσινο χρώμα για Dark Mode */
+body.dark-theme .exam-past td {
+    color: #2ecc71 !important;
+}
+
+/* Back to Top Button */
+#backToTop {
+    z-index: 1001;
+    transition: 0.3s;
+}
+
+#backToTop:hover {
+    transform: scale(1.1);
+}
