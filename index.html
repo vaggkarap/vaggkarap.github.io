@@ -360,11 +360,18 @@
             const body = document.getElementById('tasksTableBody');
             body.innerHTML = "";
             globalTasks.forEach(t => {
+                // Μετατροπή ημερομηνίας από YYYY-MM-DD σε DD-MM-YYYY
+                let formattedDate = "-";
+                if (t.dueDate) {
+                    const dateParts = t.dueDate.split("-");
+                    formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                }
+
                 body.innerHTML += `<tr>
                     <td>${t.course}</td>
                     <td>${t.type}</td>
                     <td>${t.status}</td>
-                    <td>${t.dueDate || "-"}</td>
+                    <td>${formattedDate}</td>
                     <td>
                         <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
                         <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
@@ -434,9 +441,17 @@
             const body = document.getElementById('examsTableBody');
             body.innerHTML = "";
             globalExams.forEach(e => {
+                // Μετατροπή ημερομηνίας και ώρας
+                let formattedDateTime = "-";
+                if (e.dateTime) {
+                    const [datePart, timePart] = e.dateTime.split(" ");
+                    const dateParts = datePart.split("-");
+                    formattedDateTime = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${timePart}`;
+                }
+
                 body.innerHTML += `<tr>
                     <td>${e.course}</td>
-                    <td>${e.dateTime}</td>
+                    <td>${formattedDateTime}</td>
                     <td>${e.room || "-"}</td>
                     <td style="font-size: 12px; color: gray;">${e.notes || "-"}</td>
                     <td>
