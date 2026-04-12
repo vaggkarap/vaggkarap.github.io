@@ -126,7 +126,7 @@
                 <tr>
                     <th>Μάθημα</th>
                     <th>Τύπος</th>
-                    <th>Κατάσταση (Status)</th>
+                    <th>Κατάσταση</th>
                     <th>Ημ. Παράδοσης</th>
                     <th>Ενέργεια</th>
                 </tr>
@@ -164,7 +164,7 @@
 
     <script>
         // ==========================================
-        // FIREBASE CONFIG
+        // CONFIG & GLOBALS
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", 
@@ -182,7 +182,9 @@
         let globalGrades = [];
         let globalTasks = [];
         let globalExams = [];
-        let currentEditId = null;
+        let currentGradeEditId = null;
+        let currentTaskEditId = null;
+        let currentExamEditId = null;
         let currentSemesterFilter = 'all'; 
         let currentSortMethod = 'semester_asc';
 
@@ -203,9 +205,7 @@
                 currentUser = null;
                 document.getElementById('loginScreen').style.display = 'block';
                 document.getElementById('mainHeader').style.display = 'none';
-                document.getElementById('appScreen').style.display = 'none';
-                document.getElementById('tasksScreen').style.display = 'none';
-                document.getElementById('examsScreen').style.display = 'none';
+                document.querySelectorAll('.container').forEach(c => { if(c.id !== 'loginScreen') c.style.display = 'none'; });
             }
         });
 
@@ -242,44 +242,27 @@
             const gradeData = { name, theory, lab, final, semester: sem };
             const ref = db.collection("users").doc(currentUser.uid).collection("grades");
 
-            if (currentEditId === null) {
+            if (currentGradeEditId === null) {
                 ref.add(gradeData);
             } else {
-                ref.doc(currentEditId).update(gradeData);
-                currentEditId = null;
+                ref.doc(currentGradeEditId).update(gradeData);
+                currentGradeEditId = null;
                 document.getElementById("mainBtn").innerText = "Προσθήκη Βαθμού";
             }
             document.querySelectorAll('#appScreen input').forEach(i => i.value = "");
         }
 
-        function editGrade(docId) {
-            const entry = globalGrades.find(g => g.id === docId);
-            if(entry) {
-                document.getElementById("course").value = entry.name;
-                document.getElementById("theoryGrade").value = entry.theory;
-                document.getElementById("labGrade").value = entry.lab || "";
-                document.getElementById("finalGrade").value = entry.final;
-                document.getElementById("semester").value = entry.semester;
-                currentEditId = docId;
-                document.getElementById("mainBtn").innerText = "Αποθήκευση";
-                scrollToTop();
-            }
+        function editGrade(id) {
+            const g = globalGrades.find(item => item.id === id);
+            document.getElementById("course").value = g.name;
+            document.getElementById("theoryGrade").value = g.theory;
+            document.getElementById("labGrade").value = g.lab || "";
+            document.getElementById("finalGrade").value = g.final;
+            document.getElementById("semester").value = g.semester;
+            currentGradeEditId = id;
+            document.getElementById("mainBtn").innerText = "Αποθήκευση Αλλαγών";
+            scrollToTop();
         }
-
-        function deleteGrade(docId) {
-            if(confirm("Διαγραφή μαθήματος;")) db.collection("users").doc(currentUser.uid).collection("grades").doc(docId).delete();
-        }
-
-        function setSemesterFilter(sem) {
-            currentSemesterFilter = sem;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-filter-' + sem).classList.add('active');
-            renderTable();
-        }
-
-        function setSortMethod(method) { currentSortMethod = method; renderTable(); }
-        function getColor(v) { return (v === null || v === "") ? "" : (v >= 5 ? "grade-pass" : "grade-fail"); }
-        function displayV(v) { return (v === null || v === "") ? "-" : v; }
 
         function renderTable() {
             const body = document.getElementById("tableBody");
@@ -303,9 +286,9 @@
                 if (e.final >= 5) { sum += e.final; count++; }
                 body.innerHTML += `<tr>
                     <td>${e.name}</td>
-                    <td class="${getColor(e.theory)}">${displayV(e.theory)}</td>
-                    <td class="${getColor(e.lab)}">${displayV(e.lab)}</td>
-                    <td class="${getColor(e.final)}">${displayV(e.final)}</td>
+                    <td>${e.theory}</td>
+                    <td>${e.lab || "-"}</td>
+                    <td style="font-weight:bold; color:${e.final >= 5 ? '#27ae60' : '#e74c3c'}">${e.final}</td>
                     <td>${e.semester}</td>
                     <td>
                         <button class="edit-btn" onclick="editGrade('${e.id}')">Επεξεργασία</button>
@@ -315,6 +298,10 @@
             });
             document.getElementById("averageSpan").innerText = count > 0 ? (sum / count).toFixed(2) : "-";
         }
+
+        function deleteGrade(id) { if(confirm("Διαγραφή μαθήματος;")) db.collection("users").doc(currentUser.uid).collection("grades").doc(id).delete(); }
+        function setSemesterFilter(sem) { currentSemesterFilter = sem; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); document.getElementById('btn-filter-' + sem).classList.add('active'); renderTable(); }
+        function setSortMethod(method) { currentSortMethod = method; renderTable(); }
 
         // ==========================================
         // ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ
@@ -342,9 +329,31 @@
             const type = document.getElementById('taskType').value;
             const status = document.getElementById('taskStatus').value;
             const date = document.getElementById('taskDueDate').value;
+            
             if(!course) return alert("Επιλέξτε μάθημα!");
-            db.collection("users").doc(currentUser.uid).collection("tasks").add({ course, type, status, dueDate: date });
+
+            const taskData = { course, type, status, dueDate: date };
+            const ref = db.collection("users").doc(currentUser.uid).collection("tasks");
+
+            if(currentTaskEditId === null) {
+                ref.add(taskData);
+            } else {
+                ref.doc(currentTaskEditId).update(taskData);
+                currentTaskEditId = null;
+                document.getElementById("mainBtnTask").innerText = "Προσθήκη Εργασίας";
+            }
             document.getElementById('taskDueDate').value = "";
+        }
+
+        function editTask(id) {
+            const t = globalTasks.find(item => item.id === id);
+            document.getElementById('taskCourseSelect').value = t.course;
+            document.getElementById('taskType').value = t.type;
+            document.getElementById('taskStatus').value = t.status;
+            document.getElementById('taskDueDate').value = t.dueDate || "";
+            currentTaskEditId = id;
+            document.getElementById("mainBtnTask").innerText = "Αποθήκευση Αλλαγών";
+            scrollToTop();
         }
 
         function renderTasks() {
@@ -356,7 +365,10 @@
                     <td>${t.type}</td>
                     <td>${t.status}</td>
                     <td>${t.dueDate || "-"}</td>
-                    <td><button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button></td>
+                    <td>
+                        <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
+                        <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
+                    </td>
                 </tr>`;
             });
         }
@@ -389,11 +401,33 @@
             const dateTime = document.getElementById('examDateTime').value;
             const room = document.getElementById('examRoom').value;
             const notes = document.getElementById('examNotes').value;
+
             if(!course || !dateTime) return alert("Επιλέξτε μάθημα και ημερομηνία!");
-            db.collection("users").doc(currentUser.uid).collection("exams").add({ course, dateTime, room, notes });
+
+            const examData = { course, dateTime, room, notes };
+            const ref = db.collection("users").doc(currentUser.uid).collection("exams");
+
+            if(currentExamEditId === null) {
+                ref.add(examData);
+            } else {
+                ref.doc(currentExamEditId).update(examData);
+                currentExamEditId = null;
+                document.getElementById("mainBtnExam").innerText = "Προσθήκη Εξέτασης";
+            }
             document.getElementById('examDateTime').value = "";
             document.getElementById('examRoom').value = "";
             document.getElementById('examNotes').value = "";
+        }
+
+        function editExam(id) {
+            const e = globalExams.find(item => item.id === id);
+            document.getElementById('examCourseSelect').value = e.course;
+            document.getElementById('examDateTime').value = e.dateTime;
+            document.getElementById('examRoom').value = e.room || "";
+            document.getElementById('examNotes').value = e.notes || "";
+            currentExamEditId = id;
+            document.getElementById("mainBtnExam").innerText = "Αποθήκευση Αλλαγών";
+            scrollToTop();
         }
 
         function renderExams() {
@@ -405,15 +439,18 @@
                     <td>${e.dateTime}</td>
                     <td>${e.room || "-"}</td>
                     <td style="font-size: 12px; color: gray;">${e.notes || "-"}</td>
-                    <td><button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button></td>
+                    <td>
+                        <button class="edit-btn" onclick="editExam('${e.id}')">Επεξεργασία</button>
+                        <button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button>
+                    </td>
                 </tr>`;
             });
         }
 
-        function deleteExam(id) { db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete(); }
+        function deleteExam(id) { if(confirm("Διαγραφή εξέτασης;")) db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete(); }
 
         // ==========================================
-        // THEME & UTILS
+        // THEME & UI UTILS
         // ==========================================
         function updateLogos(isDark) {
             const logo = isDark ? "uniwa-dark.png" : "uniwa-logo.png";
@@ -440,11 +477,9 @@
         }
 
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        window.onscroll = function() {
-            document.getElementById("backToTop").style.display = (window.scrollY > 300) ? "block" : "none";
-        };
+        window.onscroll = function() { document.getElementById("backToTop").style.display = (window.scrollY > 300) ? "block" : "none"; };
 
-        // Flatpickr Config
+        // Flatpickr Init
         flatpickr("#taskDueDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
         flatpickr("#examDateTime", { locale: "gr", enableTime: true, time_24hr: true, dateFormat: "Y-m-d H:i", altInput: true, altFormat: "d-m-Y H:i" });
 
@@ -455,9 +490,6 @@
         function registerUser() { auth.createUserWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value).then(u => u.user.sendEmailVerification()); }
         function logoutUser() { auth.signOut(); }
         function resetPassword() { auth.sendPasswordResetEmail(document.getElementById('emailInput').value); }
-        
-        function exportToFile() { /* Ίδια με πριν */ }
-        function importFromFile(e) { /* Ίδια με πριν */ }
     </script>
 </body>
 </html>
