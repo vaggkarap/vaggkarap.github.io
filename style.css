@@ -308,3 +308,13 @@ body.dark-theme .exam-past td {
 #backToTop:hover {
     transform: scale(1.1);
 }
+/* Στυλ για τα κελιά των Σχολίων */
+.notes-cell {
+    font-size: 12px;
+    color: #666; /* Διακριτικό χρώμα για Light Mode */
+}
+
+/* Λευκά γράμματα στο Dark Mode */
+body.dark-theme .notes-cell {
+    color: #e2e8f0 !important; 
+}
