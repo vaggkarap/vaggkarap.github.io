@@ -455,8 +455,10 @@
                     </td>
                     <td>${displayDate}</td>
                     <td>
-                        <button class="edit-btn" style="width: auto; padding: 6px 12px; margin-bottom: 4px;" onclick="editTask('${t.id}')">Επεξεργασία</button>
-                        <button class="delete-btn" style="width: auto; padding: 6px 12px;" onclick="deleteTask('${t.id}')">Διαγραφή</button>
+                        
+                        <button class="edit-btn" style="margin-bottom: 4px;" onclick="editTask('${t.id}')">Επεξεργασία</button><br>
+                        <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
+                    
                     </td>
                 </tr>`;
             });
