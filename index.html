@@ -49,7 +49,6 @@
 
     <div class="container" id="appScreen" style="display: none;">
         <h1>Διαχείριση Βαθμών</h1>
-        
         <div class="input-selection">
             <input type="text" id="course" placeholder="Όνομα Μαθήματος">
             <input type="number" id="theoryGrade" placeholder="Θεωρία (0-10)" step="0.1">
@@ -58,7 +57,6 @@
             <input type="number" id="semester" placeholder="Εξάμηνο">
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη Βαθμού</button>
         </div>
-
         <div class="semester-filter">
             <button class="filter-btn active" id="btn-filter-all" onclick="setSemesterFilter('all')">Όλα</button>
             <button class="filter-btn" id="btn-filter-1" onclick="setSemesterFilter(1)">1ο</button>
@@ -72,7 +70,6 @@
             <button class="filter-btn" id="btn-filter-9" onclick="setSemesterFilter(9)">9ο</button>
             <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
         </div>
-
         <div class="controls-section">
             <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση..." style="flex: 2;">
             <select id="sortSelect" onchange="setSortMethod(this.value)" style="flex: 1; cursor: pointer;">
@@ -83,7 +80,6 @@
                 <option value="name_asc">🔤 Όνομα (Α - Ω)</option>
             </select>
         </div>
-
         <table id="gradesTable">
             <thead>
                 <tr>
@@ -97,11 +93,9 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-        
         <div class="average-section">
             <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
         </div>
-
         <div class="backup-section">
             <button class="backup-btn export" onclick="exportToFile()">💾 Εξαγωγή σε Excel</button>
             <label for="importFile" class="backup-btn import">📂 Φόρτωση από Excel</label>
@@ -111,7 +105,6 @@
 
     <div class="container" id="tasksScreen" style="display: none;">
         <h1>Λίστα Εργασιών</h1>
-        
         <div class="input-selection">
             <select id="taskCourseSelect">
                 <option value="">Επιλέξτε Μάθημα...</option>
@@ -128,7 +121,6 @@
             <input type="text" id="taskDueDate" placeholder="Επιλέξτε Ημερομηνία...">
             <button id="mainBtn" onclick="saveTask()">Προσθήκη Εργασίας</button>
         </div>
-
         <table id="tasksTable">
             <thead>
                 <tr>
@@ -144,45 +136,31 @@
     </div>
 
     <div class="container" id="examsScreen" style="display: none;">
-                <section id="examsSection" class="content-section" style="display:none;">
-            <h2>Πρόγραμμα Εξετάσεων</h2>
-            
-            <div class="input-group">
-                <select id="examCourse">
-                    <option value="">Επιλέξτε Μάθημα...</option>
-                </select>
-                
-                <input type="text" id="examDateTime" placeholder="Ημερομηνία & Ώρα">
-                
-                <input type="text" id="examRoom" placeholder="Αίθουσα (π.χ. Κ10.101)">
-                
-                <textarea id="examNotes" placeholder="Σημειώσεις (π.χ. Ύλη, SOS)..." rows="2"></textarea>
-                
-                <button onclick="addExam()" id="examBtn" class="add-btn">Προσθήκη Εξέτασης</button>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Μάθημα</th>
-                            <th>Ημερομηνία & Ώρα</th>
-                            <th>Αίθουσα</th>
-                            <th>Σημειώσεις</th>
-                            <th>Ενέργειες</th>
-                        </tr>
-                    </thead>
-                    <tbody id="examTableBody">
-                        </tbody>
-                </table>
-            </div>
-        </section>
+        <h1>Ημερολόγιο Εξετάσεων</h1>
+        <div class="input-selection">
+            <select id="examCourseSelect">
+                <option value="">Επιλέξτε Μάθημα...</option>
+            </select>
+            <input type="text" id="examDateTime" placeholder="Ημερομηνία & Ώρα">
+            <input type="text" id="examRoom" placeholder="Αίθουσα">
+            <textarea id="examNotes" placeholder="Σημειώσεις (π.χ. SOS, Ύλη)..." style="width: 100%; margin-top: 10px; border-radius: 5px; padding: 10px; border: 1px solid #ccc;"></textarea>
+            <button id="mainBtn" onclick="saveExam()" style="margin-top: 10px;">Προσθήκη Εξέτασης</button>
+        </div>
+        <table id="examsTable">
+            <thead>
+                <tr>
+                    <th>Μάθημα</th>
+                    <th>Ημερομηνία & Ώρα</th>
+                    <th>Αίθουσα</th>
+                    <th>Σημειώσεις</th>
+                    <th>Ενέργεια</th>
+                </tr>
+            </thead>
+            <tbody id="examsTableBody"></tbody>
+        </table>
     </div>
 
     <script>
-        // ==========================================
-        // FIREBASE CONFIG (ΒΑΛΕ ΤΟ ΔΙΚΟ ΣΟΥ API KEY ΕΔΩ!!!)
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", 
             authDomain: "universitygrades-58ed7.firebaseapp.com",
@@ -198,13 +176,11 @@
         let currentUser = null;
         let globalGrades = [];
         let globalTasks = [];
+        let globalExams = [];
         let currentEditId = null;
         let currentSemesterFilter = 'all'; 
         let currentSortMethod = 'semester_asc';
 
-        // ==========================================
-        // AUTH & NAVIGATION (SPA)
-        // ==========================================
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -214,6 +190,7 @@
                 document.getElementById('userEmailDisplay').innerText = user.email;
                 fetchGradesFromDB();
                 fetchTasks();
+                fetchExams();
             } else {
                 currentUser = null;
                 document.getElementById('loginScreen').style.display = 'block';
@@ -227,43 +204,24 @@
         function switchTab(tab) {
             const screens = ['appScreen', 'tasksScreen', 'examsScreen'];
             const navButtons = ['tabGrades', 'tabTasks', 'tabExams'];
-            
             screens.forEach(s => document.getElementById(s).style.display = 'none');
             navButtons.forEach(b => document.getElementById(b).classList.remove('active'));
             
             if(tab === 'grades') { document.getElementById('appScreen').style.display = 'block'; document.getElementById('tabGrades').classList.add('active'); }
             if(tab === 'tasks') { document.getElementById('tasksScreen').style.display = 'block'; document.getElementById('tabTasks').classList.add('active'); }
-            if(tab === 'exams') { document.getElementById('examsScreen').style.display = 'block'; document.getElementById('tabExams').classList.add('active'); }
+            if(tab === 'exams') { 
+                document.getElementById('examsScreen').style.display = 'block'; 
+                document.getElementById('tabExams').classList.add('active');
+                updateExamCourseDropdown(); // Ανανέωση λίστας μαθημάτων
+            }
         }
 
-        function registerUser() {
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passwordInput').value;
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((u) => u.user.sendEmailVerification().then(() => alert("Εγγραφή επιτυχής! Ελέγξτε το email σας.")))
-                .catch((e) => alert("Σφάλμα: " + e.message));
-        }
-
-        function loginUser() {
-            auth.signInWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value)
-                .catch((e) => alert("Λάθος στοιχεία!"));
-        }
-
-        function logoutUser() { auth.signOut(); }
-
-        function resetPassword() {
-            const email = document.getElementById('emailInput').value;
-            if (!email) { alert("Συμπληρώστε το email σας."); return; }
-            auth.sendPasswordResetEmail(email).then(() => alert("Στάλθηκε email!")).catch((e) => alert(e.message));
-        }
-
-        // ==========================================
-        // ΛΟΓΙΚΗ ΒΑΘΜΩΝ (GRADES)
-        // ==========================================
+        // --- ΛΟΓΙΚΗ ΒΑΘΜΩΝ ---
         function fetchGradesFromDB() {
             db.collection("users").doc(currentUser.uid).collection("grades").onSnapshot(snap => {
                 globalGrades = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateCourseDropdown(); // Ενημερώνει τη λίστα στις Εργασίες (Αλφαβητικά)
+                updateCourseDropdown();
+                updateExamCourseDropdown();
                 renderTable();
             });
         }
@@ -274,19 +232,11 @@
             const lab = document.getElementById('labGrade').value ? parseFloat(document.getElementById('labGrade').value) : null;
             const final = parseFloat(document.getElementById('finalGrade').value);
             const sem = parseInt(document.getElementById('semester').value);
-
-            if(!name || isNaN(theory) || isNaN(final) || isNaN(sem)) return alert("Συμπληρώστε τουλάχιστον: Όνομα, Θεωρία, Τελικό, Εξάμηνο!");
-
+            if(!name || isNaN(theory) || isNaN(final) || isNaN(sem)) return alert("Συμπληρώστε τα απαραίτητα πεδία!");
             const gradeData = { name, theory, lab, final, semester: sem };
             const ref = db.collection("users").doc(currentUser.uid).collection("grades");
-
-            if (currentEditId === null) {
-                ref.add(gradeData);
-            } else {
-                ref.doc(currentEditId).update(gradeData);
-                currentEditId = null;
-                document.getElementById("mainBtn").innerText = "Προσθήκη Βαθμού";
-            }
+            if (currentEditId === null) { ref.add(gradeData); } 
+            else { ref.doc(currentEditId).update(gradeData); currentEditId = null; document.getElementById("mainBtn").innerText = "Προσθήκη Βαθμού"; }
             document.querySelectorAll('#appScreen input').forEach(i => i.value = "");
         }
 
@@ -295,7 +245,7 @@
             if(entry) {
                 document.getElementById("course").value = entry.name;
                 document.getElementById("theoryGrade").value = entry.theory;
-                document.getElementById("labGrade").value = entry.lab !== null ? entry.lab : "";
+                document.getElementById("labGrade").value = entry.lab || "";
                 document.getElementById("finalGrade").value = entry.final;
                 document.getElementById("semester").value = entry.semester;
                 currentEditId = docId;
@@ -323,12 +273,9 @@
             const body = document.getElementById("tableBody");
             body.innerHTML = "";
             let list = [...globalGrades];
-
             if (currentSemesterFilter !== 'all') list = list.filter(e => e.semester === currentSemesterFilter);
-            
             const search = document.getElementById("searchInput").value.toLowerCase();
             if (search) list = list.filter(e => e.name.toLowerCase().includes(search));
-
             list.sort((a, b) => {
                 if (currentSortMethod === 'semester_asc') return a.semester - b.semester;
                 if (currentSortMethod === 'semester_desc') return b.semester - a.semester;
@@ -337,7 +284,6 @@
                 if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el');
                 return 0;
             });
-
             let sum = 0, count = 0;
             list.forEach(e => {
                 if (e.final >= 5) { sum += e.final; count++; }
@@ -356,17 +302,12 @@
             document.getElementById("averageSpan").innerText = count > 0 ? (sum / count).toFixed(2) : "-";
         }
 
-// ==========================================
-        // ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ (TASKS) - ΜΕ STATUS, ΧΡΩΜΑΤΑ & ΕΠΕΞΕΡΓΑΣΙΑ
-        // ==========================================
-        let currentTaskEditId = null; // ΝΕΟ: Μεταβλητή για την επεξεργασία εργασίας
-
+        // --- ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ ---
         function updateCourseDropdown() {
             const select = document.getElementById('taskCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
-            
-            const sortedCourses = [...globalGrades].sort((a, b) => a.name.localeCompare(b.name, 'el'));
-            sortedCourses.forEach(g => {
+            const sorted = [...globalGrades].sort((a, b) => a.name.localeCompare(b.name, 'el'));
+            sorted.forEach(g => {
                 const opt = document.createElement('option');
                 opt.value = g.name; opt.innerText = g.name;
                 select.appendChild(opt);
@@ -377,9 +318,6 @@
             db.collection("users").doc(currentUser.uid).collection("tasks").onSnapshot(snap => {
                 globalTasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderTasks();
-            }, error => {
-                alert("Σφάλμα συγχρονισμού εργασιών!");
-                console.error(error);
             });
         }
 
@@ -388,290 +326,143 @@
             const type = document.getElementById('taskType').value;
             const status = document.getElementById('taskStatus').value;
             const date = document.getElementById('taskDueDate').value;
-            
-            if(!course) return alert("Επιλέξτε μάθημα από τη λίστα!");
-            
-            const taskData = { course, type, status, dueDate: date };
-            const ref = db.collection("users").doc(currentUser.uid).collection("tasks");
-
-            // ΝΕΑ ΛΟΓΙΚΗ: Ελέγχουμε αν κάνουμε Επεξεργασία ή Προσθήκη
-            if (currentTaskEditId === null) {
-                // Προσθήκη νέας εργασίας
-                ref.add(taskData).then(() => {
-                    document.getElementById('taskDueDate').value = ""; 
-                    document.getElementById('taskStatus').value = "Not Started";
-                }).catch(error => {
-                    console.error(error);
-                });
-            } else {
-                // Αποθήκευση επεξεργασίας
-                ref.doc(currentTaskEditId).update(taskData).then(() => {
-                    currentTaskEditId = null; // Μηδενισμός
-                    // Βρίσκουμε το κουμπί της εργασίας και του αλλάζουμε πάλι το όνομα
-                    document.querySelector('#tasksScreen button[onclick="saveTask()"]').innerText = "Προσθήκη Εργασίας";
-                    
-                    document.getElementById('taskDueDate').value = ""; 
-                    document.getElementById('taskStatus').value = "Not Started";
-                });
-            }
-        }
-
-        // ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Επεξεργασία Εργασίας
-        function editTask(docId) {
-            const entry = globalTasks.find(t => t.id === docId);
-            if(entry) {
-                document.getElementById('taskCourseSelect').value = entry.course;
-                document.getElementById('taskType').value = entry.type;
-                document.getElementById('taskStatus').value = entry.status || "Not Started";
-                document.getElementById('taskDueDate').value = entry.dueDate || "";
-                
-                currentTaskEditId = docId;
-                
-                // Αλλάζουμε το κείμενο του κουμπιού
-                document.querySelector('#tasksScreen button[onclick="saveTask()"]').innerText = "Αποθήκευση Αλλαγών";
-                
-                // Σκρολάρουμε πάνω-πάνω για να δει ο χρήστης τη φόρμα
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        function updateTaskStatus(taskId, newStatus) {
-            db.collection("users").doc(currentUser.uid).collection("tasks").doc(taskId).update({
-                status: newStatus
-            });
+            if(!course) return alert("Επιλέξτε μάθημα!");
+            db.collection("users").doc(currentUser.uid).collection("tasks").add({ course, type, status, dueDate: date });
+            document.getElementById('taskDueDate').value = "";
         }
 
         function renderTasks() {
             const body = document.getElementById('tasksTableBody');
             body.innerHTML = "";
-            
-            const sorted = [...globalTasks].sort((a,b) => {
-                if(!a.dueDate) return 1; if(!b.dueDate) return -1;
-                return new Date(a.dueDate) - new Date(b.dueDate);
-            });
-
-            sorted.forEach(t => {
-                const badgeClass = t.type === 'Θεωρία' ? 'badge-theory' : 'badge-lab';
-                const currentStatus = t.status || 'Not Started'; 
-                
-                let isDueSoon = false;
-                let isOverdue = false;
-                let displayDate = "-";
-
-                if(t.dueDate) {
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    const due = new Date(t.dueDate);
-                    due.setHours(0,0,0,0);
-                    
-                    const diffDays = (due - today) / (1000 * 60 * 60 * 24);
-                    
-                    if (diffDays < 0) isOverdue = true;
-                    else if (diffDays <= 2) isDueSoon = true;
-
-                    displayDate = due.toLocaleDateString('el-GR');
-                }
-
-                let rowClass = "";
-                if (currentStatus === 'Done') rowClass = "task-done"; 
-                else if (isOverdue) rowClass = "task-overdue";
-                else if (isDueSoon) rowClass = "task-due-soon";
-
-                let selectClass = "status-" + currentStatus.toLowerCase().replace(" ", "-");
-
-                body.innerHTML += `<tr class="${rowClass}">
+            globalTasks.forEach(t => {
+                body.innerHTML += `<tr>
                     <td>${t.course}</td>
-                    <td><span class="badge ${badgeClass}">${t.type}</span></td>
-                    <td>
-                        <select class="status-select ${selectClass}" onchange="updateTaskStatus('${t.id}', this.value)">
-                            <option value="Not Started" ${currentStatus === 'Not Started' ? 'selected' : ''}>Not Started</option>
-                            <option value="In Progress" ${currentStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                            <option value="Done" ${currentStatus === 'Done' ? 'selected' : ''}>Done</option>
-                        </select>
-                    </td>
-                    <td>${displayDate}</td>
-                    <td>
-                        
-                        <button class="edit-btn" style="margin-bottom: 4px;" onclick="editTask('${t.id}')">Επεξεργασία</button><br>
-                        <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
-                    
-                    </td>
+                    <td>${t.type}</td>
+                    <td>${t.status}</td>
+                    <td>${t.dueDate || "-"}</td>
+                    <td><button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button></td>
                 </tr>`;
             });
         }
 
-        function deleteTask(id) {
-            if(confirm("Διαγραφή εργασίας;")) db.collection("users").doc(currentUser.uid).collection("tasks").doc(id).delete();
-        }
+        function deleteTask(id) { db.collection("users").doc(currentUser.uid).collection("tasks").doc(id).delete(); }
 
-        // ==========================================
-        // THEME LOGIC
-        // ==========================================
-        function initTheme() {
-            if (localStorage.getItem('appTheme') === 'dark') {
-                document.body.classList.add('dark-theme');
-                updateLogos(true);
-            }
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
-            updateLogos(isDark);
-        }
-
-        function updateLogos(isDark) {
-            const logo = isDark ? "uniwa-dark.png" : "uniwa-logo.png";
-            document.getElementById('themeToggle').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-            const hl = document.getElementById('headerLogo'); if(hl) hl.src = logo;
-            const ll = document.getElementById('uniwaLogin'); if(ll) ll.src = logo;
-            const al = document.getElementById('uniwa');      if(al) al.src = logo;
-
-            const fpDark = document.getElementById('flatpickr-dark-theme');
-            if (fpDark) fpDark.disabled = !isDark;
-        }
-        
-        document.addEventListener('DOMContentLoaded', initTheme);
-        // ==========================================
-        // ΕΝΕΡΓΟΠΟΙΗΣΗ FLATPICKR (ΟΜΟΡΦΟ ΗΜΕΡΟΛΟΓΙΟ)
-        // ==========================================
-        const fp = flatpickr("#taskDueDate", {
-            locale: "gr",           // Ελληνική γλώσσα
-            dateFormat: "Y-m-d",    // Πώς θα σώζεται στη βάση (π.χ. 2026-04-12)
-            altInput: true,         // Φτιάχνει ένα δεύτερο, πιο όμορφο κουτάκι για να βλέπει ο χρήστης
-            altFormat: "d/m/Y",     // Πώς θα το βλέπει ο χρήστης (π.χ. 12/04/2026)
-            placeholder: "Ημερομηνία..."
-        });
-
-        // ==========================================
-        // EXCEL
-        // ==========================================
-        function exportToFile() {
-            if (globalGrades.length === 0) return alert("Δεν υπάρχουν βαθμοί!");
-            let csvContent = "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
-            globalGrades.forEach(e => {
-                let safeName = e.name.includes(',') ? `"${e.name}"` : e.name;
-                csvContent += `${safeName},${e.theory},${e.lab||""},${e.final},${e.semester}\n`;
-            });
-            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob); const a = document.createElement("a");
-            a.href = url; a.download = "vathmoi.csv"; a.click();
-        }
-
-        async function importFromFile(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const lines = e.target.result.split('\n'); let newGrades = [];
-                    for (let i = 1; i < lines.length; i++) {
-                        const parts = lines[i].split(','); if (parts.length < 5) continue;
-                        newGrades.push({
-                            name: parts[0].replace(/(^"|"$)/g, ''), theory: parseFloat(parts[1]),
-                            lab: parts[2] ? parseFloat(parts[2]) : null, final: parseFloat(parts[3]), semester: parseInt(parts[4])
-                        });
-                    }
-                    if (newGrades.length > 0 && confirm("Προσοχή! Θα αντικατασταθούν οι παλιοί βαθμοί.")) {
-                        const batch = db.batch(); const ref = db.collection("users").doc(currentUser.uid).collection("grades");
-                        const snapshot = await ref.get(); snapshot.docs.forEach(doc => batch.delete(doc.ref));
-                        newGrades.forEach(g => batch.set(ref.doc(), g)); await batch.commit(); alert("Φορτώθηκαν!");
-                    }
-                } catch (err) { alert("Σφάλμα αρχείου."); }
-            }; reader.readAsText(file); event.target.value = '';
-        }
-        // Εμφάνιση/Απόκρυψη κουμπιού κατά το σκρολάρισμα
-        window.onscroll = function() {
-            const btn = document.getElementById("backToTop");
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        };
-
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        // 1. Αρχικοποίηση Flatpickr για τις εξετάσεις (με ώρα)
-        flatpickr("#examDateTime", {
-            enableTime: true,
-            dateFormat: "d/m/Y H:i",
-            locale: "gr"
-        });
-
-        // 2. Συνάρτηση για να γεμίζει το Dropdown με τα μαθήματα αλφαβητικά
-        function updateExamCourseList() {
-            const select = document.getElementById("examCourse");
-            // Παίρνουμε μοναδικά ονόματα από τους βαθμούς
-            let courseNames = [...new Set(globalGrades.map(g => g.name))];
-            courseNames.sort((a, b) => a.localeCompare(b, 'el'));
-
+        // --- ΛΟΓΙΚΗ ΕΞΕΤΑΣΕΩΝ (NEW) ---
+        function updateExamCourseDropdown() {
+            const select = document.getElementById('examCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
-            courseNames.forEach(name => {
-                let opt = document.createElement("option");
-                opt.value = name;
-                opt.innerText = name;
+            const names = [...new Set(globalGrades.map(g => g.name))].sort((a,b) => a.localeCompare(b, 'el'));
+            names.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name; opt.innerText = name;
                 select.appendChild(opt);
             });
         }
 
-        // 3. Προσθήκη Εξέτασης στο Firebase
-        async function addExam() {
-            const name = document.getElementById("examCourse").value;
-            const dateTime = document.getElementById("examDateTime").value;
-            const room = document.getElementById("examRoom").value;
-            const notes = document.getElementById("examNotes").value;
-
-            if (!name || !dateTime) {
-                alert("Παρακαλώ επιλέξτε μάθημα και ημερομηνία!");
-                return;
-            }
-
-            await db.collection("users").doc(currentUser.uid).collection("exams").add({
-                name, dateTime, room, notes,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Καθαρισμός φορμας
-            document.getElementById("examDateTime").value = "";
-            document.getElementById("examRoom").value = "";
-            document.getElementById("examNotes").value = "";
-            loadExams();
-        }
-
-        // 4. Φόρτωση και Εμφάνιση Εξετάσεων
-        async function loadExams() {
-            if (!currentUser) return;
-            const snapshot = await db.collection("users").doc(currentUser.uid).collection("exams").orderBy("dateTime").get();
-            const tbody = document.getElementById("examTableBody");
-            tbody.innerHTML = "";
-
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${data.name}</strong></td>
-                        <td>${data.dateTime}</td>
-                        <td>${data.room || "-"}</td>
-                        <td style="font-size: 0.9em; color: #666;">${data.notes || "-"}</td>
-                        <td>
-                            <button class="delete-btn" onclick="deleteExam('${doc.id}')">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+        function fetchExams() {
+            db.collection("users").doc(currentUser.uid).collection("exams").onSnapshot(snap => {
+                globalExams = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderExams();
             });
         }
 
-        // 5. Διαγραφή Εξέτασης
-        async function deleteExam(id) {
-            if (confirm("Διαγραφή εξέτασης;")) {
-                await db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete();
-                loadExams();
+        function saveExam() {
+            const course = document.getElementById('examCourseSelect').value;
+            const dateTime = document.getElementById('examDateTime').value;
+            const room = document.getElementById('examRoom').value;
+            const notes = document.getElementById('examNotes').value;
+            if(!course || !dateTime) return alert("Επιλέξτε μάθημα και ημερομηνία!");
+            db.collection("users").doc(currentUser.uid).collection("exams").add({ course, dateTime, room, notes });
+            document.getElementById('examDateTime').value = "";
+            document.getElementById('examRoom').value = "";
+            document.getElementById('examNotes').value = "";
+        }
+
+        function renderExams() {
+            const body = document.getElementById('examsTableBody');
+            body.innerHTML = "";
+            const sorted = [...globalExams].sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
+            sorted.forEach(e => {
+                body.innerHTML += `<tr>
+                    <td>${e.course}</td>
+                    <td>${e.dateTime}</td>
+                    <td>${e.room || "-"}</td>
+                    <td style="font-size: 12px; color: gray;">${e.notes || "-"}</td>
+                    <td><button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button></td>
+                </tr>`;
+            });
+        }
+
+        function deleteExam(id) {
+            if(confirm("Διαγραφή εξέτασης;")) db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete();
+        }
+
+        // --- AUTH FUNCTIONS ---
+        function registerUser() {
+            const email = document.getElementById('emailInput').value;
+            const pass = document.getElementById('passwordInput').value;
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then(() => alert("Εγγραφή επιτυχής!"))
+                .catch(e => alert(e.message));
+        }
+        function loginUser() {
+            auth.signInWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value)
+                .catch(() => alert("Λάθος στοιχεία!"));
+        }
+        function logoutUser() { auth.signOut(); }
+        function resetPassword() {
+            const email = document.getElementById('emailInput').value;
+            if (!email) return alert("Βάλτε το email σας");
+            auth.sendPasswordResetEmail(email).then(() => alert("Στάλθηκε email!")).catch(e => alert(e.message));
+        }
+
+        // --- UI FUNCTIONS ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
+            document.getElementById('themeToggle').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            document.getElementById('flatpickr-dark-theme').disabled = !isDark;
+        }
+
+        function initTheme() {
+            if (localStorage.getItem('appTheme') === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeToggle').innerText = '☀️ Light Mode';
+                document.getElementById('flatpickr-dark-theme').disabled = false;
             }
         }
-        
+        document.addEventListener('DOMContentLoaded', initTheme);
+
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        window.onscroll = function() {
+            const btn = document.getElementById("backToTop");
+            btn.style.display = (window.scrollY > 300) ? "block" : "none";
+        };
+
+        // Flatpickr για Εργασίες
+        flatpickr("#taskDueDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y" });
+
+        // Flatpickr για Εξετάσεις (με Ώρα)
+        flatpickr("#examDateTime", { 
+            locale: "gr", 
+            enableTime: true, 
+            time_24hr: true,
+            dateFormat: "Y-m-d H:i", 
+            altInput: true, 
+            altFormat: "d/m/Y H:i" 
+        });
+
+        // Excel Export/Import (ίδια όπως πριν)
+        function exportToFile() {
+            if (globalGrades.length === 0) return alert("Δεν υπάρχουν βαθμοί!");
+            let csv = "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
+            globalGrades.forEach(e => csv += `"${e.name}",${e.theory},${e.lab||""},${e.final},${e.semester}\n`);
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob); link.download = "vathmoi.csv"; link.click();
+        }
     </script>
-    <button id="backToTop" onclick="scrollToTop()" title="Επιστροφή στην κορυφή">↑</button>
+    <button id="backToTop" onclick="scrollToTop()" style="display:none; position:fixed; bottom:20px; right:20px; padding:10px 15px; border-radius:50%; background:#2c3e50; color:white; border:none; cursor:pointer; z-index:1000;">↑</button>
 </body>
 </html>
