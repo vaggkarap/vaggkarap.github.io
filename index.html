@@ -9,6 +9,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css" id="flatpickr-dark-theme" disabled>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/gr.js"></script>
 </head>
 <body>
 
@@ -491,9 +495,22 @@
             const hl = document.getElementById('headerLogo'); if(hl) hl.src = logo;
             const ll = document.getElementById('uniwaLogin'); if(ll) ll.src = logo;
             const al = document.getElementById('uniwa');      if(al) al.src = logo;
+
+            const fpDark = document.getElementById('flatpickr-dark-theme');
+            if (fpDark) fpDark.disabled = !isDark;
         }
         
         document.addEventListener('DOMContentLoaded', initTheme);
+        // ==========================================
+        // ΕΝΕΡΓΟΠΟΙΗΣΗ FLATPICKR (ΟΜΟΡΦΟ ΗΜΕΡΟΛΟΓΙΟ)
+        // ==========================================
+        const fp = flatpickr("#taskDueDate", {
+            locale: "gr",           // Ελληνική γλώσσα
+            dateFormat: "Y-m-d",    // Πώς θα σώζεται στη βάση (π.χ. 2026-04-12)
+            altInput: true,         // Φτιάχνει ένα δεύτερο, πιο όμορφο κουτάκι για να βλέπει ο χρήστης
+            altFormat: "d/m/Y",     // Πώς θα το βλέπει ο χρήστης (π.χ. 12/04/2026)
+            placeholder: "Ημερομηνία..."
+        });
 
         // ==========================================
         // EXCEL
