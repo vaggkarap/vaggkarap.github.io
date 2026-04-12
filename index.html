@@ -323,9 +323,15 @@
         function updateCourseDropdown() {
             const select = document.getElementById('taskCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
-            globalGrades.forEach(g => {
+            
+            // 1. Δημιουργούμε ένα αντίγραφο των βαθμών και το ταξινομούμε αλφαβητικά (στα Ελληνικά)
+            const sortedCourses = [...globalGrades].sort((a, b) => a.name.localeCompare(b.name, 'el'));
+
+            // 2. Φτιάχνουμε τις επιλογές (options) από την ταξινομημένη λίστα
+            sortedCourses.forEach(g => {
                 const opt = document.createElement('option');
-                opt.value = g.name; opt.innerText = g.name;
+                opt.value = g.name; 
+                opt.innerText = g.name;
                 select.appendChild(opt);
             });
         }
