@@ -62,10 +62,15 @@ h1, h2, p { color: #2c3e50; transition: 0.4s ease; }
 .auth-form { display: flex; flex-direction: column; gap: 15px; width: 80%; margin: 0 auto; }
 
 .input-selection {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 25px;
+}
+
+.input-selection > input, 
+.input-selection > select {
+    flex: 1 1 130px; 
 }
 
 input, select {
@@ -76,7 +81,7 @@ input, select {
 input:focus, select:focus { border-color: #2980b9; outline: none; box-shadow: 0 0 5px rgba(41, 128, 185, 0.3); }
 
 #mainBtn {
-    grid-column: 1 / -1;
+    flex: 1 1 100%; /* Το κουμπί πιάνει πάντα ολόκληρη τη δική του σειρά */
     background-color: #27ae60; color: white; border: none;
     padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
 }
