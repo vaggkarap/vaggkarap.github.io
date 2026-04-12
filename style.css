@@ -256,3 +256,14 @@ body.dark-theme #examNotes {
     background-color: #219150 !important;
     transform: translateY(-2px);
 }
+
+/* Στυλ για εξετάσεις που πέρασαν */
+.exam-past td {
+    color: #27ae60 !important;
+    font-weight: bold !important;
+}
+
+/* Διασφάλιση ότι οι σημειώσεις στο dark mode θα γίνονται και αυτές πράσινες */
+body.dark-theme .exam-past td {
+    color: #2ecc71 !important;
+}

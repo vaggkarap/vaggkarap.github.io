@@ -474,10 +474,8 @@
             
             const now = new Date();
 
-            // 1. ΤΑΞΙΝΟΜΗΣΗ: Οι πλησιέστερες εξετάσεις πρώτες
-            let sortedExams = [...globalExams].sort((a, b) => {
-                return new Date(a.dateTime) - new Date(b.dateTime);
-            });
+            // Ταξινόμηση ημερομηνίας
+            let sortedExams = [...globalExams].sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
 
             sortedExams.forEach(e => {
                 let formattedDateTime = "-";
@@ -492,14 +490,16 @@
                     formattedDateTime = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${timePart}`;
                 }
 
-                const rowStyle = isPast ? 'style="color: #27ae60 !important; font-weight: bold;"' : '';
+                // Χρήση κλάσης αντί για inline style για σιγουριά στο Dark Mode
+                const rowClass = isPast ? 'class="exam-past"' : '';
 
                 body.innerHTML += `
-                    <tr ${rowStyle}>
+                    <tr ${rowClass}>
                         <td>${e.course}</td>
-                        <td>${e.type || "-"}</td> <td>${formattedDateTime}</td>
+                        <td>${e.type || ""}</td> 
+                        <td>${formattedDateTime}</td>
                         <td>${e.room || "-"}</td>
-                        <td style="font-size: 12px; color: inherit;">${e.notes || "-"}</td>
+                        <td class="notes-cell">${e.notes || "-"}</td>
                         <td>
                             <button class="edit-btn" onclick="editExam('${e.id}')">Επεξεργασία</button>
                             <button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button>
