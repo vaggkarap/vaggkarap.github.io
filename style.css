@@ -192,3 +192,34 @@ body.dark-theme .status-done { background-color: #1a3c24; color: #d4edda; border
     .theme-toggle-btn { bottom: 10px; left: 10px; font-size: 12px; padding: 8px 12px;}
     table { display: block; overflow-x: auto; white-space: nowrap; }
 }
+/* Back to Top Button */
+#backToTop {
+    display: none; /* Κρυφό αρχικά */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    background-color: #2c3e50;
+    color: white;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 50%; /* Κυκλικό */
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: 0.3s;
+}
+
+#backToTop:hover {
+    background-color: #34495e;
+    transform: scale(1.1);
+}
+
+/* Dark Mode για το κουμπί */
+body.dark-theme #backToTop {
+    background-color: #f1c40f;
+    color: #2c3e50;
+}

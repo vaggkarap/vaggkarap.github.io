@@ -269,6 +269,7 @@
                 document.getElementById("semester").value = entry.semester;
                 currentEditId = docId;
                 document.getElementById("mainBtn").innerText = "Αποθήκευση";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
@@ -548,6 +549,21 @@
                 } catch (err) { alert("Σφάλμα αρχείου."); }
             }; reader.readAsText(file); event.target.value = '';
         }
+        // Εμφάνιση/Απόκρυψη κουμπιού κατά το σκρολάρισμα
+        window.onscroll = function() {
+            const btn = document.getElementById("backToTop");
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+        
     </script>
+    <button id="backToTop" onclick="scrollToTop()" title="Επιστροφή στην κορυφή">↑</button>
 </body>
 </html>
