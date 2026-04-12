@@ -118,6 +118,7 @@
                 <option value="In Progress">In Progress</option>
                 <option value="Done">Done</option>
             </select>
+            <textarea id="taskNotes" placeholder="Σχόλια/Σημειώσεις (π.χ. Ομαδική, Λεπτομέρειες)..." style="width: 100%; margin-top: 10px; border-radius: 5px; padding: 10px; border: 1px solid #ccc; font-family: inherit;"></textarea>
             <input type="text" id="taskDueDate" placeholder="Επιλέξτε Ημερομηνία...">
             <button id="mainBtnTask" onclick="saveTask()">Προσθήκη Εργασίας</button>
         </div>
@@ -128,7 +129,7 @@
                     <th>Τύπος</th>
                     <th>Κατάσταση</th>
                     <th>Ημ. Παράδοσης</th>
-                    <th>Ενέργεια</th>
+                    <th>Σχόλια</th><th>Ενέργεια</th>
                 </tr>
             </thead>
             <tbody id="tasksTableBody"></tbody>
@@ -316,12 +317,14 @@
             const type = document.getElementById('taskType').value;
             const status = document.getElementById('taskStatus').value;
             const date = document.getElementById('taskDueDate').value;
+            const notes = document.getElementById('taskNotes').value;
             if(!course) return alert("Επιλέξτε μάθημα!");
-            const taskData = { course, type, status, dueDate: date };
+            const taskData = { course, type, status, dueDate: date, notes };
             const ref = db.collection("users").doc(currentUser.uid).collection("tasks");
             if(currentTaskEditId === null) { ref.add(taskData); } 
             else { ref.doc(currentTaskEditId).update(taskData); currentTaskEditId = null; document.getElementById("mainBtnTask").innerText = "Προσθήκη Εργασίας"; }
             document.getElementById('taskDueDate').value = "";
+            document.getElementById('taskNotes').value = ""
         }
 
         function editTask(id) {
@@ -330,6 +333,7 @@
             document.getElementById('taskType').value = t.type;
             document.getElementById('taskStatus').value = t.status;
             document.getElementById('taskDueDate').value = t.dueDate || "";
+            document.getElementById('taskNotes').value = t.notes || "";
             currentTaskEditId = id;
             document.getElementById("mainBtnTask").innerText = "Αποθήκευση Αλλαγών";
             scrollToTop();
@@ -355,7 +359,7 @@
                     <td>${t.type}</td>
                     <td>${t.status}</td>
                     <td>${formattedDate}</td>
-                    <td>
+                    <td style="font-size: 12px; color: inherit;">${t.notes || "-"}</td> <td>
                         <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
                         <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
                     </td>
