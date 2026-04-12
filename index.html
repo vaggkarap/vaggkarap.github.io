@@ -388,10 +388,11 @@
         function deleteTask(id) { db.collection("users").doc(currentUser.uid).collection("tasks").doc(id).delete(); }
 
         // ==========================================
-        // ΛΟΓΙΚΗ ΕΞΕΤΑΣΕΩΝ
+        // ΛΟΓΙΚΗ ΕΞΕΤΑΣΕΩΝ (ΔΙΟΡΘΩΜΕΝΗ)
         // ==========================================
         function updateExamCourseDropdown() {
             const select = document.getElementById('examCourseSelect');
+            if (!select) return;
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
             const names = [...new Set(globalGrades.map(g => g.name))].sort((a,b) => a.localeCompare(b, 'el'));
             names.forEach(name => {
@@ -420,12 +421,17 @@
             const ref = db.collection("users").doc(currentUser.uid).collection("exams");
 
             if(currentExamEditId === null) {
-                ref.add(examData);
+                ref.add(examData).then(() => {
+                    alert("Η εξέταση προστέθηκε!");
+                });
             } else {
-                ref.doc(currentExamEditId).update(examData);
-                currentExamEditId = null;
-                document.getElementById("mainBtnExam").innerText = "Προσθήκη Εξέτασης";
+                ref.doc(currentExamEditId).update(examData).then(() => {
+                    currentExamEditId = null;
+                    document.getElementById("mainBtnExam").innerText = "Προσθήκη Εξέτασης";
+                });
             }
+            
+            // Καθαρισμός πεδίων
             document.getElementById('examDateTime').value = "";
             document.getElementById('examRoom').value = "";
             document.getElementById('examNotes').value = "";
@@ -433,6 +439,7 @@
 
         function editExam(id) {
             const e = globalExams.find(item => item.id === id);
+            if (!e) return;
             document.getElementById('examCourseSelect').value = e.course;
             document.getElementById('examDateTime').value = e.dateTime;
             document.getElementById('examRoom').value = e.room || "";
@@ -444,22 +451,32 @@
 
         function renderExams() {
             const body = document.getElementById('examsTableBody');
+            if (!body) return;
             body.innerHTML = "";
+            
+            const now = new Date();
+
             globalExams.forEach(e => {
-                // Μετατροπή ημερομηνίας και ώρας
                 let formattedDateTime = "-";
+                let isPast = false;
+
                 if (e.dateTime) {
+                    // Δημιουργία ημερομηνίας για σύγκριση (το Flatpickr δίνει Y-m-d H:i)
+                    const examDateObj = new Date(e.dateTime.replace(/-/g, "/")); 
+                    if (examDateObj < now) isPast = true;
+
                     const [datePart, timePart] = e.dateTime.split(" ");
                     const dateParts = datePart.split("-");
                     formattedDateTime = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${timePart}`;
                 }
+
                 const rowStyle = isPast ? 'style="color: #27ae60; font-weight: bold;"' : '';
 
-                body.innerHTML += `<tr>
+                body.innerHTML += `<tr ${rowStyle}>
                     <td>${e.course}</td>
                     <td>${formattedDateTime}</td>
                     <td>${e.room || "-"}</td>
-                    <td style="font-size: 12px; color: gray;">${e.notes || "-"}</td>
+                    <td style="font-size: 12px; color: inherit;">${e.notes || "-"}</td>
                     <td>
                         <button class="edit-btn" onclick="editExam('${e.id}')">Επεξεργασία</button>
                         <button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button>
@@ -468,7 +485,11 @@
             });
         }
 
-        function deleteExam(id) { if(confirm("Διαγραφή εξέτασης;")) db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete(); }
+        function deleteExam(id) { 
+            if(confirm("Διαγραφή εξέτασης;")) {
+                db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete();
+            }
+        }
 
         // ==========================================
         // THEME & UI UTILS
