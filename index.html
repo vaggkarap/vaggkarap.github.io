@@ -144,8 +144,39 @@
     </div>
 
     <div class="container" id="examsScreen" style="display: none;">
-        <h1>Ημερολόγιο Εξετάσεων</h1>
-        <p>Η λειτουργία αυτή θα είναι σύντομα διαθέσιμη!</p>
+                <section id="examsSection" class="content-section" style="display:none;">
+            <h2>Πρόγραμμα Εξετάσεων</h2>
+            
+            <div class="input-group">
+                <select id="examCourse">
+                    <option value="">Επιλέξτε Μάθημα...</option>
+                </select>
+                
+                <input type="text" id="examDateTime" placeholder="Ημερομηνία & Ώρα">
+                
+                <input type="text" id="examRoom" placeholder="Αίθουσα (π.χ. Κ10.101)">
+                
+                <textarea id="examNotes" placeholder="Σημειώσεις (π.χ. Ύλη, SOS)..." rows="2"></textarea>
+                
+                <button onclick="addExam()" id="examBtn" class="add-btn">Προσθήκη Εξέτασης</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Μάθημα</th>
+                            <th>Ημερομηνία & Ώρα</th>
+                            <th>Αίθουσα</th>
+                            <th>Σημειώσεις</th>
+                            <th>Ενέργειες</th>
+                        </tr>
+                    </thead>
+                    <tbody id="examTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -559,9 +590,86 @@
             }
         };
 
-function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        // 1. Αρχικοποίηση Flatpickr για τις εξετάσεις (με ώρα)
+        flatpickr("#examDateTime", {
+            enableTime: true,
+            dateFormat: "d/m/Y H:i",
+            locale: "gr"
+        });
+
+        // 2. Συνάρτηση για να γεμίζει το Dropdown με τα μαθήματα αλφαβητικά
+        function updateExamCourseList() {
+            const select = document.getElementById("examCourse");
+            // Παίρνουμε μοναδικά ονόματα από τους βαθμούς
+            let courseNames = [...new Set(globalGrades.map(g => g.name))];
+            courseNames.sort((a, b) => a.localeCompare(b, 'el'));
+
+            select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
+            courseNames.forEach(name => {
+                let opt = document.createElement("option");
+                opt.value = name;
+                opt.innerText = name;
+                select.appendChild(opt);
+            });
+        }
+
+        // 3. Προσθήκη Εξέτασης στο Firebase
+        async function addExam() {
+            const name = document.getElementById("examCourse").value;
+            const dateTime = document.getElementById("examDateTime").value;
+            const room = document.getElementById("examRoom").value;
+            const notes = document.getElementById("examNotes").value;
+
+            if (!name || !dateTime) {
+                alert("Παρακαλώ επιλέξτε μάθημα και ημερομηνία!");
+                return;
+            }
+
+            await db.collection("users").doc(currentUser.uid).collection("exams").add({
+                name, dateTime, room, notes,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Καθαρισμός φορμας
+            document.getElementById("examDateTime").value = "";
+            document.getElementById("examRoom").value = "";
+            document.getElementById("examNotes").value = "";
+            loadExams();
+        }
+
+        // 4. Φόρτωση και Εμφάνιση Εξετάσεων
+        async function loadExams() {
+            if (!currentUser) return;
+            const snapshot = await db.collection("users").doc(currentUser.uid).collection("exams").orderBy("dateTime").get();
+            const tbody = document.getElementById("examTableBody");
+            tbody.innerHTML = "";
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${data.name}</strong></td>
+                        <td>${data.dateTime}</td>
+                        <td>${data.room || "-"}</td>
+                        <td style="font-size: 0.9em; color: #666;">${data.notes || "-"}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteExam('${doc.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 5. Διαγραφή Εξέτασης
+        async function deleteExam(id) {
+            if (confirm("Διαγραφή εξέτασης;")) {
+                await db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete();
+                loadExams();
+            }
+        }
         
     </script>
     <button id="backToTop" onclick="scrollToTop()" title="Επιστροφή στην κορυφή">↑</button>
