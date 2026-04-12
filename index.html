@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <title>Βαθμοί Πανεπιστημίου - Portal</title>
+    <title>Φοιτητικό Portal - UniWA</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="uniwa-1.png">
     
@@ -16,452 +16,223 @@
 
     <header id="mainHeader" style="display: none;">
         <div class="header-left">
-            <img src="uniwa-logo.png" id="headerLogo" alt="Λογότυπο">
+            <img src="uniwa-logo.png" id="headerLogo" alt="Logo">
         </div>
-        
         <div class="header-center">
             <button class="nav-btn active" id="tabGrades" onclick="switchTab('grades')">Βαθμοί</button>
             <button class="nav-btn" id="tabTasks" onclick="switchTab('tasks')">Εργασίες</button>
             <button class="nav-btn" id="tabExams" onclick="switchTab('exams')">Εξετάσεις</button>
         </div>
-
         <div class="header-right">
-            <span id="userEmailDisplay" style="font-size: 14px; font-weight: bold; margin-right: 10px;"></span>
-            <button onclick="logoutUser()" style="background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight:bold;">Αποσύνδεση</button>
+            <span id="userEmailDisplay" style="font-size: 13px; font-weight: bold;"></span>
+            <button onclick="logoutUser()" style="background-color:#e74c3c; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">Έξοδος</button>
         </div>
     </header>
 
     <div class="container" id="loginScreen">
-        <div style="margin-bottom: 20px;">
-            <img src="uniwa-logo.png" id="uniwaLogin" alt="Λογότυπο" width="300">
-        </div>
-        <h2>Καλώς Ήρθατε</h2>
-        <p>Συνδεθείτε στο Φοιτητικό σας Portal</p>
-        
+        <img src="uniwa-logo.png" id="uniwaLogin" alt="Logo" width="280" style="margin-bottom:20px;">
+        <h2>Είσοδος στο Portal</h2>
         <div class="auth-form">
-            <input type="email" id="emailInput" placeholder="Το Email σας" required>
-            <input type="password" id="passwordInput" placeholder="Ο Κωδικός σας" required>
-            
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-                <button onclick="loginUser()" style="background-color: #2980b9; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Σύνδεση</button>
-                <button onclick="registerUser()" style="background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Εγγραφή</button>
+            <input type="email" id="emailInput" placeholder="Email">
+            <input type="password" id="passwordInput" placeholder="Κωδικός">
+            <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+                <button onclick="loginUser()" style="background-color:#2980b9; color:white; padding:12px 25px; border:none; border-radius:8px; cursor:pointer;">Σύνδεση</button>
+                <button onclick="registerUser()" style="background-color:#27ae60; color:white; padding:12px 25px; border:none; border-radius:8px; cursor:pointer;">Εγγραφή</button>
             </div>
-            <div style="margin-top: 15px;">
-                <a href="#" onclick="resetPassword()" style="color: #34495e; font-size: 13px; text-decoration: none;">Ξέχασα τον κωδικό μου</a>
-            </div>
+            <p style="margin-top:15px;"><a href="#" onclick="resetPassword()" style="text-decoration:none; color:#7f8c8d; font-size:13px;">Ξέχασα τον κωδικό μου</a></p>
         </div>
     </div>
 
     <div class="container" id="appScreen" style="display: none;">
         <h1>Διαχείριση Βαθμών</h1>
-        
         <div class="input-selection">
             <input type="text" id="course" placeholder="Όνομα Μαθήματος">
-            <input type="number" id="theoryGrade" placeholder="Θεωρία (0-10)" min="0" max="10" step="0.1">
-            <input type="number" id="labGrade" placeholder="Εργαστήριο (προαιρετικό)" min="0" max="10" step="0.1">
-            <input type="number" id="finalGrade" placeholder="Τελικός Βαθμός" min="0" max="10" step="0.1">
-            <input type="number" id="semester" placeholder="Εξάμηνο" min="1" max="10" step="1">
-            <button id="mainBtn" onclick="saveGrade()">Προσθήκη</button>
+            <input type="number" id="theoryGrade" placeholder="Θεωρία" step="0.1">
+            <input type="number" id="labGrade" placeholder="Εργαστήριο" step="0.1">
+            <input type="number" id="finalGrade" placeholder="Τελικός" step="0.1">
+            <input type="number" id="semester" placeholder="Εξάμηνο">
+            <button id="mainBtn" onclick="saveGrade()">Προσθήκη Βαθμού</button>
         </div>
 
         <div class="semester-filter">
             <button class="filter-btn active" id="btn-filter-all" onclick="setSemesterFilter('all')">Όλα</button>
-            <button class="filter-btn" id="btn-filter-1" onclick="setSemesterFilter(1)">1ο</button>
-            <button class="filter-btn" id="btn-filter-2" onclick="setSemesterFilter(2)">2ο</button>
-            <button class="filter-btn" id="btn-filter-3" onclick="setSemesterFilter(3)">3ο</button>
-            <button class="filter-btn" id="btn-filter-4" onclick="setSemesterFilter(4)">4ο</button>
-            <button class="filter-btn" id="btn-filter-5" onclick="setSemesterFilter(5)">5ο</button>
-            <button class="filter-btn" id="btn-filter-6" onclick="setSemesterFilter(6)">6ο</button>
-            <button class="filter-btn" id="btn-filter-7" onclick="setSemesterFilter(7)">7ο</button>
-            <button class="filter-btn" id="btn-filter-8" onclick="setSemesterFilter(8)">8ο</button>
-            <button class="filter-btn" id="btn-filter-9" onclick="setSemesterFilter(9)">9ο</button>
-            <button class="filter-btn" id="btn-filter-10" onclick="setSemesterFilter(10)">10ο</button>
-        </div>
+            </div>
 
-        <div class="controls-section" style="display: flex; gap: 10px;">
-            <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="🔍 Αναζήτηση..." style="flex: 2;">
-            <select id="sortSelect" onchange="setSortMethod(this.value)" style="flex: 1; cursor: pointer;">
-                <option value="semester_asc">⬇️ Εξάμηνο (1-10)</option>
-                <option value="semester_desc">⬆️ Εξάμηνο (10-1)</option>
-                <option value="final_desc">🏆 Τελικός Βαθμός (Υψηλότερος)</option>
-                <option value="final_asc">📉 Τελικός Βαθμός (Χαμηλότερος)</option>
-                <option value="name_asc">🔤 Όνομα (Α - Ω)</option>
-            </select>
-        </div>
-
-        <table id="gradesTable">
+        <table>
             <thead>
                 <tr>
                     <th>Μάθημα</th>
                     <th>Θεωρία</th>
                     <th>Εργαστήριο</th>
-                    <th>Τελικός Βαθμός</th>
+                    <th>Τελικός</th>
                     <th>Εξάμηνο</th>
                     <th>Ενέργεια</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-
-        <div class="average-section">
-            <h3>Μέσος όρος (βάσει Τελικού): <span id="averageSpan">-</span></h3>
-        </div>
-
-        <div class="backup-section">
-            <button class="backup-btn export" onclick="exportToFile()">💾 Εξαγωγή σε Excel</button>
-            <label for="importFile" class="backup-btn import">📂 Φόρτωση από Excel</label>
-            <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importFromFile(event)">
-        </div>
+        <div class="average-section"><h3>Μέσος όρος: <span id="averageSpan">-</span></h3></div>
     </div>
 
     <div class="container" id="tasksScreen" style="display: none;">
         <h1>Λίστα Εργασιών</h1>
-        <p>Η λειτουργία αυτή θα είναι σύντομα διαθέσιμη!</p>
-    </div>
+        <div class="input-selection">
+            <select id="taskCourseSelect">
+                <option value="">Επιλέξτε Μάθημα...</option>
+            </select>
+            <select id="taskType">
+                <option value="Θεωρία">Θεωρία</option>
+                <option value="Εργαστήριο">Εργαστήριο</option>
+            </select>
+            <input type="date" id="taskDueDate">
+            <button id="mainBtn" onclick="saveTask()">Προσθήκη Εργασίας</button>
+        </div>
 
-    <div class="container" id="examsScreen" style="display: none;">
-        <h1>Ημερολόγιο Εξετάσεων</h1>
-        <p>Η λειτουργία αυτή θα είναι σύντομα διαθέσιμη!</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Μάθημα</th>
+                    <th>Τύπος</th>
+                    <th>Ημ. Παράδοσης</th>
+                    <th>Ενέργεια</th>
+                </tr>
+            </thead>
+            <tbody id="tasksTableBody"></tbody>
+        </table>
     </div>
-
-    <button id="backToTop" onclick="scrollToTop()" title="Πίσω στην κορυφή">⬆️</button>
 
     <script>
-        // ==========================================
-        // ΛΟΓΙΚΗ ΓΙΑ ΤΟ DARK THEME & TABS
-        // ==========================================
-        function initTheme() {
-            const savedTheme = localStorage.getItem('appTheme');
-            const themeBtn = document.getElementById('themeToggle');
-            const logoLogin = document.getElementById('uniwaLogin');
-            const logoHeader = document.getElementById('headerLogo');
-            const logoApp = document.getElementById('uniwa');
-
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                themeBtn.innerText = '☀️ Light Mode';
-                if (logoLogin) logoLogin.src = "uniwa-dark.png";
-                if (logoHeader) logoHeader.src = "uniwa-dark.png";
-                if (logoApp) logoApp.src = "uniwa-dark.png";
-            }
-        }
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeBtn = document.getElementById('themeToggle');
-            const logoLogin = document.getElementById('uniwaLogin');
-            const logoHeader = document.getElementById('headerLogo');
-            const logoApp = document.getElementById('uniwa');
-
-            body.classList.toggle('dark-theme');
-            
-            if (body.classList.contains('dark-theme')) {
-                localStorage.setItem('appTheme', 'dark');
-                themeBtn.innerText = '☀️ Light Mode';
-                if (logoLogin) logoLogin.src = "uniwa-dark.png";
-                if (logoHeader) logoHeader.src = "uniwa-dark.png";
-                if (logoApp) logoApp.src = "uniwa-dark.png";
-            } else {
-                localStorage.setItem('appTheme', 'light');
-                themeBtn.innerText = '🌙 Dark Mode';
-                if (logoLogin) logoLogin.src = "uniwa-logo.png";
-                if (logoHeader) logoHeader.src = "uniwa-logo.png";
-                if (logoApp) logoApp.src = "uniwa-logo.png";
-            }
-        }
-
-        function switchTab(tabName) {
-            document.getElementById('appScreen').style.display = 'none';
-            document.getElementById('tasksScreen').style.display = 'none';
-            document.getElementById('examsScreen').style.display = 'none';
-
-            document.getElementById('tabGrades').classList.remove('active');
-            document.getElementById('tabTasks').classList.remove('active');
-            document.getElementById('tabExams').classList.remove('active');
-
-            if (tabName === 'grades') {
-                document.getElementById('appScreen').style.display = 'block';
-                document.getElementById('tabGrades').classList.add('active');
-            } else if (tabName === 'tasks') {
-                document.getElementById('tasksScreen').style.display = 'block';
-                document.getElementById('tabTasks').classList.add('active');
-            } else if (tabName === 'exams') {
-                document.getElementById('examsScreen').style.display = 'block';
-                document.getElementById('tabExams').classList.add('active');
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', initTheme);
-
-        // ==========================================
-        // 1. ΡΥΘΜΙΣΕΙΣ FIREBASE 
-        // ==========================================
+        // FIREBASE CONFIG - Βάλε τα δικά σου στοιχεία εδώ
         const firebaseConfig = {
-            apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", 
+            apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE",
             authDomain: "universitygrades-58ed7.firebaseapp.com",
             projectId: "universitygrades-58ed7",
             storageBucket: "universitygrades-58ed7.firebasestorage.app",
             messagingSenderId: "403775984431",
-            appId: "1:403775984431:web:e37a5618870f985ffe87da",
-            measurementId: "G-4738X1ER9F"
+            appId: "1:403775984431:web:e37a5618870f985ffe87da"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
         let currentUser = null;
         let globalGrades = [];
-        let currentEditId = null;
-        let currentSemesterFilter = 'all'; 
-        let currentSortMethod = 'semester_asc';
+        let globalTasks = [];
 
-        // ==========================================
-        // 2. ΣΥΣΤΗΜΑ ΧΡΗΣΤΩΝ (AUTH)
-        // ==========================================
-        auth.onAuthStateChanged((user) => {
+        // --- AUTH & NAVIGATION ---
+        auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainHeader').style.display = 'flex';
-                document.getElementById('appScreen').style.display = 'block';
+                switchTab('grades');
                 document.getElementById('userEmailDisplay').innerText = user.email;
-                fetchGradesFromDB();
+                fetchGrades();
+                fetchTasks();
             } else {
-                currentUser = null;
                 document.getElementById('loginScreen').style.display = 'block';
                 document.getElementById('mainHeader').style.display = 'none';
-                document.getElementById('appScreen').style.display = 'none';
-                document.getElementById('tasksScreen').style.display = 'none';
-                document.getElementById('examsScreen').style.display = 'none';
             }
         });
 
-        function registerUser() {
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passwordInput').value;
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((u) => u.user.sendEmailVerification().then(() => alert("Η εγγραφή πέτυχε! Επιβεβαιώστε το email σας.")))
-                .catch((e) => alert("Σφάλμα: " + e.message));
+        function switchTab(tab) {
+            const screens = ['appScreen', 'tasksScreen'];
+            const navButtons = ['tabGrades', 'tabTasks'];
+            screens.forEach(s => document.getElementById(s).style.display = 'none');
+            navButtons.forEach(b => document.getElementById(b).classList.remove('active'));
+            
+            if(tab === 'grades') { document.getElementById('appScreen').style.display = 'block'; document.getElementById('tabGrades').classList.add('active'); }
+            if(tab === 'tasks') { document.getElementById('tasksScreen').style.display = 'block'; document.getElementById('tabTasks').classList.add('active'); }
         }
 
-        function loginUser() {
-            const email = document.getElementById('emailInput').value;
-            const pass = document.getElementById('passwordInput').value;
-            auth.signInWithEmailAndPassword(email, pass).catch((e) => alert("Λάθος στοιχεία!"));
-        }
-
-        function logoutUser() { auth.signOut(); }
-
-        function resetPassword() {
-            const email = document.getElementById('emailInput').value;
-            if (!email) { alert("Συμπληρώστε το email σας."); return; }
-            auth.sendPasswordResetEmail(email)
-                .then(() => alert("Στάλθηκε email επαναφοράς!"))
-                .catch((e) => alert("Σφάλμα: " + e.message));
-        }
-
-        // ==========================================
-        // 3. ΛΟΓΙΚΗ ΒΑΘΜΩΝ (FIRESTORE)
-        // ==========================================
-        function fetchGradesFromDB() {
-            db.collection("users").doc(currentUser.uid).collection("grades")
-              .onSnapshot((querySnapshot) => {
-                  globalGrades = [];
-                  querySnapshot.forEach((doc) => {
-                      let data = doc.data();
-                      data.id = doc.id; 
-                      globalGrades.push(data);
-                  });
-                  renderTable(); 
-              });
+        // --- ΒΑΘΜΟΙ (GRADES LOGIC) ---
+        function fetchGrades() {
+            db.collection("users").doc(currentUser.uid).collection("grades").onSnapshot(snap => {
+                globalGrades = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateCourseDropdown();
+                renderGrades();
+            });
         }
 
         function saveGrade() {
-            const nameInput = document.getElementById("course").value;
-            const theoryInput = document.getElementById("theoryGrade").value;
-            const labInput = document.getElementById("labGrade").value;
-            const finalInput = document.getElementById("finalGrade").value;
-            const semesterInput = document.getElementById("semester").value;
+            const name = document.getElementById('course').value;
+            const theory = parseFloat(document.getElementById('theoryGrade').value);
+            const final = parseFloat(document.getElementById('finalGrade').value);
+            const sem = parseInt(document.getElementById('semester').value);
+            if(!name || isNaN(final)) return alert("Συμπληρώστε όνομα και τελικό βαθμό!");
 
-            if(!nameInput || !theoryInput || !finalInput || !semesterInput) {
-                alert("Συμπληρώστε τα υποχρεωτικά πεδία!"); return;
-            }
-
-            const gradeData = {
-                name: nameInput,
-                theory: parseFloat(theoryInput),
-                lab: labInput ? parseFloat(labInput) : null,
-                final: parseFloat(finalInput),
-                semester: parseInt(semesterInput)
-            };
-
-            const userGradesRef = db.collection("users").doc(currentUser.uid).collection("grades");
-
-            if (currentEditId === null) {
-                userGradesRef.add(gradeData);
-            } else {
-                userGradesRef.doc(currentEditId).update(gradeData);
-                currentEditId = null;
-                document.getElementById("mainBtn").innerText = "Προσθήκη";
-            }
-
-            document.getElementById("course").value = "";
-            document.getElementById("theoryGrade").value = "";
-            document.getElementById("labGrade").value = "";
-            document.getElementById("finalGrade").value = "";
-            document.getElementById("semester").value = "";
-        }
-
-        function editGrade(docId) {
-            const entry = globalGrades.find(g => g.id === docId);
-            if(entry) {
-                document.getElementById("course").value = entry.name;
-                document.getElementById("theoryGrade").value = entry.theory;
-                document.getElementById("labGrade").value = entry.lab !== null ? entry.lab : "";
-                document.getElementById("finalGrade").value = entry.final;
-                document.getElementById("semester").value = entry.semester;
-                currentEditId = docId;
-                document.getElementById("mainBtn").innerText = "Αποθήκευση";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        function deleteGrade(docId) {
-            if(confirm("Διαγραφή μαθήματος;")) {
-                db.collection("users").doc(currentUser.uid).collection("grades").doc(docId).delete();
-            }
-        }
-
-        // ==========================================
-        // 4. ΕΜΦΑΝΙΣΗ & UI
-        // ==========================================
-        function setSemesterFilter(sem) {
-            currentSemesterFilter = sem;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-filter-' + sem).classList.add('active');
-            renderTable();
-        }
-
-        function setSortMethod(method) {
-            currentSortMethod = method;
-            renderTable();
-        }
-
-        function getColorClass(value) {
-            if (value === null || value === undefined || value === "") return "";
-            return value >= 5 ? "grade-pass" : "grade-fail";
-        }
-
-        function displayVal(value) {
-            return (value === null || value === undefined || value === "") ? "-" : value;
-        }
-
-        function renderTable() {
-            const tableBody = document.getElementById("tableBody");
-            tableBody.innerHTML = "";
-
-            let displayList = [...globalGrades];
-
-            if (currentSemesterFilter !== 'all') {
-                displayList = displayList.filter(entry => entry.semester === currentSemesterFilter);
-            }
-
-            const searchQuery = document.getElementById("searchInput").value.toLowerCase();
-            if (searchQuery) {
-                displayList = displayList.filter(entry => entry.name.toLowerCase().includes(searchQuery));
-            }
-
-            displayList.sort((a, b) => {
-                if (currentSortMethod === 'semester_asc') return a.semester - b.semester;
-                if (currentSortMethod === 'semester_desc') return b.semester - a.semester;
-                if (currentSortMethod === 'final_desc') return b.final - a.final;
-                if (currentSortMethod === 'final_asc') return a.final - b.final;
-                if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el');
-                return 0;
+            db.collection("users").doc(currentUser.uid).collection("grades").add({
+                name, theory, final, semester: sem, lab: parseFloat(document.getElementById('labGrade').value) || null
             });
+            document.querySelectorAll('input').forEach(i => i.value = "");
+        }
 
-            let passedSum = 0, passedCount = 0;
-
-            displayList.forEach(entry => {
-                if (entry.final >= 5) {
-                    passedSum += entry.final;
-                    passedCount++;            
-                }
-                
-                let row = `<tr>
-                                <td>${entry.name}</td>
-                                <td class="${getColorClass(entry.theory)}">${displayVal(entry.theory)}</td>
-                                <td class="${getColorClass(entry.lab)}">${displayVal(entry.lab)}</td>
-                                <td class="${getColorClass(entry.final)}">${displayVal(entry.final)}</td>
-                                <td>${entry.semester}</td>
-                                <td>
-                                    <button class="edit-btn" onclick="editGrade('${entry.id}')">Επεξεργασία</button>
-                                    <button class="delete-btn" onclick="deleteGrade('${entry.id}')">Διαγραφή</button>
-                                </td>
-                            </tr>`;
-                tableBody.innerHTML += row;
+        function renderGrades() {
+            const body = document.getElementById('tableBody');
+            body.innerHTML = "";
+            let sum = 0, count = 0;
+            globalGrades.forEach(g => {
+                if(g.final >= 5) { sum += g.final; count++; }
+                body.innerHTML += `<tr><td>${g.name}</td><td>${g.theory||'-'}</td><td>${g.lab||'-'}</td><td class="${g.final>=5?'grade-pass':'grade-fail'}">${g.final}</td><td>${g.semester}</td><td><button onclick="deleteGrade('${g.id}')">❌</button></td></tr>`;
             });
-
-            if (passedCount > 0) {
-                document.getElementById("averageSpan").innerText = (passedSum / passedCount).toFixed(2);
-            } else {
-                document.getElementById("averageSpan").innerText = "-";
-            }
+            document.getElementById('averageSpan').innerText = count > 0 ? (sum/count).toFixed(2) : "-";
         }
 
-        // ==========================================
-        // 5. EXCEL
-        // ==========================================
-        function exportToFile() {
-            if (globalGrades.length === 0) return;
-            let csvContent = "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
-            globalGrades.forEach(entry => {
-                let safeName = entry.name.includes(',') ? `"${entry.name}"` : entry.name;
-                csvContent += `${safeName},${entry.theory},${entry.lab||""},${entry.final},${entry.semester}\n`;
+        function deleteGrade(id) { if(confirm("Διαγραφή;")) db.collection("users").doc(currentUser.uid).collection("grades").doc(id).delete(); }
+
+        // --- ΕΡΓΑΣΙΕΣ (TASKS LOGIC) ---
+        function updateCourseDropdown() {
+            const select = document.getElementById('taskCourseSelect');
+            select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
+            globalGrades.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.name; opt.innerText = g.name;
+                select.appendChild(opt);
             });
-            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url; a.download = "vathmoi.csv";
-            a.click();
         }
 
-        async function importFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const lines = e.target.result.split('\n');
-                    let newGrades = [];
-                    for (let i = 1; i < lines.length; i++) {
-                        const parts = lines[i].split(',');
-                        if (parts.length < 5) continue;
-                        newGrades.push({
-                            name: parts[0].replace(/"/g, ''),
-                            theory: parseFloat(parts[1]),
-                            lab: parts[2] ? parseFloat(parts[2]) : null,
-                            final: parseFloat(parts[3]),
-                            semester: parseInt(parts[4])
-                        });
-                    }
-                    if (newGrades.length > 0 && confirm("Αντικατάσταση βαθμών;")) {
-                        const batch = db.batch();
-                        const snapshot = await db.collection("users").doc(currentUser.uid).collection("grades").get();
-                        snapshot.docs.forEach(doc => batch.delete(doc.ref));
-                        newGrades.forEach(g => batch.set(db.collection("users").doc(currentUser.uid).collection("grades").doc(), g));
-                        await batch.commit();
-                    }
-                } catch (err) { alert("Σφάλμα αρχείου."); }
-            };
-            reader.readAsText(file);
+        function fetchTasks() {
+            db.collection("users").doc(currentUser.uid).collection("tasks").onSnapshot(snap => {
+                globalTasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTasks();
+            });
         }
 
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        window.onscroll = function() {
-            document.getElementById("backToTop").style.display = window.scrollY > 200 ? "block" : "none";
-        };
+        function saveTask() {
+            const course = document.getElementById('taskCourseSelect').value;
+            const type = document.getElementById('taskType').value;
+            const date = document.getElementById('taskDueDate').value;
+            if(!course) return alert("Επιλέξτε μάθημα!");
+            db.collection("users").doc(currentUser.uid).collection("tasks").add({ course, type, dueDate: date });
+        }
+
+        function renderTasks() {
+            const body = document.getElementById('tasksTableBody');
+            body.innerHTML = "";
+            const sorted = [...globalTasks].sort((a,b) => (a.dueDate > b.dueDate) ? 1 : -1);
+            sorted.forEach(t => {
+                body.innerHTML += `<tr><td>${t.course}</td><td><span class="badge ${t.type==='Θεωρία'?'badge-theory':'badge-lab'}">${t.type}</span></td><td>${t.dueDate||'-'}</td><td><button onclick="deleteTask('${t.id}')">❌</button></td></tr>`;
+            });
+        }
+
+        function deleteTask(id) { db.collection("users").doc(currentUser.uid).collection("tasks").doc(id).delete(); }
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
+            updateLogos(isDark);
+        }
+        function updateLogos(isDark) {
+            const logo = isDark ? "uniwa-dark.png" : "uniwa-logo.png";
+            document.getElementById('headerLogo').src = logo;
+            document.getElementById('uniwaLogin').src = logo;
+        }
+        if(localStorage.getItem('appTheme') === 'dark') { document.body.classList.add('dark-theme'); updateLogos(true); }
+
+        function loginUser() { auth.signInWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value); }
+        function logoutUser() { auth.signOut(); }
     </script>
 </body>
 </html>

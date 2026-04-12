@@ -1,22 +1,17 @@
-/*
-git add .
-git commit -m "Προσθήκη Θεωρίας, Εργαστηρίου και Τελικού Βαθμού"
-git push
-*/
+/* style.css - Ολοκληρωμένη Έκδοση */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: rgb(46, 170, 192); 
     display: flex;
     justify-content: center;
-    padding-top: 50px;
+    padding-top: 100px; /* Χώρος για το fixed header */
     padding-bottom: 80px;
     margin: 0;
     transition: background-color 0.4s ease;
 }
-/* =========================================
-   ΝΕΟ: NAVIGATION BAR (HEADER)
-   ========================================= */
+
+/* --- NAVIGATION BAR (HEADER) --- */
 header {
     width: 100%;
     background-color: white;
@@ -25,7 +20,7 @@ header {
     justify-content: space-between;
     padding: 10px 40px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: fixed; /* Καρφωμένο στην κορυφή */
+    position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
@@ -33,291 +28,90 @@ header {
     transition: 0.4s ease;
 }
 
-.header-left img {
-    height: 60px; /* Προσαρμόζει το μέγεθος του λογότυπου */
-}
-
-.header-center {
-    display: flex;
-    gap: 15px;
-}
+.header-left img { height: 50px; }
+.header-center { display: flex; gap: 10px; }
 
 .nav-btn {
-    background: none;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: #2c3e50;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
+    background: none; border: none; font-size: 15px; font-weight: 600;
+    color: #2c3e50; padding: 10px 18px; border-radius: 8px; cursor: pointer; transition: 0.3s;
 }
 
-/* Το στυλ της εικόνας για το ενεργό κουμπί (Μαύρο φόντο, Λευκά γράμματα) */
-.nav-btn.active {
-    background-color: black;
-    color: white;
-}
+.nav-btn.active { background-color: black; color: white; }
 
-.nav-btn:hover:not(.active) {
-    background-color: #f1f2f6;
-}
+.header-right { display: flex; align-items: center; gap: 15px; }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Πρέπει να σπρώξουμε λίγο το body πιο κάτω, 
-   γιατί το header είναι fixed στην κορυφή */
-body {
-    padding-top: 100px; 
-}
-
-/* Προσαρμογή Header για Dark Mode */
-body.dark-theme header {
-    background-color: #1e1e2f;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-body.dark-theme .nav-btn { color: #e2e8f0; }
-body.dark-theme .nav-btn.active { background-color: #f1c40f; color: black; }
-body.dark-theme .nav-btn:hover:not(.active) { background-color: #2d3748; }
-
+/* --- CONTAINERS --- */
 .container {
     background-color: rgb(255, 255, 255);
     padding: 30px;
-    border-radius: 10px;
+    border-radius: 15px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    width: 900px; /* Το μεγάλωσα λίγο για να χωράνε οι νέες στήλες */
+    width: 850px;
     text-align: center;
     transition: 0.4s ease;
 }
 
-h1, h2, p {
-    color: #2c3e50;
-    transition: 0.4s ease;
-}
-
-/* --- Κουμπί Αλλαγής Theme (Μεταφέρθηκε κάτω αριστερά) --- */
-.theme-toggle-btn {
-    position: fixed;
-    bottom: 20px; /* Το πήγαμε κάτω */
-    left: 20px;   /* Το πήγαμε αριστερά */
-    background-color: #2c3e50;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: bold;
-    z-index: 9999; /* Το κάναμε τεράστιο για να είναι πάντα πάνω από όλα */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    transition: 0.3s;
-}
-
-.theme-toggle-btn:hover {
-    transform: scale(1.05);
-}
-
-/* --- Οθόνη Login --- */
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 80%;
-    margin: 0 auto;
-}
-.auth-form input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-}
-
-/* --- Tabs Εξαμήνων --- */
-.semester-filter {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-.filter-btn {
-    background-color: #ecf0f1;
-    color: #34495e;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-.filter-btn:hover { background-color: #bdc3c7; }
-.filter-btn.active {
-    background-color: #2980b9;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* --- Αναζήτηση & Ταξινόμηση --- */
-.search-section, .controls-section { margin-bottom: 20px; }
-input, select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px; /* Λίγο μικρότερα γράμματα για να χωράνε */
-    transition: 0.3s;
-}
-input:focus, select:focus {
-    outline: none;
-    border-color: #2980b9;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
-}
-
-/* --- ΝΕΟ: Grid Σύστημα για τα πολλά Inputs --- */
+/* --- GRID FOR INPUTS --- */
 .input-selection {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 30px;
 }
-#course { grid-column: span 2; } /* Το όνομα πιάνει 2 θέσεις για να είναι μεγάλο */
-#mainBtn {
-    grid-column: 1 / -1; /* Το κουμπί πιάνει όλη την από κάτω σειρά */
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+
+input, select {
+    padding: 12px; border: 1px solid #ddd; border-radius: 8px;
+    font-size: 14px; transition: 0.3s;
 }
+
+input:focus, select:focus { border-color: #2980b9; outline: none; box-shadow: 0 0 5px rgba(41, 128, 185, 0.3); }
+
+#mainBtn {
+    grid-column: 1 / -1;
+    background-color: #27ae60; color: white; border: none;
+    padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
+}
+
 #mainBtn:hover { background-color: #219150; }
 
-/* --- Πίνακας & Βαθμοί --- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: center; /* Κεντράρισμα για να φαίνονται ωραία οι πολλοί αριθμοί */
-    transition: 0.4s ease;
-}
-th:first-child, td:first-child { text-align: left; } /* Το όνομα του μαθήματος αριστερά */
-th { background-color: #34495e; color: white; }
+/* --- TABLE STYLES --- */
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; transition: 0.3s; }
+th { background-color: #34495e; color: white; font-size: 14px; }
 
-/* Τα χρώματα (Λειτουργούν σε όλες τις νέες στήλες) */
-.grade-pass { color: #27ae60; font-weight: bold; }
-.grade-fail { color: #e74c3c; font-weight: bold; }
-
-.edit-btn, .delete-btn {
-    width: 110px;
-    margin: 2px;
-    padding: 8px 10px;
-    font-size: 14px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
+/* --- BADGES (Theory/Lab) --- */
+.badge {
+    padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
 }
-.edit-btn { background-color: #12b3f3; }
-.edit-btn:hover { background-color: #2522e6; }
-.delete-btn { background-color: #e74c3c; }
-.delete-btn:hover { background-color: #c0392b; }
+.badge-theory { background-color: #d1ecf1; color: #0c5460; }
+.badge-lab { background-color: #fff3cd; color: #856404; }
 
-.average-section {
-    background-color: #ecf0f1;
-    padding: 15px;
-    border-radius: 5px;
-    color: #2c3e50;
-    transition: 0.4s ease;
+/* --- THEME TOGGLE (Bottom Left) --- */
+.theme-toggle-btn {
+    position: fixed; bottom: 20px; left: 20px;
+    background-color: #2c3e50; color: white; border: none;
+    padding: 12px 18px; border-radius: 25px; cursor: pointer;
+    font-weight: bold; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* --- Backup/Restore Excel --- */
-.backup-section {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-.backup-btn {
-    padding: 10px 15px;
-    border-radius: 5px;
-    border: none;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-weight: bold;
-}
-.backup-btn:hover { opacity: 0.9; }
-.backup-btn.export { background-color: #107c41; } 
-.backup-btn.import { background-color: #34495e; }
-
-#backToTop {
-    display: none; position: fixed; bottom: 30px; right: 30px;
-    background-color: #2c3e50; color: white; border: none; padding: 15px;
-    border-radius: 50%; cursor: pointer; font-size: 20px;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.3); transition: 0.3s; z-index: 99;
-}
-#backToTop:hover { transform: scale(1.1); }
-
-/* =========================================
-   DARK MODE STYLES
-   ========================================= */
+/* --- DARK MODE OVERRIDES --- */
 body.dark-theme { background-color: #121212; }
-body.dark-theme .container {
-    background-color: #1e1e2f;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
-}
-body.dark-theme h1, body.dark-theme h2, body.dark-theme p, 
-body.dark-theme td, body.dark-theme #userEmailDisplay,
-body.dark-theme .average-section h3 {
-    color: #e2e8f0;
-}
-body.dark-theme .theme-toggle-btn {
-    background-color: #f1c40f; color: #2c3e50;
-}
-body.dark-theme input, body.dark-theme select {
-    background-color: #2d3748; color: white; border-color: #4a5568;
-}
-body.dark-theme input::placeholder { color: #a0aec0; }
+body.dark-theme header { background-color: #1e1e2f; }
+body.dark-theme .nav-btn { color: #e2e8f0; }
+body.dark-theme .nav-btn.active { background-color: #f1c40f; color: black; }
+body.dark-theme .container { background-color: #1e1e2f; color: white; }
 body.dark-theme th { background-color: #0f3460; }
-body.dark-theme td { border-bottom: 1px solid #4a5568; }
+body.dark-theme td { color: #e2e8f0; border-bottom-color: #2d3748; }
+body.dark-theme input, body.dark-theme select { background-color: #2d3748; color: white; border-color: #4a5568; }
 
-body.dark-theme .filter-btn { background-color: #2d3748; color: #e2e8f0; }
-body.dark-theme .filter-btn:hover { background-color: #4a5568; }
-body.dark-theme .filter-btn.active { background-color: #2980b9; color: white; }
-body.dark-theme .average-section { background-color: #2d3748; }
-body.dark-theme .backup-section { border-top-color: #4a5568; }
-body.dark-theme .backup-btn.import { background-color: #4a5568; }
-
-/* Διόρθωση χρωμάτων βαθμών στο Dark Theme */
+/* Χρώματα Βαθμών στο Dark Mode */
 body.dark-theme td.grade-pass { color: #2ecc71; }
 body.dark-theme td.grade-fail { color: #ff7675; }
 
-/* =========================================
-   ΠΡΟΣΑΡΜΟΓΗ ΓΙΑ ΚΙΝΗΤΑ
-   ========================================= */
+/* Media Queries */
 @media (max-width: 768px) {
-    .container { width: 90%; padding: 15px; }
-    #uniwa { width: 100%; height: auto; }
+    .container { width: 95%; padding: 15px; }
     .input-selection { grid-template-columns: 1fr; }
-    #course { grid-column: 1 / -1; }
-    .controls-section { flex-direction: column; }
-    .filter-btn { padding: 6px 10px; font-size: 12px; }
-    table { display: block; overflow-x: auto; white-space: nowrap; }
-    .backup-section { flex-direction: column; }
-    .backup-btn { width: 100%; text-align: center; }
-    .theme-toggle-btn { top: 10px; right: 10px; font-size: 12px; padding: 8px 12px;}
+    header { padding: 10px; }
+    .nav-btn { padding: 8px; font-size: 12px; }
 }
