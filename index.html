@@ -473,6 +473,73 @@
         function registerUser() { auth.createUserWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value).then(u => u.user.sendEmailVerification()); }
         function logoutUser() { auth.signOut(); }
         function resetPassword() { auth.sendPasswordResetEmail(document.getElementById('emailInput').value); }
+        // ==========================================
+        // ΛΕΙΤΟΥΡΓΙΕΣ EXCEL (ΕΞΑΓΩΓΗ / ΕΙΣΑΓΩΓΗ)
+        // ==========================================
+        function exportToFile() {
+            if (globalGrades.length === 0) return alert("Δεν υπάρχουν βαθμοί για εξαγωγή!");
+            
+            // Το \uFEFF είναι απαραίτητο για να διαβάζει τα Ελληνικά το Excel
+            let csvContent = "\uFEFF"; 
+            csvContent += "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
+            
+            globalGrades.forEach(e => {
+                let row = `"${e.name}",${e.theory},${e.lab || ""},${e.final},${e.semester}`;
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "vathmoi_uniwa.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function importFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const rows = text.split("\n").slice(1); // Παράλειψη της πρώτης γραμμής (επικεφαλίδες)
+                const batch = db.batch();
+                const userRef = db.collection("users").doc(currentUser.uid).collection("grades");
+
+                // Ερώτηση στον χρήστη αν θέλει να σβήσει τα παλιά
+                if(confirm("Προσοχή! Θέλετε να ΔΙΑΓΡΑΦΟΥΝ οι παλιοί βαθμοί πριν την εισαγωγή; \n(Αν πατήσετε 'Ακύρωση', οι νέοι βαθμοί απλά θα προστεθούν στους υπάρχοντες)")) {
+                     const oldDocs = await userRef.get();
+                     oldDocs.forEach(doc => batch.delete(doc.ref));
+                }
+
+                rows.forEach(row => {
+                    // Αγνοούμε τις κενές γραμμές
+                    if (!row.trim()) return; 
+                    
+                    const cols = row.split(",");
+                    if (cols.length >= 4) {
+                        const name = cols[0].replace(/"/g, "");
+                        const theory = parseFloat(cols[1]);
+                        const lab = cols[2] ? parseFloat(cols[2]) : null;
+                        const final = parseFloat(cols[3]);
+                        const semester = parseInt(cols[4]);
+                        
+                        if(name) {
+                            batch.set(userRef.doc(), { name, theory, lab, final, semester });
+                        }
+                    }
+                });
+
+                await batch.commit();
+                alert("Η εισαγωγή ολοκληρώθηκε επιτυχώς!");
+                event.target.value = ''; // Μηδενισμός του input για να μπορείς να ξαναβάλεις το ίδιο αρχείο αν χρειαστεί
+            };
+            reader.readAsText(file);
+        }
     </script>
+
 </body>
 </html>
