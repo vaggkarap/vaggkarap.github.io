@@ -14,6 +14,76 @@ body {
     margin: 0;
     transition: background-color 0.4s ease;
 }
+/* =========================================
+   ΝΕΟ: NAVIGATION BAR (HEADER)
+   ========================================= */
+header {
+    width: 100%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: fixed; /* Καρφωμένο στην κορυφή */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-sizing: border-box;
+    transition: 0.4s ease;
+}
+
+.header-left img {
+    height: 60px; /* Προσαρμόζει το μέγεθος του λογότυπου */
+}
+
+.header-center {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Το στυλ της εικόνας για το ενεργό κουμπί (Μαύρο φόντο, Λευκά γράμματα) */
+.nav-btn.active {
+    background-color: black;
+    color: white;
+}
+
+.nav-btn:hover:not(.active) {
+    background-color: #f1f2f6;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Πρέπει να σπρώξουμε λίγο το body πιο κάτω, 
+   γιατί το header είναι fixed στην κορυφή */
+body {
+    padding-top: 100px; 
+}
+
+/* Προσαρμογή Header για Dark Mode */
+body.dark-theme header {
+    background-color: #1e1e2f;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+body.dark-theme .nav-btn { color: #e2e8f0; }
+body.dark-theme .nav-btn.active { background-color: #f1c40f; color: black; }
+body.dark-theme .nav-btn:hover:not(.active) { background-color: #2d3748; }
 
 .container {
     background-color: rgb(255, 255, 255);
