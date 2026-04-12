@@ -320,9 +320,11 @@
             document.getElementById("averageSpan").innerText = count > 0 ? (sum / count).toFixed(2) : "-";
         }
 
+// ==========================================
+        // ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ (TASKS) - ΜΕ STATUS, ΧΡΩΜΑΤΑ & ΕΠΕΞΕΡΓΑΣΙΑ
         // ==========================================
-        // ΛΟΓΙΚΗ ΕΡΓΑΣΙΩΝ (TASKS) - ΜΕ STATUS ΚΑΙ ΧΡΩΜΑΤΑ
-        // ==========================================
+        let currentTaskEditId = null; // ΝΕΟ: Μεταβλητή για την επεξεργασία εργασίας
+
         function updateCourseDropdown() {
             const select = document.getElementById('taskCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
@@ -353,18 +355,50 @@
             
             if(!course) return alert("Επιλέξτε μάθημα από τη λίστα!");
             
-            db.collection("users").doc(currentUser.uid).collection("tasks").add({ 
-                course, type, status, dueDate: date 
-            }).then(() => {
-                document.getElementById('taskDueDate').value = ""; 
-                document.getElementById('taskStatus').value = "Not Started";
-            }).catch(error => {
-                alert("Σφάλμα! Ελέγξτε τα rules της Firebase.");
-                console.error(error);
-            });
+            const taskData = { course, type, status, dueDate: date };
+            const ref = db.collection("users").doc(currentUser.uid).collection("tasks");
+
+            // ΝΕΑ ΛΟΓΙΚΗ: Ελέγχουμε αν κάνουμε Επεξεργασία ή Προσθήκη
+            if (currentTaskEditId === null) {
+                // Προσθήκη νέας εργασίας
+                ref.add(taskData).then(() => {
+                    document.getElementById('taskDueDate').value = ""; 
+                    document.getElementById('taskStatus').value = "Not Started";
+                }).catch(error => {
+                    console.error(error);
+                });
+            } else {
+                // Αποθήκευση επεξεργασίας
+                ref.doc(currentTaskEditId).update(taskData).then(() => {
+                    currentTaskEditId = null; // Μηδενισμός
+                    // Βρίσκουμε το κουμπί της εργασίας και του αλλάζουμε πάλι το όνομα
+                    document.querySelector('#tasksScreen button[onclick="saveTask()"]').innerText = "Προσθήκη Εργασίας";
+                    
+                    document.getElementById('taskDueDate').value = ""; 
+                    document.getElementById('taskStatus').value = "Not Started";
+                });
+            }
         }
 
-        // Ενημερώνει το Status απευθείας από τον πίνακα
+        // ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Επεξεργασία Εργασίας
+        function editTask(docId) {
+            const entry = globalTasks.find(t => t.id === docId);
+            if(entry) {
+                document.getElementById('taskCourseSelect').value = entry.course;
+                document.getElementById('taskType').value = entry.type;
+                document.getElementById('taskStatus').value = entry.status || "Not Started";
+                document.getElementById('taskDueDate').value = entry.dueDate || "";
+                
+                currentTaskEditId = docId;
+                
+                // Αλλάζουμε το κείμενο του κουμπιού
+                document.querySelector('#tasksScreen button[onclick="saveTask()"]').innerText = "Αποθήκευση Αλλαγών";
+                
+                // Σκρολάρουμε πάνω-πάνω για να δει ο χρήστης τη φόρμα
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         function updateTaskStatus(taskId, newStatus) {
             db.collection("users").doc(currentUser.uid).collection("tasks").doc(taskId).update({
                 status: newStatus
@@ -382,9 +416,8 @@
 
             sorted.forEach(t => {
                 const badgeClass = t.type === 'Θεωρία' ? 'badge-theory' : 'badge-lab';
-                const currentStatus = t.status || 'Not Started'; // Ασφάλεια για παλιές εργασίες
+                const currentStatus = t.status || 'Not Started'; 
                 
-                // Υπολογισμός Ημερών (Για Χρώματα)
                 let isDueSoon = false;
                 let isOverdue = false;
                 let displayDate = "-";
@@ -403,13 +436,11 @@
                     displayDate = due.toLocaleDateString('el-GR');
                 }
 
-                // Λογική CSS Classes
                 let rowClass = "";
-                if (currentStatus === 'Done') rowClass = "task-done"; // Το Done υπερισχύει
+                if (currentStatus === 'Done') rowClass = "task-done"; 
                 else if (isOverdue) rowClass = "task-overdue";
                 else if (isDueSoon) rowClass = "task-due-soon";
 
-                // CSS Class για το Select Menu
                 let selectClass = "status-" + currentStatus.toLowerCase().replace(" ", "-");
 
                 body.innerHTML += `<tr class="${rowClass}">
@@ -423,7 +454,10 @@
                         </select>
                     </td>
                     <td>${displayDate}</td>
-                    <td><button class="delete-btn" style="width: auto; padding: 6px 12px;" onclick="deleteTask('${t.id}')">Διαγραφή</button></td>
+                    <td>
+                        <button class="edit-btn" style="width: auto; padding: 6px 12px; margin-bottom: 4px;" onclick="editTask('${t.id}')">Επεξεργασία</button>
+                        <button class="delete-btn" style="width: auto; padding: 6px 12px;" onclick="deleteTask('${t.id}')">Διαγραφή</button>
+                    </td>
                 </tr>`;
             });
         }
