@@ -361,27 +361,42 @@
 
         function renderTasks() {
             const body = document.getElementById('tasksTableBody');
+            if (!body) return;
             body.innerHTML = "";
-            globalTasks.forEach(t => {
-                // Μετατροπή ημερομηνίας από YYYY-MM-DD σε DD-MM-YYYY
+
+            // 1. Ταξινόμηση με βάση την ημερομηνία (πλησιέστερη ημερομηνία πρώτη)
+            let sortedTasks = [...globalTasks].sort((a, b) => {
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            });
+
+            sortedTasks.forEach(t => {
                 let formattedDate = "-";
                 if (t.dueDate) {
                     const dateParts = t.dueDate.split("-");
                     formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
                 }
-                const isDone = t.status === 'Done';
-                const rowStyle = isDone ? 'style="color: #27ae60; font-weight: bold;"' : '';
 
-                body.innerHTML += `<tr>
-                    <td>${t.course}</td>
-                    <td>${t.type}</td>
-                    <td>${t.status}</td>
-                    <td>${formattedDate}</td>
-                    <td>
-                        <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
-                        <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
-                    </td>
-                </tr>`;
+                // 2. Έλεγχος αν είναι Done
+                const isDone = t.status === 'Done';
+                
+                // Στυλ μόνο για το όνομα της εργασίας (πρώτο κελί)
+                const nameStyle = isDone ? 'style="color: #27ae60; font-weight: bold;"' : '';
+                // Στυλ για όλη την υπόλοιπη γραμμή αν θέλεις να είναι διακριτικό
+                const rowStyle = isDone ? 'style="opacity: 0.8;"' : '';
+
+                body.innerHTML += `
+                    <tr ${rowStyle}>
+                        <td ${nameStyle}>${t.course}</td>
+                        <td>${t.type}</td>
+                        <td>${t.status}</td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
+                            <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
+                        </td>
+                    </tr>`;
             });
         }
 
@@ -454,34 +469,42 @@
             if (!body) return;
             body.innerHTML = "";
             
-            const now = new Date();
+            const now = new Date(); // Σήμερα: 12-04-2026
 
             globalExams.forEach(e => {
                 let formattedDateTime = "-";
                 let isPast = false;
 
                 if (e.dateTime) {
-                    // Δημιουργία ημερομηνίας για σύγκριση (το Flatpickr δίνει Y-m-d H:i)
-                    const examDateObj = new Date(e.dateTime.replace(/-/g, "/")); 
-                    if (examDateObj < now) isPast = true;
+                    // Δημιουργούμε το αντικείμενο ημερομηνίας σωστά για τη σύγκριση
+                    // Το e.dateTime είναι σε μορφή YYYY-MM-DD HH:mm από τη βάση
+                    const examDateObj = new Date(e.dateTime); 
 
+                    // Αν η ημερομηνία της εξέτασης είναι μικρότερη από ΤΩΡΑ, τότε πέρασε
+                    if (examDateObj < now) {
+                        isPast = true;
+                    }
+
+                    // Μετατροπή για την εμφάνιση στον πίνακα (DD-MM-YYYY)
                     const [datePart, timePart] = e.dateTime.split(" ");
                     const dateParts = datePart.split("-");
                     formattedDateTime = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${timePart}`;
                 }
 
-                const rowStyle = isPast ? 'style="color: #27ae60; font-weight: bold;"' : '';
+                // Εφαρμογή του πράσινου χρώματος αν isPast είναι true
+                const rowStyle = isPast ? 'style="color: #27ae60 !important; font-weight: bold;"' : '';
 
-                body.innerHTML += `<tr ${rowStyle}>
-                    <td>${e.course}</td>
-                    <td>${formattedDateTime}</td>
-                    <td>${e.room || "-"}</td>
-                    <td style="font-size: 12px; color: inherit;">${e.notes || "-"}</td>
-                    <td>
-                        <button class="edit-btn" onclick="editExam('${e.id}')">Επεξεργασία</button>
-                        <button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button>
-                    </td>
-                </tr>`;
+                body.innerHTML += `
+                    <tr ${rowStyle}>
+                        <td>${e.course}</td>
+                        <td>${formattedDateTime}</td>
+                        <td>${e.room || "-"}</td>
+                        <td style="font-size: 12px; color: inherit;">${e.notes || "-"}</td>
+                        <td>
+                            <button class="edit-btn" onclick="editExam('${e.id}')">Επεξεργασία</button>
+                            <button class="delete-btn" onclick="deleteExam('${e.id}')">Διαγραφή</button>
+                        </td>
+                    </tr>`;
             });
         }
 
