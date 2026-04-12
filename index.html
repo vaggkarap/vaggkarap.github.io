@@ -359,7 +359,7 @@
                     <td>${t.type}</td>
                     <td>${t.status}</td>
                     <td>${formattedDate}</td>
-                    <td style="font-size: 12px; color: inherit;">${t.notes || "-"}</td> <td>
+                    <td class="notes-cell">${t.notes || "-"}</td><td>
                         <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
                         <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
                     </td>
