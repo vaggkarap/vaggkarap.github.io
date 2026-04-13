@@ -1,0 +1,20 @@
+{
+  "name": "UniWA Portal",
+  "short_name": "Portal",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2eaac0",
+  "theme_color": "#2eaac0",
+  "icons": [
+    {
+      "src": "uniwa-1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "uniwa-1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

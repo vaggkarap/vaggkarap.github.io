@@ -5,6 +5,12 @@
     <title>Φοιτητικό Portal - UniWA</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="uniwa-1.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2eaac0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="uniwa-1.png">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
@@ -792,6 +798,20 @@
             time_24hr: true,
             disableMobile: "true" // <--- Το ίδιο και εδώ
         });
+        // ==========================================
+        // ΕΓΓΡΑΦΗ SERVICE WORKER (ΓΙΑ PWA & OFFLINE)
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('Service Worker registered successfully:', registration.scope);
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+        });
+        }
     </script>
 
 </body>
