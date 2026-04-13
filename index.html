@@ -111,6 +111,7 @@
                     <th>Εργαστήριο</th>
                     <th>Τελικός</th>
                     <th>Εξάμηνο</th>
+                    <th>ECTS</th>
                     <th>Ενέργεια</th>
                 </tr>
             </thead>
@@ -426,6 +427,7 @@
                     <td>${e.lab || "-"}</td>
                     <td style="color: ${finalColor}; font-weight: bold;">${e.final}</td>
                     <td>${e.semester}</td>
+                    <td>${e.ects}</td>
                     <td>
                         <button class="edit-btn" onclick="editGrade('${e.id}')">Επεξεργασία</button>
                         <button class="delete-btn" onclick="deleteGrade('${e.id}')">Διαγραφή</button>
