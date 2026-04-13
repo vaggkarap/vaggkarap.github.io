@@ -23,13 +23,21 @@ self.addEventListener('install', event => {
 // Φόρτωση αρχείων (από την cache αν δεν υπάρχει ίντερνετ)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Επιστρέφει το αρχείο από την cache, αλλιώς το κατεβάζει από το ίντερνετ
-        return response || fetch(event.request);
-      })
-  );
-});
+    fetch(event.request)
+          .then(response => {
+            // Αν έχουμε ίντερνετ, φέρνουμε τη φρέσκια έκδοση, 
+            // την αποθηκεύουμε στην cache για μετά, και τη δείχνουμε.
+            return caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, response.clone());
+              return response;
+            });
+          })
+          .catch(() => {
+            // Αν είμαστε εντελώς offline (χωρίς σήμα), δείχνουμε την παλιά έκδοση από την cache.
+            return caches.match(event.request);
+          })
+      );
+    });
 
 // Ενημέρωση της Cache (όταν αλλάζεις κάτι στον κώδικα)
 self.addEventListener('activate', event => {
