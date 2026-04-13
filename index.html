@@ -862,18 +862,23 @@
         }
 
         function sendClassNotification(ev) {
-            const options = {
-                body: `Σε 15 λεπτά: ${ev.type} στην αίθουσα ${ev.room || '-'}!`,
-                icon: 'uniwa-1.png',
-                badge: 'uniwa-1.png',
-                vibrate: [200, 100, 200]
-            };
-            
-            new Notification(`UniWA: ${ev.course}`, options);
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                // Χρήση του Service Worker για την ειδοποίηση
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(`UniWA: ${ev.course}`, {
+                        body: `Σε 15 λεπτά: ${ev.type} στην αίθουσα ${ev.room || '-'}!`,
+                        icon: 'uniwa-1.png',
+                        vibrate: [200, 100, 200],
+                        badge: 'uniwa-1.png'
+                    });
+                });
+            } else {
+                // Απλή ειδοποίηση αν δεν υπάρχει service worker
+                new Notification(`UniWA: ${ev.course}`, {
+                    body: `Σε 15 λεπτά ξεκινάει το μάθημα!`
+                });
+            }
         }
-
-        // Έλεγχος κάθε 1 λεπτό
-        setInterval(checkUpcomingClasses, 60000);
     </script>
 
 </body>
