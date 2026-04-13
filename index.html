@@ -288,11 +288,18 @@
             }
         }
 
-        // --- ΒΑΘΜΟΙ ---
         function fetchGradesFromDB() {
             db.collection("users").doc(currentUser.uid).collection("grades").onSnapshot(snap => {
+                // 1. Αποθηκεύει τα μαθήματα
                 globalGrades = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // 2. Ενημερώνει τον πίνακα των βαθμών
                 renderTable();
+                
+                // 3. ΝΕΟ: Ενημερώνει ΑΜΕΣΩΣ τις λίστες επιλογής (dropdowns) σε όλες τις καρτέλες!
+                if (typeof updateCourseDropdown === "function") updateCourseDropdown();
+                if (typeof updateExamCourseDropdown === "function") updateExamCourseDropdown();
+                if (typeof updateScheduleCourseDropdown === "function") updateScheduleCourseDropdown();
             });
         }
 
