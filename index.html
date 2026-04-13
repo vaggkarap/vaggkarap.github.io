@@ -5,6 +5,7 @@
     <title>Φοιτητικό Portal - UniWA</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="uniwa-1.png">
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2eaac0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -16,10 +17,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css" id="flatpickr-dark-theme" disabled>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/gr.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -35,11 +38,11 @@
             <button class="nav-btn active" id="tabGrades" onclick="switchTab('grades')">Βαθμοί</button>
             <button class="nav-btn" id="tabTasks" onclick="switchTab('tasks')">Εργασίες</button>
             <button class="nav-btn" id="tabExams" onclick="switchTab('exams')">Εξετάσεις</button>
-            
         </div>
         <div class="header-right">
-            <span id="userEmailDisplay" style="font-size: 13px; font-weight: bold;"></span><button onclick="requestNotificationPermission()" id="notifyBtn" style="background:none; border:none; cursor:pointer; font-size:18px;">🔔</button>
-            <button onclick="logoutUser()" style="background-color:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">Αποσύνδεση</button>
+            <span id="userEmailDisplay" style="font-size: 13px; font-weight: bold; margin-right: 10px;"></span>
+            <button onclick="requestNotificationPermission()" id="notifyBtn" style="background:none; border:none; cursor:pointer; font-size:18px;">🔔</button>
+            <button onclick="logoutUser()" style="background-color:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold; margin-left: 10px;">Αποσύνδεση</button>
         </div>
     </header>
 
@@ -59,6 +62,14 @@
 
     <div class="container" id="appScreen" style="display: none;">
         <h1>Διαχείριση Βαθμών</h1>
+        
+        <div class="degree-progress-container" style="margin-bottom: 20px; background: #ecf0f1; padding: 15px; border-radius: 10px;">
+            <p style="margin: 0 0 10px 0; font-weight: bold;">Πρόοδος Πτυχίου: <span id="ectsProgressText">0 / 240</span> ECTS</p>
+            <div style="width: 100%; background: #bdc3c7; height: 20px; border-radius: 10px; overflow: hidden;">
+                <div id="ectsProgressBar" style="width: 0%; height: 100%; background: #27ae60; transition: 0.5s;"></div>
+            </div>
+        </div>
+
         <div class="input-selection">
             <input type="text" id="course" placeholder="Όνομα Μαθήματος">
             <input type="number" id="theoryGrade" placeholder="Θεωρία (0-10)" step="0.1">
@@ -91,6 +102,7 @@
                 <option value="name_asc">🔤 Όνομα (Α - Ω)</option>
             </select>
         </div>
+        
         <table id="gradesTable">
             <thead>
                 <tr>
@@ -104,7 +116,8 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-        </table> <div class="chart-container" style="position: relative; height: 300px; width: 100%; margin-top: 30px; margin-bottom: 20px;">
+        
+        <div class="chart-container" style="position: relative; height: 300px; width: 100%; margin-top: 30px; margin-bottom: 20px;">
             <canvas id="gradesChart"></canvas>
         </div>
        
@@ -205,32 +218,32 @@
     </div>
 
     <div class="container" id="scheduleScreen" style="display: none; width: 95%; max-width: 1200px;">
-    <h1>Εβδομαδιαίο Πρόγραμμα</h1>
-    
-    <div class="input-selection">
-        <select id="schedCourseSelect"><option value="">Επιλέξτε Μάθημα...</option></select>
-        <select id="schedType">
-            <option value="Θεωρία">Θεωρία</option>
-            <option value="Εργαστήριο">Εργαστήριο</option>
-        </select>
-    <select id="schedFrequency">
-            <option value="1">Κάθε Εβδομάδα</option>
-            <option value="2">Ανά 2 Εβδομάδες</option>
-        </select>
-
-        <input type="text" id="schedStartDate" placeholder="1ο Μάθημα (Έναρξη)">
-        <input type="text" id="schedEndDate" placeholder="Τελευταίο (Λήξη)">
+        <h1>Εβδομαδιαίο Πρόγραμμα</h1>
         
-        <input type="text" id="schedStartTime" placeholder="Ώρα Έναρξης (π.χ. 09:00)">
-        <input type="text" id="schedEndTime" placeholder="Ώρα Λήξης (π.χ. 11:00)">
-        <input type="text" id="schedRoom" placeholder="Αίθουσα">
-    </div>
+        <div class="input-selection">
+            <select id="schedCourseSelect"><option value="">Επιλέξτε Μάθημα...</option></select>
+            <select id="schedType">
+                <option value="Θεωρία">Θεωρία</option>
+                <option value="Εργαστήριο">Εργαστήριο</option>
+            </select>
+            <select id="schedFrequency">
+                <option value="1">Κάθε Εβδομάδα</option>
+                <option value="2">Ανά 2 Εβδομάδες</option>
+            </select>
 
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <button id="mainBtnSched" onclick="saveScheduleEvent()" style="flex: 2; background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">Προσθήκη στο Πρόγραμμα</button>
-        <button id="deleteBtnSched" onclick="deleteScheduleEvent()" style="display: none; flex: 1; background-color: #e74c3c; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Διαγραφή</button>
-        <button id="cancelBtnSched" onclick="cancelScheduleEdit()" style="display: none; flex: 1; background-color: #95a5a6; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Ακύρωση</button>
-    </div>
+            <input type="text" id="schedStartDate" placeholder="1ο Μάθημα (Έναρξη)">
+            <input type="text" id="schedEndDate" placeholder="Τελευταίο (Λήξη)">
+            
+            <input type="text" id="schedStartTime" placeholder="Ώρα Έναρξης (π.χ. 09:00)">
+            <input type="text" id="schedEndTime" placeholder="Ώρα Λήξης (π.χ. 11:00)">
+            <input type="text" id="schedRoom" placeholder="Αίθουσα">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button id="mainBtnSched" onclick="saveScheduleEvent()" style="flex: 2; background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">Προσθήκη στο Πρόγραμμα</button>
+            <button id="deleteBtnSched" onclick="deleteScheduleEvent()" style="display: none; flex: 1; background-color: #e74c3c; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Διαγραφή</button>
+            <button id="cancelBtnSched" onclick="cancelScheduleEdit()" style="display: none; flex: 1; background-color: #95a5a6; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Ακύρωση</button>
+        </div>
 
         <div id="calendar" style="margin-top: 20px; background: white; padding: 15px; border-radius: 10px; color: black; min-height: 600px;"></div>
     </div>
@@ -238,6 +251,7 @@
     <button id="backToTop" onclick="scrollToTop()" title="Επιστροφή στην κορυφή" style="display:none; position:fixed; bottom:20px; right:20px; padding:15px; border-radius:50%; background:#2c3e50; color:white; border:none; cursor:pointer; z-index:1000; width:50px; height:50px; font-size:18px;">↑</button>
 
     <script>
+        // 1. Ρυθμίσεις Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCgdS2DvO1yUksP9FiAxWpvUJsJbv4pSmE", 
             authDomain: "universitygrades-58ed7.firebaseapp.com",
@@ -250,6 +264,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // 2. Γενικές Μεταβλητές
         let currentUser = null;
         let globalGrades = [];
         let globalTasks = [];
@@ -260,6 +275,7 @@
         let currentSemesterFilter = 'all'; 
         let currentSortMethod = 'semester_asc';
 
+        // 3. Έλεγχος Σύνδεσης Χρήστη
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -270,7 +286,7 @@
                 fetchTasks();
                 fetchExams();
                 fetchSchedule();
-                switchTab('schedule');
+                switchTab('schedule'); // Ξεκινάει πάντα στο Πρόγραμμα
             } else {
                 currentUser = null;
                 document.getElementById('loginScreen').style.display = 'block';
@@ -279,24 +295,21 @@
             }
         });
 
+        // 4. Αλλαγή Καρτελών
         function switchTab(tab) {
-            // 1. Εδώ είναι η λίστα με ΟΛΑ τα ID των οθονών
             const screens = ['appScreen', 'tasksScreen', 'examsScreen', 'scheduleScreen'];
             const navButtons = ['tabGrades', 'tabTasks', 'tabExams', 'tabSchedule'];
             
-            // 2. Κρύβουμε όλες τις οθόνες πριν ανοίξουμε τη σωστή
             screens.forEach(s => {
                 const el = document.getElementById(s);
                 if(el) el.style.display = 'none';
             });
             
-            // 3. Αφαιρούμε το 'active' χρώμα από όλα τα κουμπιά του μενού
             navButtons.forEach(b => {
                 const el = document.getElementById(b);
                 if(el) el.classList.remove('active');
             });
             
-            // 4. Εμφανίζουμε ΜΟΝΟ την επιλεγμένη οθόνη
             if(tab === 'grades') { 
                 document.getElementById('appScreen').style.display = 'block'; 
                 document.getElementById('tabGrades').classList.add('active'); 
@@ -315,7 +328,6 @@
                 document.getElementById('scheduleScreen').style.display = 'block'; 
                 document.getElementById('tabSchedule').classList.add('active'); 
                 updateScheduleCourseDropdown();
-                // Το ημερολόγιο χρειάζεται ένα μικρό delay για να ζωγραφιστεί σωστά
                 setTimeout(() => {
                     initCalendar();
                     renderSchedule();
@@ -323,15 +335,14 @@
             }
         }
 
+        // ==========================================
+        // ΒΑΘΜΟΙ
+        // ==========================================
         function fetchGradesFromDB() {
             db.collection("users").doc(currentUser.uid).collection("grades").onSnapshot(snap => {
-                // 1. Αποθηκεύει τα μαθήματα
                 globalGrades = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                // 2. Ενημερώνει τον πίνακα των βαθμών
                 renderTable();
                 
-                // 3. ΝΕΟ: Ενημερώνει ΑΜΕΣΩΣ τις λίστες επιλογής (dropdowns) σε όλες τις καρτέλες!
                 if (typeof updateCourseDropdown === "function") updateCourseDropdown();
                 if (typeof updateExamCourseDropdown === "function") updateExamCourseDropdown();
                 if (typeof updateScheduleCourseDropdown === "function") updateScheduleCourseDropdown();
@@ -344,11 +355,21 @@
             const lab = document.getElementById('labGrade').value ? parseFloat(document.getElementById('labGrade').value) : null;
             const final = parseFloat(document.getElementById('finalGrade').value);
             const sem = parseInt(document.getElementById('semester').value);
+            const ects = parseInt(document.getElementById('ects').value) || 0; // Αποθήκευση ECTS
+            
             if(!name || isNaN(theory) || isNaN(final) || isNaN(sem)) return alert("Συμπληρώστε τα υποχρεωτικά πεδία!");
-            const gradeData = { name, theory, lab, final, semester: sem };
+            
+            const gradeData = { name, theory, lab, final, semester: sem, ects: ects };
             const ref = db.collection("users").doc(currentUser.uid).collection("grades");
-            if (currentGradeEditId === null) { ref.add(gradeData); } 
-            else { ref.doc(currentGradeEditId).update(gradeData); currentGradeEditId = null; document.getElementById("mainBtn").innerText = "Προσθήκη Βαθμού"; }
+            
+            if (currentGradeEditId === null) { 
+                ref.add(gradeData); 
+            } else { 
+                ref.doc(currentGradeEditId).update(gradeData); 
+                currentGradeEditId = null; 
+                document.getElementById("mainBtn").innerText = "Προσθήκη Βαθμού"; 
+            }
+            
             document.querySelectorAll('#appScreen input').forEach(i => i.value = "");
         }
 
@@ -359,6 +380,8 @@
             document.getElementById("labGrade").value = g.lab || "";
             document.getElementById("finalGrade").value = g.final;
             document.getElementById("semester").value = g.semester;
+            document.getElementById("ects").value = g.ects || "";
+            
             currentGradeEditId = id;
             document.getElementById("mainBtn").innerText = "Αποθήκευση Αλλαγών";
             scrollToTop();
@@ -366,7 +389,9 @@
 
         function renderTable() {
             const body = document.getElementById("tableBody");
-            if (!body) return; body.innerHTML = "";
+            if (!body) return; 
+            body.innerHTML = "";
+            
             let list = [...globalGrades];
             if (currentSemesterFilter !== 'all') list = list.filter(e => e.semester == currentSemesterFilter);
             const search = document.getElementById("searchInput").value.toLowerCase();
@@ -380,38 +405,54 @@
                 if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el');
                 return 0;
             });
-        
 
-        function renderTable() {
-            // ... (ταξινόμηση κλπ)
             let totalWeightedSum = 0;
             let totalEcts = 0;
-            
+
             list.forEach(e => {
                 const ects = parseInt(e.ects) || 0;
+                
                 if (e.final >= 5) {
                     totalWeightedSum += (e.final * ects);
                     totalEcts += ects;
                 }
-                // ... (render row με επιπλέον <td>${e.ects || "-"}</td>)
+                
+                body.innerHTML += `<tr>
+                    <td>${e.name}</td>
+                    <td>${e.theory}</td>
+                    <td>${e.lab || "-"}</td>
+                    <td><b>${e.final}</b></td>
+                    <td>${e.semester}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editGrade('${e.id}')">Επεξεργασία</button>
+                        <button class="delete-btn" onclick="deleteGrade('${e.id}')">Διαγραφή</button>
+                    </td>
+                </tr>`;
             });
 
+            // Ενημέρωση Μέσου Όρου (Weighted GPA)
             const weightedGpa = totalEcts > 0 ? (totalWeightedSum / totalEcts).toFixed(2) : "-";
             document.getElementById("averageSpan").innerText = weightedGpa;
             
-            // Ενημέρωση Μπάρας
-            const progressPercent = Math.min((totalEcts / 240) * 100, 100);
-            document.getElementById("ectsProgressBar").style.width = progressPercent + "%";
-            document.getElementById("ectsProgressText").innerText = `${totalEcts} / 300`;
+            // Ενημέρωση Μπάρας Προόδου
+            const progressBar = document.getElementById("ectsProgressBar");
+            const progressText = document.getElementById("ectsProgressText");
+            if (progressBar && progressText) {
+                const progressPercent = Math.min((totalEcts / 240) * 100, 100);
+                progressBar.style.width = progressPercent + "%";
+                progressText.innerText = `${totalEcts} / 240`;
+            }
         
-            updateChart(); // Ανανεώνει το γράφημα κάθε φορά που φορτώνουν οι βαθμοί
+            if (typeof updateChart === "function") updateChart();
         }
 
         function deleteGrade(id) { if(confirm("Διαγραφή μαθήματος;")) db.collection("users").doc(currentUser.uid).collection("grades").doc(id).delete(); }
         function setSemesterFilter(sem) { currentSemesterFilter = sem; document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); document.getElementById('btn-filter-' + sem).classList.add('active'); renderTable(); }
         function setSortMethod(method) { currentSortMethod = method; renderTable(); }
 
-        // --- ΕΡΓΑΣΙΕΣ ---
+        // ==========================================
+        // ΕΡΓΑΣΙΕΣ
+        // ==========================================
         let currentTaskView = 'list';
 
         function toggleTaskView(view) {
@@ -420,6 +461,7 @@
             document.getElementById('kanbanBoard').style.display = view === 'board' ? 'flex' : 'none';
             renderTasks();
         }
+
         function updateCourseDropdown() {
             const select = document.getElementById('taskCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
@@ -449,8 +491,8 @@
             const ref = db.collection("users").doc(currentUser.uid).collection("tasks");
             if(currentTaskEditId === null) { ref.add(taskData); } 
             else { ref.doc(currentTaskEditId).update(taskData); currentTaskEditId = null; document.getElementById("mainBtnTask").innerText = "Προσθήκη Εργασίας"; }
-            document.getElementById('taskDueDate').value = "";
-            document.getElementById('taskNotes').value = ""
+            document.getElementById('taskDueDate')._flatpickr.clear();
+            document.getElementById('taskNotes').value = "";
         }
 
         function editTask(id) {
@@ -458,7 +500,10 @@
             document.getElementById('taskCourseSelect').value = t.course;
             document.getElementById('taskType').value = t.type;
             document.getElementById('taskStatus').value = t.status;
-            document.getElementById('taskDueDate').value = t.dueDate || "";
+            
+            if (t.dueDate) { document.getElementById('taskDueDate')._flatpickr.setDate(t.dueDate); } 
+            else { document.getElementById('taskDueDate')._flatpickr.clear(); }
+            
             document.getElementById('taskNotes').value = t.notes || "";
             currentTaskEditId = id;
             document.getElementById("mainBtnTask").innerText = "Αποθήκευση Αλλαγών";
@@ -469,10 +514,7 @@
             const body = document.getElementById('tasksTableBody');
             if (!body) return; 
             
-            // 1. Καθαρισμός του πίνακα
             body.innerHTML = "";
-            
-            // 2. ΝΕΟ: Καθαρισμός των στηλών του Kanban Board
             document.querySelectorAll('.kanban-cards').forEach(c => c.innerHTML = "");
 
             let sorted = [...globalTasks].sort((a, b) => {
@@ -481,7 +523,6 @@
             });
 
             sorted.forEach(t => {
-                // --- ΥΠΟΛΟΓΙΣΜΟΙ ΗΜΕΡΟΜΗΝΙΑΣ ΚΛΠ ---
                 let formattedDate = "-";
                 if (t.dueDate) {
                     const parts = t.dueDate.split("-");
@@ -490,7 +531,6 @@
                 const isDone = t.status === 'Done';
                 const nameStyle = isDone ? 'style="color: #27ae60; font-weight: bold;"' : '';
                 
-                // --- 1. ΔΗΜΙΟΥΡΓΙΑ ΓΡΑΜΜΗΣ ΓΙΑ ΤΟΝ ΠΙΝΑΚΑ ---
                 body.innerHTML += `<tr>
                     <td ${nameStyle}>${t.course}</td>
                     <td>${t.type}</td>
@@ -503,7 +543,6 @@
                     </td>
                 </tr>`;
 
-                // --- 2. ΔΗΜΙΟΥΡΓΙΑ ΚΑΡΤΑΣ ΓΙΑ ΤΟ KANBAN BOARD ---
                 const card = `
                     <div class="task-card" onclick="editTask('${t.id}')" title="Κλικ για επεξεργασία">
                         <h4>${t.course}</h4>
@@ -511,20 +550,17 @@
                         <p style="font-style: italic; color: #7f8c8d;">${t.type}</p>
                     </div>`;
                 
-                // Βρίσκουμε τη σωστή στήλη με βάση το status (π.χ. "Not Started" -> "col-Not-Started")
-                // Η replace() αλλάζει τα κενά σε παύλες για να ταιριάζει με τα ID του HTML
                 const colId = `col-${t.status.replace(/ /g, "-")}`; 
                 const col = document.querySelector(`#${colId} .kanban-cards`);
-                
-                if (col) {
-                    col.innerHTML += card;
-                }
+                if (col) { col.innerHTML += card; }
             });
         }
 
-        function deleteTask(id) { db.collection("users").doc(currentUser.uid).collection("tasks").doc(id).delete(); }
+        function deleteTask(id) { if(confirm("Διαγραφή εργασίας;")) db.collection("users").doc(currentUser.uid).collection("tasks").doc(id).delete(); }
 
-        // --- ΕΞΕΤΑΣΕΙΣ ---
+        // ==========================================
+        // ΕΞΕΤΑΣΕΙΣ
+        // ==========================================
         function updateExamCourseDropdown() {
             const select = document.getElementById('examCourseSelect');
             if (!select) return;
@@ -555,7 +591,7 @@
             const ref = db.collection("users").doc(currentUser.uid).collection("exams");
             if(currentExamEditId === null) { ref.add(examData); } 
             else { ref.doc(currentExamEditId).update(examData); currentExamEditId = null; document.getElementById("mainBtnExam").innerText = "Προσθήκη Εξέτασης"; }
-            document.getElementById('examDateTime').value = "";
+            document.getElementById('examDateTime')._flatpickr.clear();
             document.getElementById('examRoom').value = "";
             document.getElementById('examNotes').value = "";
         }
@@ -564,7 +600,7 @@
             const e = globalExams.find(item => item.id === id);
             document.getElementById('examCourseSelect').value = e.course;
             document.getElementById('examType').value = e.type || "Θεωρία";
-            document.getElementById('examDateTime').value = e.dateTime;
+            document.getElementById('examDateTime')._flatpickr.setDate(e.dateTime);
             document.getElementById('examRoom').value = e.room || "";
             document.getElementById('examNotes').value = e.notes || "";
             currentExamEditId = id;
@@ -603,104 +639,8 @@
 
         function deleteExam(id) { if(confirm("Διαγραφή εξέτασης;")) db.collection("users").doc(currentUser.uid).collection("exams").doc(id).delete(); }
 
-        // --- UTILS & THEME ---
-        function updateLogos(isDark) {
-            const logo = isDark ? "uniwa-dark.png" : "uniwa-logo.png";
-            document.getElementById('headerLogo').src = logo;
-            document.getElementById('uniwaLogin').src = logo;
-            document.getElementById('themeToggle').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-        }
-        function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
-            document.getElementById('flatpickr-dark-theme').disabled = !isDark;
-            updateLogos(isDark);
-            if (typeof updateChart === "function") updateChart();
-        }
-        function initTheme() {
-            const isDark = localStorage.getItem('appTheme') === 'dark';
-            if (isDark) { document.body.classList.add('dark-theme'); document.getElementById('flatpickr-dark-theme').disabled = false; }
-            updateLogos(isDark);
-        }
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-        window.onscroll = function() { document.getElementById("backToTop").style.display = (window.scrollY > 300) ? "block" : "none"; };
-        flatpickr("#taskDueDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
-        flatpickr("#examDateTime", { locale: "gr", enableTime: true, time_24hr: true, dateFormat: "Y-m-d H:i", altInput: true, altFormat: "d-m-Y H:i" });
-        document.addEventListener('DOMContentLoaded', initTheme);
-
-        function loginUser() { auth.signInWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value).catch(e => alert("Λάθος στοιχεία!")); }
-        function registerUser() { auth.createUserWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value).then(u => u.user.sendEmailVerification()); }
-        function logoutUser() { auth.signOut(); }
-        function resetPassword() { auth.sendPasswordResetEmail(document.getElementById('emailInput').value); }
         // ==========================================
-        // ΛΕΙΤΟΥΡΓΙΕΣ EXCEL (ΕΞΑΓΩΓΗ / ΕΙΣΑΓΩΓΗ)
-        // ==========================================
-        function exportToFile() {
-            if (globalGrades.length === 0) return alert("Δεν υπάρχουν βαθμοί για εξαγωγή!");
-            
-            // Το \uFEFF είναι απαραίτητο για να διαβάζει τα Ελληνικά το Excel
-            let csvContent = "\uFEFF"; 
-            csvContent += "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
-            
-            globalGrades.forEach(e => {
-                let row = `"${e.name}",${e.theory},${e.lab || ""},${e.final},${e.semester}`;
-                csvContent += row + "\n";
-            });
-
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", "vathmoi_uniwa.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        async function importFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const text = e.target.result;
-                const rows = text.split("\n").slice(1); // Παράλειψη της πρώτης γραμμής (επικεφαλίδες)
-                const batch = db.batch();
-                const userRef = db.collection("users").doc(currentUser.uid).collection("grades");
-
-                // Ερώτηση στον χρήστη αν θέλει να σβήσει τα παλιά
-                if(confirm("Προσοχή! Θέλετε να ΔΙΑΓΡΑΦΟΥΝ οι παλιοί βαθμοί πριν την εισαγωγή; \n(Αν πατήσετε 'Ακύρωση', οι νέοι βαθμοί απλά θα προστεθούν στους υπάρχοντες)")) {
-                     const oldDocs = await userRef.get();
-                     oldDocs.forEach(doc => batch.delete(doc.ref));
-                }
-
-                rows.forEach(row => {
-                    // Αγνοούμε τις κενές γραμμές
-                    if (!row.trim()) return; 
-                    
-                    const cols = row.split(",");
-                    if (cols.length >= 4) {
-                        const name = cols[0].replace(/"/g, "");
-                        const theory = parseFloat(cols[1]);
-                        const lab = cols[2] ? parseFloat(cols[2]) : null;
-                        const final = parseFloat(cols[3]);
-                        const semester = parseInt(cols[4]);
-                        
-                        if(name) {
-                            batch.set(userRef.doc(), { name, theory, lab, final, semester });
-                        }
-                    }
-                });
-
-                await batch.commit();
-                alert("Η εισαγωγή ολοκληρώθηκε επιτυχώς!");
-                event.target.value = ''; // Μηδενισμός του input για να μπορείς να ξαναβάλεις το ίδιο αρχείο αν χρειαστεί
-            };
-            reader.readAsText(file);
-        }
-        // ==========================================
-        // ΛΟΓΙΚΗ ΠΡΟΓΡΑΜΜΑΤΟΣ (ΗΜΕΡΟΛΟΓΙΟ)
+        // ΠΡΟΓΡΑΜΜΑ (ΗΜΕΡΟΛΟΓΙΟ)
         // ==========================================
         let globalSchedule = [];
         let calendar = null;
@@ -718,22 +658,10 @@
                 slotMaxTime: '22:00:00',
                 allDaySlot: false,
                 hiddenDays: [0, 6],
-                slotLabelFormat: {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false // Απενεργοποίηση π.μ./μ.μ. στον άξονα
-                        },
-                        eventTimeFormat: {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false // Απενεργοποίηση π.μ./μ.μ. στα γεγονότα
-                },
-
+                slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+                eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
                 events: [],
-                // ΝΕΟ: Τι γίνεται όταν κάνεις κλικ σε ένα μάθημα
-                eventClick: function(info) {
-                    editScheduleEvent(info.event.id);
-                }
+                eventClick: function(info) { editScheduleEvent(info.event.id); }
             });
             calendar.render();
         }
@@ -775,10 +703,9 @@
                 ref.add(schedData);
             } else {
                 ref.doc(currentSchedEditId).update(schedData);
-                cancelScheduleEdit(); // Επαναφορά κουμπιών
+                cancelScheduleEdit();
             }
             
-            // Καθαρισμός πεδίων
             document.getElementById('schedStartTime')._flatpickr.clear();
             document.getElementById('schedEndTime')._flatpickr.clear();
             document.getElementById('schedRoom').value = "";
@@ -793,11 +720,9 @@
             document.getElementById('schedCourseSelect').value = ev.course;
             document.getElementById('schedType').value = ev.type;
             document.getElementById('schedFrequency').value = ev.frequency || "1";
-            document.getElementById('schedStartTime').value = ev.startTime;
-            document.getElementById('schedEndTime').value = ev.endTime;
+            document.getElementById('schedStartTime')._flatpickr.setDate(ev.startTime);
+            document.getElementById('schedEndTime')._flatpickr.setDate(ev.endTime);
             document.getElementById('schedRoom').value = ev.room || "";
-            
-            // Ενημέρωση των Flatpickr ημερολογίων
             document.getElementById('schedStartDate')._flatpickr.setDate(ev.startDate);
             document.getElementById('schedEndDate')._flatpickr.setDate(ev.endDate);
             
@@ -835,13 +760,10 @@
             globalSchedule.forEach(ev => {
                 let current = new Date(ev.startDate);
                 let end = new Date(ev.endDate);
-                const freq = parseInt(ev.frequency) || 1; // 1 = Κάθε βδομάδα, 2 = Ανά 2
-                
-                let safeCounter = 0; // Αποφυγή άπειρης λούπας
+                const freq = parseInt(ev.frequency) || 1; 
+                let safeCounter = 0; 
 
-                // Όσο η τρέχουσα ημερομηνία είναι μικρότερη από την ημερομηνία λήξης
                 while (current <= end && safeCounter < 50) {
-                    // Μετατροπή ημερομηνίας σε YYYY-MM-DD
                     let y = current.getFullYear();
                     let m = String(current.getMonth() + 1).padStart(2, '0');
                     let d = String(current.getDate()).padStart(2, '0');
@@ -856,105 +778,121 @@
                         allDay: false
                     });
 
-                    // Προσθέτουμε 7 ημέρες * τη συχνότητα (π.χ. 7*1 = 7 μέρες, 7*2 = 14 μέρες)
                     current.setDate(current.getDate() + (7 * freq));
                     safeCounter++;
                 }
             });
         }
 
-        // Flatpickr Init για το Πρόγραμμα
+        // ==========================================
+        // FLATPICKR (ΗΜΕΡΟΛΟΓΙΑ & ΩΡΕΣ)
+        // ==========================================
+        flatpickr("#taskDueDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
+        flatpickr("#examDateTime", { locale: "gr", enableTime: true, time_24hr: true, dateFormat: "Y-m-d H:i", altInput: true, altFormat: "d-m-Y H:i", disableMobile: "true" });
+        
         flatpickr("#schedStartDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
         flatpickr("#schedEndDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
-        // Flatpickr Init για την Ώρα
-        // Flatpickr Init για την Ώρα (Διορθωμένο για Κινητά)
-        flatpickr("#schedStartTime", { 
-            enableTime: true, 
-            noCalendar: true, 
-            dateFormat: "H:i", 
-            time_24hr: true,
-            disableMobile: "true" // <--- Αυτό αναγκάζει το κινητό να δείχνει το placeholder!
-        });
+        flatpickr("#schedStartTime", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true, disableMobile: "true" });
+        flatpickr("#schedEndTime", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true, disableMobile: "true" });
 
-        flatpickr("#schedEndTime", { 
-            enableTime: true, 
-            noCalendar: true, 
-            dateFormat: "H:i", 
-            time_24hr: true,
-            disableMobile: "true" // <--- Το ίδιο και εδώ
-        });
         // ==========================================
-        // ΕΓΓΡΑΦΗ SERVICE WORKER (ΓΙΑ PWA & OFFLINE)
+        // UTILS, THEME & AUTH
         // ==========================================
-        if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-            .then(registration => {
-                console.log('Service Worker registered successfully:', registration.scope);
-            })
-            .catch(error => {
-                console.log('Service Worker registration failed:', error);
-            });
-        });
+        function updateLogos(isDark) {
+            const logo = isDark ? "uniwa-dark.png" : "uniwa-logo.png";
+            document.getElementById('headerLogo').src = logo;
+            document.getElementById('uniwaLogin').src = logo;
+            document.getElementById('themeToggle').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
         }
-        // Λίστα για να μην στέλνουμε την ίδια ειδοποίηση πολλές φορές
-        let notifiedEvents = new Set();
-
-        function requestNotificationPermission() {
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    alert("Οι ειδοποιήσεις ενεργοποιήθηκαν!");
-                    document.getElementById('notifyBtn').style.color = "#27ae60";
-                }
-            });
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
+            document.getElementById('flatpickr-dark-theme').disabled = !isDark;
+            updateLogos(isDark);
+            if (typeof updateChart === "function") updateChart();
         }
-
-        function checkUpcomingClasses() {
-            if (Notification.permission !== "granted") return;
-
-            const now = new Date();
-            const currentDay = now.getDay(); // 0=Κυριακή, 1=Δευτέρα κλπ.
-            
-            globalSchedule.forEach(ev => {
-                if (ev.day === currentDay) {
-                    const [hours, minutes] = ev.startTime.split(':').map(Number);
-                    const classTime = new Date();
-                    classTime.setHours(hours, minutes, 0, 0);
-
-                    // Υπολογισμός διαφοράς σε λεπτά
-                    const diffMs = classTime - now;
-                    const diffMins = Math.round(diffMs / 60000);
-
-                    // Αν απομένουν ακριβώς 15 λεπτά και δεν έχουμε στείλει ειδοποίηση σήμερα
-                    const eventKey = `${ev.id}-${now.toDateString()}`;
-                    if (diffMins === 15 && !notifiedEvents.has(eventKey)) {
-                        sendClassNotification(ev);
-                        notifiedEvents.add(eventKey);
-                    }
-                }
-            });
-        }
-
-        function sendClassNotification(ev) {
-            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                // Χρήση του Service Worker για την ειδοποίηση
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.showNotification(`UniWA: ${ev.course}`, {
-                        body: `Σε 15 λεπτά: ${ev.type} στην αίθουσα ${ev.room || '-'}!`,
-                        icon: 'uniwa-1.png',
-                        vibrate: [200, 100, 200],
-                        badge: 'uniwa-1.png'
-                    });
-                });
-            } else {
-                // Απλή ειδοποίηση αν δεν υπάρχει service worker
-                new Notification(`UniWA: ${ev.course}`, {
-                    body: `Σε 15 λεπτά ξεκινάει το μάθημα!`
-                });
+        
+        function initTheme() {
+            const isDark = localStorage.getItem('appTheme') === 'dark';
+            if (isDark) { 
+                document.body.classList.add('dark-theme'); 
+                document.getElementById('flatpickr-dark-theme').disabled = false; 
             }
+            updateLogos(isDark);
         }
+        
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        window.onscroll = function() { document.getElementById("backToTop").style.display = (window.scrollY > 300) ? "block" : "none"; };
+        document.addEventListener('DOMContentLoaded', initTheme);
+
+        function loginUser() { auth.signInWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value).catch(e => alert("Λάθος στοιχεία!")); }
+        function registerUser() { auth.createUserWithEmailAndPassword(document.getElementById('emailInput').value, document.getElementById('passwordInput').value).then(u => u.user.sendEmailVerification()); }
+        function logoutUser() { auth.signOut(); }
+        function resetPassword() { auth.sendPasswordResetEmail(document.getElementById('emailInput').value); }
+
         // ==========================================
-        // ΓΡΑΦΗΜΑ ΕΠΙΔΟΣΕΩΝ (CHART.JS)
+        // ΕΞΑΓΩΓΗ / ΕΙΣΑΓΩΓΗ EXCEL
+        // ==========================================
+        function exportToFile() {
+            if (globalGrades.length === 0) return alert("Δεν υπάρχουν βαθμοί για εξαγωγή!");
+            let csvContent = "\uFEFF"; 
+            csvContent += "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
+            
+            globalGrades.forEach(e => {
+                let row = `"${e.name}",${e.theory},${e.lab || ""},${e.final},${e.semester}`;
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "vathmoi_uniwa.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function importFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const rows = text.split("\n").slice(1); 
+                const batch = db.batch();
+                const userRef = db.collection("users").doc(currentUser.uid).collection("grades");
+
+                if(confirm("Προσοχή! Θέλετε να ΔΙΑΓΡΑΦΟΥΝ οι παλιοί βαθμοί πριν την εισαγωγή; \n(Αν πατήσετε 'Ακύρωση', οι νέοι βαθμοί απλά θα προστεθούν στους υπάρχοντες)")) {
+                     const oldDocs = await userRef.get();
+                     oldDocs.forEach(doc => batch.delete(doc.ref));
+                }
+
+                rows.forEach(row => {
+                    if (!row.trim()) return; 
+                    const cols = row.split(",");
+                    if (cols.length >= 4) {
+                        const name = cols[0].replace(/"/g, "");
+                        const theory = parseFloat(cols[1]);
+                        const lab = cols[2] ? parseFloat(cols[2]) : null;
+                        const final = parseFloat(cols[3]);
+                        const semester = parseInt(cols[4]);
+                        if(name) { batch.set(userRef.doc(), { name, theory, lab, final, semester }); }
+                    }
+                });
+
+                await batch.commit();
+                alert("Η εισαγωγή ολοκληρώθηκε επιτυχώς!");
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        // ==========================================
+        // CHART.JS (ΓΡΑΦΗΜΑ ΕΠΙΔΟΣΕΩΝ)
         // ==========================================
         let gradesChartInstance = null;
 
@@ -963,34 +901,24 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             
-            // 1. Ομαδοποίηση βαθμών ανά εξάμηνο
             let semesterData = {};
             globalGrades.forEach(g => {
-                // Υπολογίζουμε μόνο τα μαθήματα που έχουν περαστεί (>= 5)
                 if (g.final >= 5) { 
-                    if (!semesterData[g.semester]) {
-                        semesterData[g.semester] = { sum: 0, count: 0 };
-                    }
+                    if (!semesterData[g.semester]) { semesterData[g.semester] = { sum: 0, count: 0 }; }
                     semesterData[g.semester].sum += g.final;
                     semesterData[g.semester].count++;
                 }
             });
 
-            // 2. Ταξινόμηση εξαμήνων (1ο, 2ο, 3ο κλπ)
             const semesters = Object.keys(semesterData).map(Number).sort((a,b) => a - b);
             const averages = semesters.map(sem => (semesterData[sem].sum / semesterData[sem].count).toFixed(2));
 
-            // Αν υπάρχει ήδη γράφημα, το διαγράφουμε για να φτιάξουμε το καινούργιο
-            if (gradesChartInstance) {
-                gradesChartInstance.destroy();
-            }
+            if (gradesChartInstance) { gradesChartInstance.destroy(); }
 
-            // 3. Προσαρμογή χρωμάτων ανάλογα με το Dark/Light Mode
             const isDark = document.body.classList.contains('dark-theme');
             const textColor = isDark ? '#e2e8f0' : '#2c3e50';
             const gridColor = isDark ? '#4a5568' : '#e0e0e0';
 
-            // 4. Σχεδιασμός Γραφήματος
             gradesChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -998,13 +926,13 @@
                     datasets: [{
                         label: 'Μέσος Όρος Εξαμήνου',
                         data: averages,
-                        borderColor: '#2980b9', // Μπλε γραμμή
-                        backgroundColor: 'rgba(41, 128, 185, 0.2)', // Ημιδιάφανο γέμισμα
+                        borderColor: '#2980b9', 
+                        backgroundColor: 'rgba(41, 128, 185, 0.2)', 
                         borderWidth: 3,
-                        pointBackgroundColor: '#27ae60', // Πράσινες τελείες
+                        pointBackgroundColor: '#27ae60', 
                         pointRadius: 6,
                         fill: true,
-                        tension: 0.4 // Κάνει την καμπύλη πιο "απαλή"
+                        tension: 0.4 
                     }]
                 },
                 options: {
@@ -1019,7 +947,7 @@
                             grid: { color: gridColor }
                         },
                         y: { 
-                            min: 4, // Ξεκινάμε από το 4 για να φαίνονται καλύτερα οι διαφορές στο 5-10
+                            min: 4, 
                             max: 10, 
                             ticks: { color: textColor },
                             grid: { color: gridColor }
@@ -1028,7 +956,64 @@
                 }
             });
         }
-    </script>
 
+        // ==========================================
+        // PWA & NOTIFICATIONS
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(registration => { console.log('Service Worker registered successfully'); })
+                .catch(error => { console.log('Service Worker registration failed:', error); });
+            });
+        }
+
+        let notifiedEvents = new Set();
+        function requestNotificationPermission() {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    alert("Οι ειδοποιήσεις ενεργοποιήθηκαν!");
+                    document.getElementById('notifyBtn').style.color = "#27ae60";
+                }
+            });
+        }
+
+        function checkUpcomingClasses() {
+            if (Notification.permission !== "granted") return;
+            const now = new Date();
+            const currentDay = now.getDay(); 
+            
+            globalSchedule.forEach(ev => {
+                if (ev.day === currentDay) {
+                    const [hours, minutes] = ev.startTime.split(':').map(Number);
+                    const classTime = new Date();
+                    classTime.setHours(hours, minutes, 0, 0);
+                    const diffMs = classTime - now;
+                    const diffMins = Math.round(diffMs / 60000);
+                    const eventKey = `${ev.id}-${now.toDateString()}`;
+                    if (diffMins === 15 && !notifiedEvents.has(eventKey)) {
+                        sendClassNotification(ev);
+                        notifiedEvents.add(eventKey);
+                    }
+                }
+            });
+        }
+
+        function sendClassNotification(ev) {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(`UniWA: ${ev.course}`, {
+                        body: `Σε 15 λεπτά: ${ev.type} στην αίθουσα ${ev.room || '-'}!`,
+                        icon: 'uniwa-1.png',
+                        vibrate: [200, 100, 200],
+                        badge: 'uniwa-1.png'
+                    });
+                });
+            } else {
+                new Notification(`UniWA: ${ev.course}`, { body: `Σε 15 λεπτά ξεκινάει το μάθημα!` });
+            }
+        }
+        setInterval(checkUpcomingClasses, 60000);
+    </script>
 </body>
 </html>
