@@ -776,18 +776,21 @@
         flatpickr("#schedStartDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
         flatpickr("#schedEndDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
         // Flatpickr Init για την Ώρα
+        // Flatpickr Init για την Ώρα (Διορθωμένο για Κινητά)
         flatpickr("#schedStartTime", { 
             enableTime: true, 
             noCalendar: true, 
             dateFormat: "H:i", 
-            time_24hr: true 
+            time_24hr: true,
+            disableMobile: "true" // <--- Αυτό αναγκάζει το κινητό να δείχνει το placeholder!
         });
 
         flatpickr("#schedEndTime", { 
             enableTime: true, 
             noCalendar: true, 
             dateFormat: "H:i", 
-            time_24hr: true 
+            time_24hr: true,
+            disableMobile: "true" // <--- Το ίδιο και εδώ
         });
     </script>
 
