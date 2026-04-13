@@ -178,19 +178,24 @@
             <option value="Θεωρία">Θεωρία</option>
             <option value="Εργαστήριο">Εργαστήριο</option>
         </select>
-        <select id="schedDay">
-            <option value="1">Δευτέρα</option>
-            <option value="2">Τρίτη</option>
-            <option value="3">Τετάρτη</option>
-            <option value="4">Πέμπτη</option>
-            <option value="5">Παρασκευή</option>
+    <select id="schedFrequency">
+            <option value="1">Κάθε Εβδομάδα</option>
+            <option value="2">Ανά 2 Εβδομάδες</option>
         </select>
+
+        <input type="text" id="schedStartDate" placeholder="1ο Μάθημα (Έναρξη)">
+        <input type="text" id="schedEndDate" placeholder="Τελευταίο (Λήξη)">
+        
         <input type="time" id="schedStartTime" title="Ώρα Έναρξης">
         <input type="time" id="schedEndTime" title="Ώρα Λήξης">
         <input type="text" id="schedRoom" placeholder="Αίθουσα">
-        <input type="text" id="schedEndDate" placeholder="Επανάληψη μέχρι...">
-        <button id="mainBtnSched" onclick="saveScheduleEvent()" style="width: 100%; background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;">Προσθήκη στο Πρόγραμμα</button>
-        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button id="mainBtnSched" onclick="saveScheduleEvent()" style="flex: 2; background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">Προσθήκη στο Πρόγραμμα</button>
+        <button id="deleteBtnSched" onclick="deleteScheduleEvent()" style="display: none; flex: 1; background-color: #e74c3c; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Διαγραφή</button>
+        <button id="cancelBtnSched" onclick="cancelScheduleEdit()" style="display: none; flex: 1; background-color: #95a5a6; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Ακύρωση</button>
+    </div>
 
         <div id="calendar" style="margin-top: 20px; background: white; padding: 15px; border-radius: 10px; color: black; min-height: 600px;"></div>
     </div>
@@ -588,41 +593,37 @@
         // ==========================================
         let globalSchedule = [];
         let calendar = null;
+        let currentSchedEditId = null;
 
-        // Αρχικοποίηση του ημερολογίου
         function initCalendar() {
-            if (calendar) return; // Αν έχει ήδη φτιαχτεί, μην το ξαναφτιάχνεις
+            if (calendar) return;
             
             const calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'timeGridWeek',
-                locale: 'el', // Ελληνικά
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'timeGridWeek,timeGridDay'
-                },
-                slotMinTime: '08:00:00', // Το πρόγραμμα ξεκινάει 8 το πρωί
-                slotMaxTime: '22:00:00', // Τελειώνει 10 το βράδυ
-                allDaySlot: false, // Κρύβουμε το ολοήμερο
-                hiddenDays: [0, 6], // Κρύβουμε Σαββατοκύριακο (0=Κυρ, 6=Σαβ)
-                events: [] // Θα γεμίσει από τη βάση
+                locale: 'el',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
+                slotMinTime: '08:00:00',
+                slotMaxTime: '22:00:00',
+                allDaySlot: false,
+                hiddenDays: [0, 6],
+                events: [],
+                // ΝΕΟ: Τι γίνεται όταν κάνεις κλικ σε ένα μάθημα
+                eventClick: function(info) {
+                    editScheduleEvent(info.event.id);
+                }
             });
             calendar.render();
         }
 
-        // Ενημέρωση Dropdown Μαθημάτων (χρησιμοποιεί τα υπάρχοντα)
         function updateScheduleCourseDropdown() {
             const select = document.getElementById('schedCourseSelect');
             if (!select) return;
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
             const names = [...new Set(globalGrades.map(g => g.name))].sort((a,b) => a.localeCompare(b, 'el'));
-            names.forEach(name => {
-                select.innerHTML += `<option value="${name}">${name}</option>`;
-            });
+            names.forEach(name => select.innerHTML += `<option value="${name}">${name}</option>`);
         }
 
-        // Φόρτωση από Firebase
         function fetchSchedule() {
             db.collection("users").doc(currentUser.uid).collection("schedule").onSnapshot(snap => {
                 globalSchedule = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -630,52 +631,119 @@
             });
         }
 
-        // Αποθήκευση στη Firebase
         function saveScheduleEvent() {
             const course = document.getElementById('schedCourseSelect').value;
             const type = document.getElementById('schedType').value;
-            const day = parseInt(document.getElementById('schedDay').value);
+            const frequency = document.getElementById('schedFrequency').value;
+            const startDate = document.getElementById('schedStartDate').value;
+            const endDate = document.getElementById('schedEndDate').value;
             const startTime = document.getElementById('schedStartTime').value;
             const endTime = document.getElementById('schedEndTime').value;
             const room = document.getElementById('schedRoom').value;
-            const endDate = document.getElementById('schedEndDate').value;
 
-            if(!course || !startTime || !endTime || !endDate) return alert("Συμπληρώστε μάθημα, ώρες και ημερομηνία λήξης εξαμήνου!");
+            if(!course || !startDate || !endDate || !startTime || !endTime) {
+                return alert("Συμπληρώστε μάθημα, ημερομηνίες και ώρες!");
+            }
 
-            // Χρώματα: Θεωρία (Κόκκινο), Εργαστήριο (Μωβ)
             const color = type === 'Θεωρία' ? '#8b0000' : '#7b68ee';
+            const schedData = { course, type, frequency, startDate, endDate, startTime, endTime, room, color };
+            const ref = db.collection("users").doc(currentUser.uid).collection("schedule");
 
-            const schedData = { course, type, day, startTime, endTime, room, endDate, color };
+            if (currentSchedEditId === null) {
+                ref.add(schedData);
+            } else {
+                ref.doc(currentSchedEditId).update(schedData);
+                cancelScheduleEdit(); // Επαναφορά κουμπιών
+            }
             
-            db.collection("users").doc(currentUser.uid).collection("schedule").add(schedData).then(() => {
-                alert("Προστέθηκε στο πρόγραμμα!");
-            });
+            // Καθαρισμός πεδίων
+            document.getElementById('schedStartTime').value = "";
+            document.getElementById('schedEndTime').value = "";
+            document.getElementById('schedRoom').value = "";
+            document.getElementById('schedStartDate')._flatpickr.clear();
+            document.getElementById('schedEndDate')._flatpickr.clear();
         }
 
-        // Εμφάνιση στο Ημερολόγιο
+        function editScheduleEvent(id) {
+            const ev = globalSchedule.find(item => item.id === id);
+            if (!ev) return;
+            
+            document.getElementById('schedCourseSelect').value = ev.course;
+            document.getElementById('schedType').value = ev.type;
+            document.getElementById('schedFrequency').value = ev.frequency || "1";
+            document.getElementById('schedStartTime').value = ev.startTime;
+            document.getElementById('schedEndTime').value = ev.endTime;
+            document.getElementById('schedRoom').value = ev.room || "";
+            
+            // Ενημέρωση των Flatpickr ημερολογίων
+            document.getElementById('schedStartDate')._flatpickr.setDate(ev.startDate);
+            document.getElementById('schedEndDate')._flatpickr.setDate(ev.endDate);
+            
+            currentSchedEditId = id;
+            document.getElementById("mainBtnSched").innerText = "Αποθήκευση Αλλαγών";
+            document.getElementById("deleteBtnSched").style.display = "block";
+            document.getElementById("cancelBtnSched").style.display = "block";
+            scrollToTop();
+        }
+
+        function cancelScheduleEdit() {
+            currentSchedEditId = null;
+            document.getElementById("mainBtnSched").innerText = "Προσθήκη στο Πρόγραμμα";
+            document.getElementById("deleteBtnSched").style.display = "none";
+            document.getElementById("cancelBtnSched").style.display = "none";
+            
+            document.getElementById('schedStartTime').value = "";
+            document.getElementById('schedEndTime').value = "";
+            document.getElementById('schedRoom').value = "";
+            document.getElementById('schedStartDate')._flatpickr.clear();
+            document.getElementById('schedEndDate')._flatpickr.clear();
+        }
+
+        function deleteScheduleEvent() {
+            if(currentSchedEditId && confirm("Διαγραφή αυτού του μαθήματος από όλο το εξάμηνο;")) {
+                db.collection("users").doc(currentUser.uid).collection("schedule").doc(currentSchedEditId).delete();
+                cancelScheduleEdit();
+            }
+        }
+
         function renderSchedule() {
             if (!calendar) return;
-            
-            // Καθαρίζουμε τα παλιά events
             calendar.removeAllEvents();
 
-            // Φτιάχνουμε τα νέα
             globalSchedule.forEach(ev => {
-                calendar.addEvent({
-                    id: ev.id,
-                    title: `${ev.course}\n(${ev.type})\n📍 ${ev.room || '-'}`,
-                    startTime: ev.startTime,
-                    endTime: ev.endTime,
-                    daysOfWeek: [ev.day], // Σε ποια μέρα επαναλαμβάνεται
-                    endRecur: ev.endDate, // Μέχρι πότε επαναλαμβάνεται
-                    color: ev.color,
-                    allDay: false
-                });
+                let current = new Date(ev.startDate);
+                let end = new Date(ev.endDate);
+                const freq = parseInt(ev.frequency) || 1; // 1 = Κάθε βδομάδα, 2 = Ανά 2
+                
+                let safeCounter = 0; // Αποφυγή άπειρης λούπας
+
+                // Όσο η τρέχουσα ημερομηνία είναι μικρότερη από την ημερομηνία λήξης
+                while (current <= end && safeCounter < 50) {
+                    // Μετατροπή ημερομηνίας σε YYYY-MM-DD
+                    let y = current.getFullYear();
+                    let m = String(current.getMonth() + 1).padStart(2, '0');
+                    let d = String(current.getDate()).padStart(2, '0');
+                    let dateStr = `${y}-${m}-${d}`;
+
+                    calendar.addEvent({
+                        id: ev.id,
+                        title: `${ev.course}\n(${ev.type})\n📍 ${ev.room || '-'}`,
+                        start: `${dateStr}T${ev.startTime}`,
+                        end: `${dateStr}T${ev.endTime}`,
+                        color: ev.color,
+                        allDay: false
+                    });
+
+                    // Προσθέτουμε 7 ημέρες * τη συχνότητα (π.χ. 7*1 = 7 μέρες, 7*2 = 14 μέρες)
+                    current.setDate(current.getDate() + (7 * freq));
+                    safeCounter++;
+                }
             });
         }
 
-        // Ενεργοποίηση Flatpickr για την ημερομηνία λήξης του εξαμήνου
-        flatpickr("#schedEndDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y", placeholder: "Λήξη Εξαμήνου..." });
+        // Flatpickr Init για το Πρόγραμμα
+        flatpickr("#schedStartDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
+        flatpickr("#schedEndDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
     </script>
 
 </body>
