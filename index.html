@@ -63,12 +63,12 @@
     <div class="container" id="appScreen" style="display: none;">
         <h1>Διαχείριση Βαθμών</h1>
         
-        <div class="degree-progress-container" style="margin-bottom: 20px; background: #ecf0f1; padding: 15px; border-radius: 10px;">
-            <p style="margin: 0 0 10px 0; font-weight: bold;">Πρόοδος Πτυχίου: <span id="ectsProgressText">0 / 240</span> ECTS</p>
-            <div style="width: 100%; background: #bdc3c7; height: 20px; border-radius: 10px; overflow: hidden;">
-                <div id="ectsProgressBar" style="width: 0%; height: 100%; background: #27ae60; transition: 0.5s;"></div>
+            <div class="degree-progress-container" style="margin-bottom: 20px; padding: 15px; border-radius: 10px; background-color: rgba(127, 140, 141, 0.1);">
+                <p style="margin: 0 0 10px 0; font-weight: bold;">Πρόοδος Πτυχίου: <span id="ectsProgressText">0 / 300</span> ECTS</p>
+                <div style="width: 100%; background: rgba(189, 195, 199, 0.3); height: 20px; border-radius: 10px; overflow: hidden;">
+                    <div id="ectsProgressBar" style="width: 0%; height: 100%; background: #27ae60; transition: 0.5s;"></div>
+                </div>
             </div>
-        </div>
 
         <div class="input-selection">
             <input type="text" id="course" placeholder="Όνομα Μαθήματος">
@@ -76,7 +76,7 @@
             <input type="number" id="labGrade" placeholder="Εργαστήριο" step="0.1">
             <input type="number" id="finalGrade" placeholder="Τελικός Βαθμός" step="0.1">
             <input type="number" id="semester" placeholder="Εξάμηνο">
-            <input type="number" id="ects" placeholder="ECTS" style="flex: 0.5;">
+            <input type="number" id="ects" placeholder="ECTS">
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη Βαθμού</button>
         </div>
         <div class="semester-filter">
@@ -417,11 +417,14 @@
                     totalEcts += ects;
                 }
                 
+                // ΔΙΟΡΘΩΣΗ: Χρωματισμός του Τελικού Βαθμού
+                const finalColor = e.final >= 5 ? '#27ae60' : '#e74c3c';
+                
                 body.innerHTML += `<tr>
                     <td>${e.name}</td>
                     <td>${e.theory}</td>
                     <td>${e.lab || "-"}</td>
-                    <td><b>${e.final}</b></td>
+                    <td style="color: ${finalColor}; font-weight: bold;">${e.final}</td>
                     <td>${e.semester}</td>
                     <td>
                         <button class="edit-btn" onclick="editGrade('${e.id}')">Επεξεργασία</button>
@@ -430,17 +433,16 @@
                 </tr>`;
             });
 
-            // Ενημέρωση Μέσου Όρου (Weighted GPA)
             const weightedGpa = totalEcts > 0 ? (totalWeightedSum / totalEcts).toFixed(2) : "-";
             document.getElementById("averageSpan").innerText = weightedGpa;
             
-            // Ενημέρωση Μπάρας Προόδου
             const progressBar = document.getElementById("ectsProgressBar");
             const progressText = document.getElementById("ectsProgressText");
             if (progressBar && progressText) {
-                const progressPercent = Math.min((totalEcts / 240) * 100, 100);
+                // ΔΙΟΡΘΩΣΗ: Αλλαγή του ορίου σε 300
+                const progressPercent = Math.min((totalEcts / 300) * 100, 100);
                 progressBar.style.width = progressPercent + "%";
-                progressText.innerText = `${totalEcts} / 240`;
+                progressText.innerText = `${totalEcts} / 300`;
             }
         
             if (typeof updateChart === "function") updateChart();
@@ -459,6 +461,11 @@
             currentTaskView = view;
             document.getElementById('tasksTable').style.display = view === 'list' ? 'table' : 'none';
             document.getElementById('kanbanBoard').style.display = view === 'board' ? 'flex' : 'none';
+
+            // ΝΕΟ: Αλλάζει το "πατημένο" χρώμα στα κουμπιά
+            document.getElementById('viewBtnList').classList.toggle('active', view === 'list');
+            document.getElementById('viewBtnBoard').classList.toggle('active', view === 'board');
+
             renderTasks();
         }
 
