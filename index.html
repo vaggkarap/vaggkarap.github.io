@@ -235,7 +235,7 @@
                 fetchTasks();
                 fetchExams();
                 fetchSchedule();
-                switchTab('grades');
+                switchTab('schedule');
             } else {
                 currentUser = null;
                 document.getElementById('loginScreen').style.display = 'block';
@@ -245,18 +245,42 @@
         });
 
         function switchTab(tab) {
-            const screens = ['appScreen', 'tasksScreen', 'examsScreen'];
-            const navButtons = ['tabGrades', 'tabTasks', 'tabExams'];
-            screens.forEach(s => document.getElementById(s).style.display = 'none');
-            navButtons.forEach(b => document.getElementById(b).classList.remove('active'));
-            if(tab === 'grades') { document.getElementById('appScreen').style.display = 'block'; document.getElementById('tabGrades').classList.add('active'); }
-            if(tab === 'tasks') { document.getElementById('tasksScreen').style.display = 'block'; document.getElementById('tabTasks').classList.add('active'); updateCourseDropdown(); }
-            if(tab === 'exams') { document.getElementById('examsScreen').style.display = 'block'; document.getElementById('tabExams').classList.add('active'); updateExamCourseDropdown(); }
+            // 1. Εδώ είναι η λίστα με ΟΛΑ τα ID των οθονών
+            const screens = ['appScreen', 'tasksScreen', 'examsScreen', 'scheduleScreen'];
+            const navButtons = ['tabGrades', 'tabTasks', 'tabExams', 'tabSchedule'];
+            
+            // 2. Κρύβουμε όλες τις οθόνες πριν ανοίξουμε τη σωστή
+            screens.forEach(s => {
+                const el = document.getElementById(s);
+                if(el) el.style.display = 'none';
+            });
+            
+            // 3. Αφαιρούμε το 'active' χρώμα από όλα τα κουμπιά του μενού
+            navButtons.forEach(b => {
+                const el = document.getElementById(b);
+                if(el) el.classList.remove('active');
+            });
+            
+            // 4. Εμφανίζουμε ΜΟΝΟ την επιλεγμένη οθόνη
+            if(tab === 'grades') { 
+                document.getElementById('appScreen').style.display = 'block'; 
+                document.getElementById('tabGrades').classList.add('active'); 
+            }
+            if(tab === 'tasks') { 
+                document.getElementById('tasksScreen').style.display = 'block'; 
+                document.getElementById('tabTasks').classList.add('active'); 
+                updateCourseDropdown(); 
+            }
+            if(tab === 'exams') { 
+                document.getElementById('examsScreen').style.display = 'block'; 
+                document.getElementById('tabExams').classList.add('active'); 
+                updateExamCourseDropdown(); 
+            }
             if(tab === 'schedule') { 
                 document.getElementById('scheduleScreen').style.display = 'block'; 
                 document.getElementById('tabSchedule').classList.add('active'); 
                 updateScheduleCourseDropdown();
-                // Το FullCalendar χρειάζεται ένα μικρό delay για να ζωγραφιστεί σωστά αν ήταν κρυφό
+                // Το ημερολόγιο χρειάζεται ένα μικρό delay για να ζωγραφιστεί σωστά
                 setTimeout(() => {
                     initCalendar();
                     renderSchedule();
