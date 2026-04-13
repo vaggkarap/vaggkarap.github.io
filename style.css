@@ -347,3 +347,29 @@ body.dark-theme .fc-button-primary:not(:disabled).fc-button-active,
 body.dark-theme .fc-button-primary:not(:disabled):active {
     background-color: #1c5980 !important;
 }
+
+/* =========================================
+   Διόρθωση κειμένου που κόβεται στο Ημερολόγιο
+   ========================================= */
+.fc-event-main {
+    white-space: normal !important; /* Επιτρέπει στο κείμενο να αναδιπλώνεται */
+    overflow: hidden !important; 
+    font-size: 11px !important; /* Ελαφρώς μικρότερη γραμματοσειρά για να χωράνε τα δεδομένα */
+    line-height: 1.2 !important; /* Πιο κοντά οι γραμμές μεταξύ τους */
+    padding: 2px 4px !important;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Κεντράρει το κείμενο κάθετα */
+}
+
+.fc-event-title-container,
+.fc-event-title {
+    white-space: normal !important;
+}
+
+.fc-event-time {
+    font-size: 10px !important;
+    opacity: 0.9;
+    margin-bottom: 2px;
+}
