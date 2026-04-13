@@ -846,11 +846,15 @@
         // ==========================================
         function exportToFile() {
             if (globalGrades.length === 0) return alert("Δεν υπάρχουν βαθμοί για εξαγωγή!");
+            
+            // Προσθήκη \uFEFF για σωστή ανάγνωση των Ελληνικών από το Excel
             let csvContent = "\uFEFF"; 
-            csvContent += "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο\n";
+            // Ενημέρωση επικεφαλίδας με ECTS
+            csvContent += "Μάθημα,Θεωρία,Εργαστήριο,Τελικός,Εξάμηνο,ECTS\n";
             
             globalGrades.forEach(e => {
-                let row = `"${e.name}",${e.theory},${e.lab || ""},${e.final},${e.semester}`;
+                // Προσθήκη της τιμής ects (ή 0 αν είναι κενό) στην κάθε γραμμή
+                let row = `"${e.name}",${e.theory},${e.lab || ""},${e.final},${e.semester},${e.ects || 0}`;
                 csvContent += row + "\n";
             });
 
@@ -875,26 +879,35 @@
                 const batch = db.batch();
                 const userRef = db.collection("users").doc(currentUser.uid).collection("grades");
 
-                if(confirm("Προσοχή! Θέλετε να ΔΙΑΓΡΑΦΟΥΝ οι παλιοί βαθμοί πριν την εισαγωγή; \n(Αν πατήσετε 'Ακύρωση', οι νέοι βαθμοί απλά θα προστεθούν στους υπάρχοντες)")) {
-                     const oldDocs = await userRef.get();
-                     oldDocs.forEach(doc => batch.delete(doc.ref));
+                if(confirm("Θέλετε να ΔΙΑΓΡΑΦΟΥΝ οι παλιοί βαθμοί πριν την εισαγωγή;")) {
+                    const oldDocs = await userRef.get();
+                    oldDocs.forEach(doc => batch.delete(doc.ref));
                 }
 
                 rows.forEach(row => {
                     if (!row.trim()) return; 
                     const cols = row.split(",");
+                    
+                    // Έλεγχος αν υπάρχουν αρκετές στήλες
                     if (cols.length >= 4) {
                         const name = cols[0].replace(/"/g, "");
                         const theory = parseFloat(cols[1]);
                         const lab = cols[2] ? parseFloat(cols[2]) : null;
                         const final = parseFloat(cols[3]);
                         const semester = parseInt(cols[4]);
-                        if(name) { batch.set(userRef.doc(), { name, theory, lab, final, semester }); }
+                        // ΝΕΟ: Ανάγνωση ECTS από την 6η στήλη (αν υπάρχει)
+                        const ects = cols[5] ? parseInt(cols[5]) : 0;
+                        
+                        if(name) { 
+                            batch.set(userRef.doc(), { 
+                                name, theory, lab, final, semester, ects 
+                            }); 
+                        }
                     }
                 });
 
                 await batch.commit();
-                alert("Η εισαγωγή ολοκληρώθηκε επιτυχώς!");
+                alert("Η εισαγωγή ολοκληρώθηκε επιτυχώς με τα ECTS!");
                 event.target.value = ''; 
             };
             reader.readAsText(file);
