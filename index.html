@@ -186,8 +186,8 @@
         <input type="text" id="schedStartDate" placeholder="1ο Μάθημα (Έναρξη)">
         <input type="text" id="schedEndDate" placeholder="Τελευταίο (Λήξη)">
         
-        <input type="time" id="schedStartTime" title="Ώρα Έναρξης">
-        <input type="time" id="schedEndTime" title="Ώρα Λήξης">
+        <input type="text" id="schedStartTime" placeholder="Ώρα Έναρξης (π.χ. 09:00)">
+        <input type="text" id="schedEndTime" placeholder="Ώρα Λήξης (π.χ. 11:00)">
         <input type="text" id="schedRoom" placeholder="Αίθουσα">
     </div>
 
@@ -688,8 +688,8 @@
             }
             
             // Καθαρισμός πεδίων
-            document.getElementById('schedStartTime').value = "";
-            document.getElementById('schedEndTime').value = "";
+            document.getElementById('schedStartTime')._flatpickr.clear();
+            document.getElementById('schedEndTime')._flatpickr.clear();
             document.getElementById('schedRoom').value = "";
             document.getElementById('schedStartDate')._flatpickr.clear();
             document.getElementById('schedEndDate')._flatpickr.clear();
@@ -723,8 +723,8 @@
             document.getElementById("deleteBtnSched").style.display = "none";
             document.getElementById("cancelBtnSched").style.display = "none";
             
-            document.getElementById('schedStartTime').value = "";
-            document.getElementById('schedEndTime').value = "";
+            document.getElementById('schedStartTime')._flatpickr.clear();
+            document.getElementById('schedEndTime')._flatpickr.clear();
             document.getElementById('schedRoom').value = "";
             document.getElementById('schedStartDate')._flatpickr.clear();
             document.getElementById('schedEndDate')._flatpickr.clear();
@@ -775,6 +775,20 @@
         // Flatpickr Init για το Πρόγραμμα
         flatpickr("#schedStartDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
         flatpickr("#schedEndDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y" });
+        // Flatpickr Init για την Ώρα
+        flatpickr("#schedStartTime", { 
+            enableTime: true, 
+            noCalendar: true, 
+            dateFormat: "H:i", 
+            time_24hr: true 
+        });
+
+        flatpickr("#schedEndTime", { 
+            enableTime: true, 
+            noCalendar: true, 
+            dateFormat: "H:i", 
+            time_24hr: true 
+        });
     </script>
 
 </body>
