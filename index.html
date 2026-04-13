@@ -20,6 +20,7 @@
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css" id="flatpickr-dark-theme" disabled>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/gr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -102,6 +103,10 @@
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
+        </table> <div class="chart-container" style="position: relative; height: 300px; width: 100%; margin-top: 30px; margin-bottom: 20px;">
+            <canvas id="gradesChart"></canvas>
+        </div>
+       
         <div class="average-section">
             <h3>Μέσος όρος: <span id="averageSpan">-</span></h3>
         </div>
@@ -369,6 +374,7 @@
                 </tr>`;
             });
             document.getElementById("averageSpan").innerText = count > 0 ? (sum / count).toFixed(2) : "-";
+            updateChart(); // Ανανεώνει το γράφημα κάθε φορά που φορτώνουν οι βαθμοί
         }
 
         function deleteGrade(id) { if(confirm("Διαγραφή μαθήματος;")) db.collection("users").doc(currentUser.uid).collection("grades").doc(id).delete(); }
@@ -543,6 +549,7 @@
             localStorage.setItem('appTheme', isDark ? 'dark' : 'light');
             document.getElementById('flatpickr-dark-theme').disabled = !isDark;
             updateLogos(isDark);
+            if (typeof updateChart === "function") updateChart();
         }
         function initTheme() {
             const isDark = localStorage.getItem('appTheme') === 'dark';
@@ -878,6 +885,81 @@
                     body: `Σε 15 λεπτά ξεκινάει το μάθημα!`
                 });
             }
+        }
+        // ==========================================
+        // ΓΡΑΦΗΜΑ ΕΠΙΔΟΣΕΩΝ (CHART.JS)
+        // ==========================================
+        let gradesChartInstance = null;
+
+        function updateChart() {
+            const canvas = document.getElementById('gradesChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            // 1. Ομαδοποίηση βαθμών ανά εξάμηνο
+            let semesterData = {};
+            globalGrades.forEach(g => {
+                // Υπολογίζουμε μόνο τα μαθήματα που έχουν περαστεί (>= 5)
+                if (g.final >= 5) { 
+                    if (!semesterData[g.semester]) {
+                        semesterData[g.semester] = { sum: 0, count: 0 };
+                    }
+                    semesterData[g.semester].sum += g.final;
+                    semesterData[g.semester].count++;
+                }
+            });
+
+            // 2. Ταξινόμηση εξαμήνων (1ο, 2ο, 3ο κλπ)
+            const semesters = Object.keys(semesterData).map(Number).sort((a,b) => a - b);
+            const averages = semesters.map(sem => (semesterData[sem].sum / semesterData[sem].count).toFixed(2));
+
+            // Αν υπάρχει ήδη γράφημα, το διαγράφουμε για να φτιάξουμε το καινούργιο
+            if (gradesChartInstance) {
+                gradesChartInstance.destroy();
+            }
+
+            // 3. Προσαρμογή χρωμάτων ανάλογα με το Dark/Light Mode
+            const isDark = document.body.classList.contains('dark-theme');
+            const textColor = isDark ? '#e2e8f0' : '#2c3e50';
+            const gridColor = isDark ? '#4a5568' : '#e0e0e0';
+
+            // 4. Σχεδιασμός Γραφήματος
+            gradesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: semesters.map(s => `Εξάμηνο ${s}`),
+                    datasets: [{
+                        label: 'Μέσος Όρος Εξαμήνου',
+                        data: averages,
+                        borderColor: '#2980b9', // Μπλε γραμμή
+                        backgroundColor: 'rgba(41, 128, 185, 0.2)', // Ημιδιάφανο γέμισμα
+                        borderWidth: 3,
+                        pointBackgroundColor: '#27ae60', // Πράσινες τελείες
+                        pointRadius: 6,
+                        fill: true,
+                        tension: 0.4 // Κάνει την καμπύλη πιο "απαλή"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { family: "'Segoe UI', Tahoma, sans-serif", size: 14 } } }
+                    },
+                    scales: {
+                        x: { 
+                            ticks: { color: textColor, font: { weight: 'bold' } },
+                            grid: { color: gridColor }
+                        },
+                        y: { 
+                            min: 4, // Ξεκινάμε από το 4 για να φαίνονται καλύτερα οι διαφορές στο 5-10
+                            max: 10, 
+                            ticks: { color: textColor },
+                            grid: { color: gridColor }
+                        }
+                    }
+                }
+            });
         }
     </script>
 
