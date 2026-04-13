@@ -65,6 +65,7 @@
             <input type="number" id="labGrade" placeholder="Εργαστήριο" step="0.1">
             <input type="number" id="finalGrade" placeholder="Τελικός Βαθμός" step="0.1">
             <input type="number" id="semester" placeholder="Εξάμηνο">
+            <input type="number" id="ects" placeholder="ECTS" style="flex: 0.5;">
             <button id="mainBtn" onclick="saveGrade()">Προσθήκη Βαθμού</button>
         </div>
         <div class="semester-filter">
@@ -118,7 +119,13 @@
     </div>
 
     <div class="container" id="tasksScreen" style="display: none;">
-        <h1>Λίστα Εργασιών</h1>
+        <h1>Διαχείριση Εργασιών</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <button onclick="toggleTaskView('list')" class="filter-btn active" id="viewBtnList">Λίστα</button>
+            <button onclick="toggleTaskView('board')" class="filter-btn" id="viewBtnBoard">Board (Kanban)</button>
+        </div>
+
         <div class="input-selection">
             <select id="taskCourseSelect">
                 <option value="">Επιλέξτε Μάθημα...</option>
@@ -132,10 +139,11 @@
                 <option value="In Progress">In Progress</option>
                 <option value="Done">Done</option>
             </select>
-            <textarea id="taskNotes" placeholder="Σχόλια/Σημειώσεις (π.χ. Ομαδική, Λεπτομέρειες)..." style="width: 100%; margin-top: 10px; border-radius: 5px; padding: 10px; border: 1px solid #ccc; font-family: inherit;"></textarea>
             <input type="text" id="taskDueDate" placeholder="Επιλέξτε Ημερομηνία...">
-            <button id="mainBtnTask" onclick="saveTask()">Προσθήκη Εργασίας</button>
+            <textarea id="taskNotes" placeholder="Σχόλια/Σημειώσεις (π.χ. Ομαδική, Λεπτομέρειες)..." style="width: 100%; margin-top: 10px; border-radius: 5px; padding: 10px; border: 1px solid #ccc; font-family: inherit;"></textarea>
+            <button id="mainBtnTask" onclick="saveTask()" style="margin-top: 10px; width: 100%; background-color: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">Προσθήκη Εργασίας</button>
         </div>
+
         <table id="tasksTable">
             <thead>
                 <tr>
@@ -143,11 +151,27 @@
                     <th>Τύπος</th>
                     <th>Κατάσταση</th>
                     <th>Ημ. Παράδοσης</th>
-                    <th>Σχόλια</th><th>Ενέργεια</th>
+                    <th>Σχόλια</th>
+                    <th>Ενέργεια</th>
                 </tr>
             </thead>
             <tbody id="tasksTableBody"></tbody>
         </table>
+
+        <div id="kanbanBoard" style="display: none; display: flex; gap: 15px; margin-top: 20px; overflow-x: auto; padding-bottom: 10px;">
+            <div class="kanban-col" id="col-Not-Started" style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+                <h3 style="color: #e74c3c;">📌 Not Started</h3>
+                <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-col" id="col-In-Progress" style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+                <h3 style="color: #f39c12;">⏳ In Progress</h3>
+                <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-col" id="col-Done" style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+                <h3 style="color: #27ae60;">✅ Done</h3>
+                <div class="kanban-cards"></div>
+            </div>
+        </div>
     </div>
 
     <div class="container" id="examsScreen" style="display: none;">
@@ -356,24 +380,30 @@
                 if (currentSortMethod === 'name_asc') return a.name.localeCompare(b.name, 'el');
                 return 0;
             });
+        
 
-            let sum = 0, count = 0;
+        function renderTable() {
+            // ... (ταξινόμηση κλπ)
+            let totalWeightedSum = 0;
+            let totalEcts = 0;
+            
             list.forEach(e => {
-                if (e.final >= 5) { sum += e.final; count++; }
-                const nameStyle = e.final >= 5 ? 'style="color: #27ae60; font-weight: bold;"' : '';
-                body.innerHTML += `<tr>
-                    <td ${nameStyle}>${e.name}</td>
-                    <td>${e.theory}</td>
-                    <td>${e.lab || "-"}</td>
-                    <td style="font-weight:bold; color:${e.final >= 5 ? '#27ae60' : '#e74c3c'}">${e.final}</td>
-                    <td>${e.semester}</td>
-                    <td>
-                        <button class="edit-btn" onclick="editGrade('${e.id}')">Επεξεργασία</button>
-                        <button class="delete-btn" onclick="deleteGrade('${e.id}')">Διαγραφή</button>
-                    </td>
-                </tr>`;
+                const ects = parseInt(e.ects) || 0;
+                if (e.final >= 5) {
+                    totalWeightedSum += (e.final * ects);
+                    totalEcts += ects;
+                }
+                // ... (render row με επιπλέον <td>${e.ects || "-"}</td>)
             });
-            document.getElementById("averageSpan").innerText = count > 0 ? (sum / count).toFixed(2) : "-";
+
+            const weightedGpa = totalEcts > 0 ? (totalWeightedSum / totalEcts).toFixed(2) : "-";
+            document.getElementById("averageSpan").innerText = weightedGpa;
+            
+            // Ενημέρωση Μπάρας
+            const progressPercent = Math.min((totalEcts / 240) * 100, 100);
+            document.getElementById("ectsProgressBar").style.width = progressPercent + "%";
+            document.getElementById("ectsProgressText").innerText = `${totalEcts} / 300`;
+        
             updateChart(); // Ανανεώνει το γράφημα κάθε φορά που φορτώνουν οι βαθμοί
         }
 
@@ -382,6 +412,14 @@
         function setSortMethod(method) { currentSortMethod = method; renderTable(); }
 
         // --- ΕΡΓΑΣΙΕΣ ---
+        let currentTaskView = 'list';
+
+        function toggleTaskView(view) {
+            currentTaskView = view;
+            document.getElementById('tasksTable').style.display = view === 'list' ? 'table' : 'none';
+            document.getElementById('kanbanBoard').style.display = view === 'board' ? 'flex' : 'none';
+            renderTasks();
+        }
         function updateCourseDropdown() {
             const select = document.getElementById('taskCourseSelect');
             select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
@@ -429,12 +467,21 @@
 
         function renderTasks() {
             const body = document.getElementById('tasksTableBody');
-            if (!body) return; body.innerHTML = "";
+            if (!body) return; 
+            
+            // 1. Καθαρισμός του πίνακα
+            body.innerHTML = "";
+            
+            // 2. ΝΕΟ: Καθαρισμός των στηλών του Kanban Board
+            document.querySelectorAll('.kanban-cards').forEach(c => c.innerHTML = "");
+
             let sorted = [...globalTasks].sort((a, b) => {
                 if (!a.dueDate) return 1; if (!b.dueDate) return -1;
                 return new Date(a.dueDate) - new Date(b.dueDate);
             });
+
             sorted.forEach(t => {
+                // --- ΥΠΟΛΟΓΙΣΜΟΙ ΗΜΕΡΟΜΗΝΙΑΣ ΚΛΠ ---
                 let formattedDate = "-";
                 if (t.dueDate) {
                     const parts = t.dueDate.split("-");
@@ -442,16 +489,36 @@
                 }
                 const isDone = t.status === 'Done';
                 const nameStyle = isDone ? 'style="color: #27ae60; font-weight: bold;"' : '';
+                
+                // --- 1. ΔΗΜΙΟΥΡΓΙΑ ΓΡΑΜΜΗΣ ΓΙΑ ΤΟΝ ΠΙΝΑΚΑ ---
                 body.innerHTML += `<tr>
                     <td ${nameStyle}>${t.course}</td>
                     <td>${t.type}</td>
                     <td>${t.status}</td>
                     <td>${formattedDate}</td>
-                    <td class="notes-cell">${t.notes || "-"}</td><td>
+                    <td class="notes-cell">${t.notes || "-"}</td>
+                    <td>
                         <button class="edit-btn" onclick="editTask('${t.id}')">Επεξεργασία</button>
                         <button class="delete-btn" onclick="deleteTask('${t.id}')">Διαγραφή</button>
                     </td>
                 </tr>`;
+
+                // --- 2. ΔΗΜΙΟΥΡΓΙΑ ΚΑΡΤΑΣ ΓΙΑ ΤΟ KANBAN BOARD ---
+                const card = `
+                    <div class="task-card" onclick="editTask('${t.id}')" title="Κλικ για επεξεργασία">
+                        <h4>${t.course}</h4>
+                        <p>📅 ${formattedDate}</p>
+                        <p style="font-style: italic; color: #7f8c8d;">${t.type}</p>
+                    </div>`;
+                
+                // Βρίσκουμε τη σωστή στήλη με βάση το status (π.χ. "Not Started" -> "col-Not-Started")
+                // Η replace() αλλάζει τα κενά σε παύλες για να ταιριάζει με τα ID του HTML
+                const colId = `col-${t.status.replace(/ /g, "-")}`; 
+                const col = document.querySelector(`#${colId} .kanban-cards`);
+                
+                if (col) {
+                    col.innerHTML += card;
+                }
             });
         }
 

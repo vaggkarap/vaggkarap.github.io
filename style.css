@@ -373,3 +373,17 @@ body.dark-theme .fc-button-primary:not(:disabled):active {
     opacity: 0.9;
     margin-bottom: 2px;
 }
+
+.task-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: left;
+    border-left: 5px solid #3498db;
+    cursor: pointer;
+}
+body.dark-theme .task-card { background: #2d3748; color: white; }
+.task-card h4 { margin: 0 0 5px 0; font-size: 14px; }
+.task-card p { margin: 0; font-size: 12px; color: #7f8c8d; }
