@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css" id="flatpickr-dark-theme" disabled>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -23,9 +24,11 @@
             <img src="uniwa-logo.png" id="headerLogo" alt="Logo">
         </div>
         <div class="header-center">
+            <button class="nav-btn" id="tabSchedule" onclick="switchTab('schedule')">Πρόγραμμα</button>
             <button class="nav-btn active" id="tabGrades" onclick="switchTab('grades')">Βαθμοί</button>
             <button class="nav-btn" id="tabTasks" onclick="switchTab('tasks')">Εργασίες</button>
             <button class="nav-btn" id="tabExams" onclick="switchTab('exams')">Εξετάσεις</button>
+            
         </div>
         <div class="header-right">
             <span id="userEmailDisplay" style="font-size: 13px; font-weight: bold;"></span>
@@ -166,6 +169,32 @@
         </table>
     </div>
 
+    <div class="container" id="scheduleScreen" style="display: none; width: 95%; max-width: 1200px;">
+    <h1>Εβδομαδιαίο Πρόγραμμα</h1>
+    
+    <div class="input-selection">
+        <select id="schedCourseSelect"><option value="">Επιλέξτε Μάθημα...</option></select>
+        <select id="schedType">
+            <option value="Θεωρία">Θεωρία</option>
+            <option value="Εργαστήριο">Εργαστήριο</option>
+        </select>
+        <select id="schedDay">
+            <option value="1">Δευτέρα</option>
+            <option value="2">Τρίτη</option>
+            <option value="3">Τετάρτη</option>
+            <option value="4">Πέμπτη</option>
+            <option value="5">Παρασκευή</option>
+        </select>
+        <input type="time" id="schedStartTime" title="Ώρα Έναρξης">
+        <input type="time" id="schedEndTime" title="Ώρα Λήξης">
+        <input type="text" id="schedRoom" placeholder="Αίθουσα">
+        <input type="text" id="schedEndDate" placeholder="Επανάληψη μέχρι...">
+        <button id="mainBtnSched" onclick="saveScheduleEvent()" style="width: 100%; background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;">Προσθήκη στο Πρόγραμμα</button>
+        </div>
+
+        <div id="calendar" style="margin-top: 20px; background: white; padding: 15px; border-radius: 10px; color: black; min-height: 600px;"></div>
+    </div>
+
     <button id="backToTop" onclick="scrollToTop()" title="Επιστροφή στην κορυφή" style="display:none; position:fixed; bottom:20px; right:20px; padding:15px; border-radius:50%; background:#2c3e50; color:white; border:none; cursor:pointer; z-index:1000; width:50px; height:50px; font-size:18px;">↑</button>
 
     <script>
@@ -200,6 +229,7 @@
                 fetchGradesFromDB();
                 fetchTasks();
                 fetchExams();
+                fetchSchedule();
                 switchTab('grades');
             } else {
                 currentUser = null;
@@ -217,6 +247,16 @@
             if(tab === 'grades') { document.getElementById('appScreen').style.display = 'block'; document.getElementById('tabGrades').classList.add('active'); }
             if(tab === 'tasks') { document.getElementById('tasksScreen').style.display = 'block'; document.getElementById('tabTasks').classList.add('active'); updateCourseDropdown(); }
             if(tab === 'exams') { document.getElementById('examsScreen').style.display = 'block'; document.getElementById('tabExams').classList.add('active'); updateExamCourseDropdown(); }
+            if(tab === 'schedule') { 
+                document.getElementById('scheduleScreen').style.display = 'block'; 
+                document.getElementById('tabSchedule').classList.add('active'); 
+                updateScheduleCourseDropdown();
+                // Το FullCalendar χρειάζεται ένα μικρό delay για να ζωγραφιστεί σωστά αν ήταν κρυφό
+                setTimeout(() => {
+                    initCalendar();
+                    renderSchedule();
+                }, 100);
+            }
         }
 
         // --- ΒΑΘΜΟΙ ---
@@ -543,6 +583,99 @@
             };
             reader.readAsText(file);
         }
+        // ==========================================
+        // ΛΟΓΙΚΗ ΠΡΟΓΡΑΜΜΑΤΟΣ (ΗΜΕΡΟΛΟΓΙΟ)
+        // ==========================================
+        let globalSchedule = [];
+        let calendar = null;
+
+        // Αρχικοποίηση του ημερολογίου
+        function initCalendar() {
+            if (calendar) return; // Αν έχει ήδη φτιαχτεί, μην το ξαναφτιάχνεις
+            
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                locale: 'el', // Ελληνικά
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'timeGridWeek,timeGridDay'
+                },
+                slotMinTime: '08:00:00', // Το πρόγραμμα ξεκινάει 8 το πρωί
+                slotMaxTime: '22:00:00', // Τελειώνει 10 το βράδυ
+                allDaySlot: false, // Κρύβουμε το ολοήμερο
+                hiddenDays: [0, 6], // Κρύβουμε Σαββατοκύριακο (0=Κυρ, 6=Σαβ)
+                events: [] // Θα γεμίσει από τη βάση
+            });
+            calendar.render();
+        }
+
+        // Ενημέρωση Dropdown Μαθημάτων (χρησιμοποιεί τα υπάρχοντα)
+        function updateScheduleCourseDropdown() {
+            const select = document.getElementById('schedCourseSelect');
+            if (!select) return;
+            select.innerHTML = '<option value="">Επιλέξτε Μάθημα...</option>';
+            const names = [...new Set(globalGrades.map(g => g.name))].sort((a,b) => a.localeCompare(b, 'el'));
+            names.forEach(name => {
+                select.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+        }
+
+        // Φόρτωση από Firebase
+        function fetchSchedule() {
+            db.collection("users").doc(currentUser.uid).collection("schedule").onSnapshot(snap => {
+                globalSchedule = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderSchedule();
+            });
+        }
+
+        // Αποθήκευση στη Firebase
+        function saveScheduleEvent() {
+            const course = document.getElementById('schedCourseSelect').value;
+            const type = document.getElementById('schedType').value;
+            const day = parseInt(document.getElementById('schedDay').value);
+            const startTime = document.getElementById('schedStartTime').value;
+            const endTime = document.getElementById('schedEndTime').value;
+            const room = document.getElementById('schedRoom').value;
+            const endDate = document.getElementById('schedEndDate').value;
+
+            if(!course || !startTime || !endTime || !endDate) return alert("Συμπληρώστε μάθημα, ώρες και ημερομηνία λήξης εξαμήνου!");
+
+            // Χρώματα: Θεωρία (Κόκκινο), Εργαστήριο (Μωβ)
+            const color = type === 'Θεωρία' ? '#8b0000' : '#7b68ee';
+
+            const schedData = { course, type, day, startTime, endTime, room, endDate, color };
+            
+            db.collection("users").doc(currentUser.uid).collection("schedule").add(schedData).then(() => {
+                alert("Προστέθηκε στο πρόγραμμα!");
+            });
+        }
+
+        // Εμφάνιση στο Ημερολόγιο
+        function renderSchedule() {
+            if (!calendar) return;
+            
+            // Καθαρίζουμε τα παλιά events
+            calendar.removeAllEvents();
+
+            // Φτιάχνουμε τα νέα
+            globalSchedule.forEach(ev => {
+                calendar.addEvent({
+                    id: ev.id,
+                    title: `${ev.course}\n(${ev.type})\n📍 ${ev.room || '-'}`,
+                    startTime: ev.startTime,
+                    endTime: ev.endTime,
+                    daysOfWeek: [ev.day], // Σε ποια μέρα επαναλαμβάνεται
+                    endRecur: ev.endDate, // Μέχρι πότε επαναλαμβάνεται
+                    color: ev.color,
+                    allDay: false
+                });
+            });
+        }
+
+        // Ενεργοποίηση Flatpickr για την ημερομηνία λήξης του εξαμήνου
+        flatpickr("#schedEndDate", { locale: "gr", dateFormat: "Y-m-d", altInput: true, altFormat: "d-m-Y", placeholder: "Λήξη Εξαμήνου..." });
     </script>
 
 </body>
