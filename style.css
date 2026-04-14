@@ -411,3 +411,17 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     background-color: #ff4d4d;
     border-radius: 50%;
 }
+
+/* Κάνει την ενσωματωμένη γραμμή του FullCalendar κόκκινη και έντονη */
+.fc .fc-timegrid-now-indicator-line {
+    border-color: #ff4d4d !important;
+    border-width: 2px !important;
+    border-style: solid !important; /* Μπορείς να βάλεις dashed αν τη θες διακεκομμένη */
+}
+
+/* Φτιάχνει το τριγωνάκι/κουκκίδα στην άκρη της γραμμής */
+.fc .fc-timegrid-now-indicator-arrow {
+    border-color: #ff4d4d !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+}
