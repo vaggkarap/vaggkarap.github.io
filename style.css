@@ -388,29 +388,15 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
 .task-card h4 { margin: 0 0 5px 0; font-size: 14px; }
 .task-card p { margin: 0; font-size: 12px; color: #7f8c8d; }
 
-/* Η Κόκκινη Γραμμή Τρέχουσας Ώρας */
-.now-indicator {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: #ff4d4d; /* Κόκκινο */
-    border-top: 1px dashed #ff4d4d;
-    z-index: 10;
-    pointer-events: none; /* Για να μην εμποδίζει το κλικ στα μαθήματα */
-}
-
-
-/* 1. Κάνουμε το "βέλος" στην άκρη να φαίνεται σωστά */
+/* 1. Το βέλος στην άκρη */
 .fc .fc-timegrid-now-indicator-arrow {
     border-color: #ff4d4d !important;
     border-top-color: transparent !important;
     border-bottom-color: transparent !important;
-    z-index: 101 !important;
-    margin-top: -5px !important;
+    z-index: 1000 !important;
 }
 
-/* 2. Η ΚΥΡΙΑ ΔΙΟΡΘΩΣΗ ΓΙΑ ΤΗ ΓΡΑΜΜΗ */
+/* 2. Η ΓΡΑΜΜΗ - Η "ΕΠΙΘΕΤΙΚΗ" ΛΥΣΗ */
 .fc .fc-timegrid-now-indicator-line {
     border-style: none !important;
     height: 2px !important;
@@ -418,34 +404,27 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     background-size: 10px 2px !important;
     background-repeat: repeat-x !important;
     
-    /* Αναγκάζουμε τη γραμμή να επεκταθεί 2000 pixels προς τα αριστερά */
-    /* και να σταματήσει ακριβώς στη θέση που ορίζει το FullCalendar */
-    box-shadow: -2000px 0 0 0 #ff4d4d; /* Αυτό δημιουργεί μια συνεχή ή διακεκομμένη επέκταση */
+    /* Την κάνουμε τεράστια και τη σπρώχνουμε αριστερά */
+    width: 200vw !important; 
+    margin-left: -100vw !important; 
     
-    /* Εναλλακτικά, χρησιμοποιούμε το clip-path ή spread */
-    left: 0 !important;
-    width: 100%; 
-    overflow: visible !important;
-    z-index: 100 !important;
-}
-
-/* 3. Επιτρέπουμε στη γραμμή να βγει έξω από τα όρια της στήλης της ημέρας */
-.fc-timegrid-col-frame, 
-.fc-timegrid-col-bg,
-.fc-timegrid-now-indicator-container {
-    overflow: visible !important;
-}
-
-/* 4. Σιγουρευόμαστε ότι το κεντρικό σώμα του ημερολογίου "κόβει" τη γραμμή 
-   μόνο εκεί που τελειώνει ο πίνακας (αριστερά στις ώρες) */
-.fc-timegrid-body {
-    overflow: hidden !important;
-}
-
-/* 5. Φέρνουμε τη γραμμή πάνω από τα μαθήματα */
-.fc-timegrid-event-harness {
-    z-index: 1 !important;
-}
-.fc-timegrid-now-indicator-line {
+    /* Την φέρνουμε πάνω από τα πάντα */
     z-index: 999 !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* 3. ΞΕΚΛΕΙΔΩΝΟΥΜΕ ΟΛΑ ΤΑ CONTAINERS (Το πιο κρίσιμο κομμάτι) */
+/* Πρέπει να γίνουν ΟΛΑ visible για να περάσει η γραμμή */
+.fc-timegrid-now-indicator-container,
+.fc-timegrid-col-frame,
+.fc-timegrid-cols,
+.fc-timegrid-body,
+.fc-timegrid-event-harness {
+    overflow: visible !important;
+}
+
+/* 4. Προστασία για να μη βγει η γραμμή έξω από όλο το ημερολόγιο αριστερά-δεξιά */
+.fc-view-harness {
+    overflow: hidden !important;
 }
