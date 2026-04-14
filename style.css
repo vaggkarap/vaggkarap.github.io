@@ -405,15 +405,13 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
 .fc .fc-timegrid-now-indicator-line {
     border-style: none !important;
     height: 2px !important;
-    background-image: linear-gradient(to right, #ff4d4d 50%, transparent 50%);
-    background-size: 10px 2px;
-    background-repeat: repeat-x;
+    background-image: linear-gradient(to right, #ff4d4d 50%, transparent 50%) !important;
+    background-size: 10px 2px !important;
+    background-repeat: repeat-x !important;
     
-    /* Την τραβάμε τέρμα αριστερά */
+    /* Αναγκάζουμε τη γραμμή να επεκταθεί προς τα αριστερά */
     left: -2000px !important; 
-    right: 0 !important;
-    
-    /* Την φέρνουμε ΠΑΝΩ από τα μαθήματα */
+    width: 3000px !important; /* Μεγάλο πλάτος για να καλύψει τα πάντα */
     z-index: 100 !important; 
 }
 
