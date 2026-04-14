@@ -400,18 +400,8 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     pointer-events: none; /* Για να μην εμποδίζει το κλικ στα μαθήματα */
 }
 
-/* Η κουκκίδα στην αρχή της γραμμής */
-.now-indicator::before {
-    content: '';
-    position: absolute;
-    left: -5px;
-    top: -4px;
-    width: 10px;
-    height: 10px;
-    background-color: #ff4d4d;
-    border-radius: 50%;
-}
-/* Κάνει τη γραμμή να εκτείνεται από την αρχή του πίνακα */
+
+/* 1. Κάνουμε τη γραμμή να ξεκινάει από την αρχή του ημερολογίου */
 .fc .fc-timegrid-now-indicator-line {
     border-style: none !important;
     height: 2px !important;
@@ -419,22 +409,30 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     background-size: 10px 2px;
     background-repeat: repeat-x;
     
-    /* Το μυστικό: Μετακινεί τη γραμμή τέρμα αριστερά */
-    left: calc(-100vw) !important; 
+    /* Την τραβάμε τέρμα αριστερά */
+    left: -2000px !important; 
     right: 0 !important;
-    z-index: 5;
+    
+    /* Την φέρνουμε ΠΑΝΩ από τα μαθήματα */
+    z-index: 100 !important; 
 }
 
-/* Περιορίζουμε τη γραμμή ώστε να μην βγαίνει έξω από το ημερολόγιο */
-.fc-timegrid-cols {
+/* 2. Σιγουρευόμαστε ότι η γραμμή δεν θα βγαίνει έξω από το ημερολόγιο στα πλάγια */
+.fc-timegrid-body {
     overflow: hidden !important;
     position: relative;
 }
 
-/* Η κουκκίδα στην άκρη της γραμμής (θα φαίνεται μόνο στη σημερινή στήλη) */
+/* 3. Φτιάχνουμε το βέλος/κουκκίδα στην άκρη */
 .fc .fc-timegrid-now-indicator-arrow {
     border-color: #ff4d4d !important;
     border-top-color: transparent !important;
     border-bottom-color: transparent !important;
-    z-index: 6;
+    z-index: 101 !important; /* Ένα επίπεδο πάνω από τη γραμμή */
+    margin-top: -5px !important;
+}
+
+/* 4. Εξασφαλίζουμε ότι τα μαθήματα δεν την κρύβουν */
+.fc-timegrid-event-harness {
+    z-index: 1 !important;
 }
