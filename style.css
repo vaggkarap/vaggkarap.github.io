@@ -412,20 +412,30 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     border-radius: 50%;
 }
 
-/* Κάνει την γραμμή του FullCalendar κόκκινη και διακεκομμένη */
+/* Κάνει τη γραμμή να εκτείνεται από την αρχή του πίνακα */
 .fc .fc-timegrid-now-indicator-line {
-    border-style: none !important; /* Σβήνουμε την κανονική γραμμή */
+    border-style: none !important;
     height: 2px !important;
-    /* Φτιάχνουμε διακεκομμένο εφέ με gradient */
     background-image: linear-gradient(to right, #ff4d4d 50%, transparent 50%);
-    background-size: 10px 2px; /* Το 10px ελέγχει το μέγεθος της παύλας */
+    background-size: 10px 2px;
     background-repeat: repeat-x;
+    
+    /* Το μυστικό: Μετακινεί τη γραμμή τέρμα αριστερά */
+    left: calc(-100vw) !important; 
+    right: 0 !important;
+    z-index: 5;
 }
 
-/* Το τριγωνάκι/κουκκίδα στην άκρη αριστερά */
+/* Περιορίζουμε τη γραμμή ώστε να μην βγαίνει έξω από το ημερολόγιο */
+.fc-timegrid-cols {
+    overflow: hidden !important;
+    position: relative;
+}
+
+/* Η κουκκίδα στην άκρη της γραμμής (θα φαίνεται μόνο στη σημερινή στήλη) */
 .fc .fc-timegrid-now-indicator-arrow {
     border-color: #ff4d4d !important;
     border-top-color: transparent !important;
     border-bottom-color: transparent !important;
-    margin-top: -5px !important; /* Ευθυγράμμιση με τη γραμμή */
+    z-index: 6;
 }
