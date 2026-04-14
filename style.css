@@ -412,16 +412,20 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     border-radius: 50%;
 }
 
-/* Κάνει την ενσωματωμένη γραμμή του FullCalendar κόκκινη και έντονη */
+/* Κάνει την γραμμή του FullCalendar κόκκινη και διακεκομμένη */
 .fc .fc-timegrid-now-indicator-line {
-    border-color: #ff4d4d !important;
-    border-width: 2px !important;
-    border-style: solid !important; /* Μπορείς να βάλεις dashed αν τη θες διακεκομμένη */
+    border-style: none !important; /* Σβήνουμε την κανονική γραμμή */
+    height: 2px !important;
+    /* Φτιάχνουμε διακεκομμένο εφέ με gradient */
+    background-image: linear-gradient(to right, #ff4d4d 50%, transparent 50%);
+    background-size: 10px 2px; /* Το 10px ελέγχει το μέγεθος της παύλας */
+    background-repeat: repeat-x;
 }
 
-/* Φτιάχνει το τριγωνάκι/κουκκίδα στην άκρη της γραμμής */
+/* Το τριγωνάκι/κουκκίδα στην άκρη αριστερά */
 .fc .fc-timegrid-now-indicator-arrow {
     border-color: #ff4d4d !important;
     border-top-color: transparent !important;
     border-bottom-color: transparent !important;
+    margin-top: -5px !important; /* Ευθυγράμμιση με τη γραμμή */
 }
