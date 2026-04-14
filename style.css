@@ -401,7 +401,16 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
 }
 
 
-/* 1. Κάνουμε τη γραμμή να ξεκινάει από την αρχή του ημερολογίου */
+/* 1. Κάνουμε το "βέλος" στην άκρη να φαίνεται σωστά */
+.fc .fc-timegrid-now-indicator-arrow {
+    border-color: #ff4d4d !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+    z-index: 101 !important;
+    margin-top: -5px !important;
+}
+
+/* 2. Η ΚΥΡΙΑ ΔΙΟΡΘΩΣΗ ΓΙΑ ΤΗ ΓΡΑΜΜΗ */
 .fc .fc-timegrid-now-indicator-line {
     border-style: none !important;
     height: 2px !important;
@@ -409,28 +418,34 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
     background-size: 10px 2px !important;
     background-repeat: repeat-x !important;
     
-    /* Αναγκάζουμε τη γραμμή να επεκταθεί προς τα αριστερά */
-    left: -2000px !important; 
-    width: 3000px !important; /* Μεγάλο πλάτος για να καλύψει τα πάντα */
-    z-index: 100 !important; 
+    /* Αναγκάζουμε τη γραμμή να επεκταθεί 2000 pixels προς τα αριστερά */
+    /* και να σταματήσει ακριβώς στη θέση που ορίζει το FullCalendar */
+    box-shadow: -2000px 0 0 0 #ff4d4d; /* Αυτό δημιουργεί μια συνεχή ή διακεκομμένη επέκταση */
+    
+    /* Εναλλακτικά, χρησιμοποιούμε το clip-path ή spread */
+    left: 0 !important;
+    width: 100%; 
+    overflow: visible !important;
+    z-index: 100 !important;
 }
 
-/* 2. Σιγουρευόμαστε ότι η γραμμή δεν θα βγαίνει έξω από το ημερολόγιο στα πλάγια */
+/* 3. Επιτρέπουμε στη γραμμή να βγει έξω από τα όρια της στήλης της ημέρας */
+.fc-timegrid-col-frame, 
+.fc-timegrid-col-bg,
+.fc-timegrid-now-indicator-container {
+    overflow: visible !important;
+}
+
+/* 4. Σιγουρευόμαστε ότι το κεντρικό σώμα του ημερολογίου "κόβει" τη γραμμή 
+   μόνο εκεί που τελειώνει ο πίνακας (αριστερά στις ώρες) */
 .fc-timegrid-body {
     overflow: hidden !important;
-    position: relative;
 }
 
-/* 3. Φτιάχνουμε το βέλος/κουκκίδα στην άκρη */
-.fc .fc-timegrid-now-indicator-arrow {
-    border-color: #ff4d4d !important;
-    border-top-color: transparent !important;
-    border-bottom-color: transparent !important;
-    z-index: 101 !important; /* Ένα επίπεδο πάνω από τη γραμμή */
-    margin-top: -5px !important;
-}
-
-/* 4. Εξασφαλίζουμε ότι τα μαθήματα δεν την κρύβουν */
+/* 5. Φέρνουμε τη γραμμή πάνω από τα μαθήματα */
 .fc-timegrid-event-harness {
     z-index: 1 !important;
+}
+.fc-timegrid-now-indicator-line {
+    z-index: 999 !important;
 }
