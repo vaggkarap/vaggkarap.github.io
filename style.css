@@ -387,3 +387,27 @@ body.dark-theme .fc-button-primary:not(:disabled):active {
 body.dark-theme .task-card { background: #2d3748; color: white; }
 .task-card h4 { margin: 0 0 5px 0; font-size: 14px; }
 .task-card p { margin: 0; font-size: 12px; color: #7f8c8d; }
+
+/* Η Κόκκινη Γραμμή Τρέχουσας Ώρας */
+.now-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #ff4d4d; /* Κόκκινο */
+    border-top: 1px dashed #ff4d4d;
+    z-index: 10;
+    pointer-events: none; /* Για να μην εμποδίζει το κλικ στα μαθήματα */
+}
+
+/* Η κουκκίδα στην αρχή της γραμμής */
+.now-indicator::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    background-color: #ff4d4d;
+    border-radius: 50%;
+}

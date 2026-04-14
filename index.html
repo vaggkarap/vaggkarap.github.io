@@ -246,7 +246,9 @@
             <button id="cancelBtnSched" onclick="cancelScheduleEdit()" style="display: none; flex: 1; background-color: #95a5a6; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Ακύρωση</button>
         </div>
 
-        <div id="calendar" style="margin-top: 20px; background: white; padding: 15px; border-radius: 10px; color: black; min-height: 600px;"></div>
+        <div id="calendar" style="margin-top: 20px; background: white; padding: 15px; border-radius: 10px; color: black; min-height: 600px;">
+            <div id="time-line" class="now-indicator" style="display: none;"></div>
+        </div>
     </div>
 
     <button id="backToTop" onclick="scrollToTop()" title="Επιστροφή στην κορυφή" style="display:none; position:fixed; bottom:20px; right:20px; padding:15px; border-radius:50%; background:#2c3e50; color:white; border:none; cursor:pointer; z-index:1000; width:50px; height:50px; font-size:18px;">↑</button>
@@ -1036,6 +1038,37 @@
             }
         }
         setInterval(checkUpcomingClasses, 60000);
+        function updateTimeLine() {
+            const now = new Date();
+            const timeline = document.getElementById('time-line');
+            if (!timeline) return;
+
+            const startHour = 8;  // Η πρώτη ώρα του πίνακα (π.χ. 08:00)
+            const endHour = 21;    // Η τελευταία ώρα
+            const rowHeight = 62;  // ΔΟΚΙΜΑΣΕ ΑΥΤΟ: Το ύψος κάθε ώρας (μαζί με τα borders)
+
+            const currentHour = now.getHours();
+            const currentMinutes = now.getMinutes();
+
+            // Εμφάνιση μόνο αν είμαστε εντός ωραρίου
+            if (currentHour >= startHour && currentHour < endHour) {
+                const minutesSinceStart = (currentHour - startHour) * 60 + currentMinutes;
+                const topOffset = (minutesSinceStart * rowHeight) / 60;
+                
+                // Προσθέτουμε ένα μικρό offset αν υπάρχει header στον πίνακα (π.χ. οι μέρες Δευ-Παρ)
+                const headerOffset = 40; 
+
+                timeline.style.top = (topOffset + headerOffset) + "px";
+                timeline.style.display = "block";
+            } else {
+                timeline.style.display = "none";
+            }
+        }
+
+        // Ανανέωση κάθε λεπτό
+        setInterval(updateTimeLine, 60000);
+        // Κλήση και τώρα για να φανεί αμέσως
+        setTimeout(updateTimeLine, 500);
     </script>
 </body>
 </html>
