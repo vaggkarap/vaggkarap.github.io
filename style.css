@@ -428,3 +428,14 @@ body.dark-theme .task-card { background: #2d3748; color: white; }
 .fc-view-harness {
     overflow: hidden !important;
 }
+
+/* Στυλ για τα σχόλια μέσα στην κάρτα Kanban */
+.kanban-notes {
+    color: #555;
+    word-wrap: break-word;
+}
+
+body.dark-theme .kanban-notes {
+    color: #bdc3c7 !important;
+    border-top-color: #4a5568 !important;
+}

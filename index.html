@@ -559,6 +559,7 @@
                         <h4>${t.course}</h4>
                         <p>📅 ${formattedDate}</p>
                         <p style="font-style: italic; color: #7f8c8d;">${t.type}</p>
+                        ${t.notes ? `<p class="kanban-notes" style="margin-top:8px; font-size:11px; border-top:1px solid #eee; pt:5px;">📝 ${t.notes}</p>` : ''}
                     </div>`;
                 
                 const colId = `col-${t.status.replace(/ /g, "-")}`; 
