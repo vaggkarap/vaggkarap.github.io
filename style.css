@@ -439,3 +439,27 @@ body.dark-theme .kanban-notes {
     color: #bdc3c7 !important;
     border-top-color: #4a5568 !important;
 }
+
+
+/* Χρώμα κειμένου για "Not Started" (Κόκκινο) */
+#todo-list .task-card h4, 
+#todo-list .task-card p {
+    color: #e74c3c !important;
+}
+
+/* Χρώμα κειμένου για "In Progress" (Πορτοκαλί) */
+#in-progress-list .task-card h4, 
+#in-progress-list .task-card p {
+    color: #e67e22 !important;
+}
+
+/* Χρώμα κειμένου για "Done" (Πράσινο) */
+#done-list .task-card h4, 
+#done-list .task-card p {
+    color: #27ae60 !important;
+}
+
+/* Ειδικά για τα σχόλια που προσθέσαμε πριν, αν θέλεις να έχουν και αυτά το ίδιο χρώμα */
+#todo-list .kanban-notes { color: #c0392b !important; border-top-color: rgba(231, 76, 60, 0.2) !important; }
+#in-progress-list .kanban-notes { color: #d35400 !important; border-top-color: rgba(230, 126, 34, 0.2) !important; }
+#done-list .kanban-notes { color: #1e8449 !important; border-top-color: rgba(39, 174, 96, 0.2) !important; }
